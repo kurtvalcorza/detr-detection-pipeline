@@ -18,7 +18,7 @@ date_published_source: "month of the DETR paper and first code release (arXiv:20
 > ⚠️ **Provided for research, training, and evaluation purposes only.** Model weights are redistributed unmodified under their upstream license, which controls your use, including any commercial use or redistribution; the accompanying code and notebooks are released under this repository's license. All of it is supplied **"as is"**, without warranty of any kind, and has not been validated for production, clinical, or safety-critical use. Running the notebooks downloads third-party weights and datasets governed by their own licenses and consumes compute on your own Colab/Kaggle account. To the maximum extent permitted by law, the maintainers of this repository and the DIMER platform accept no liability for any damages arising from their use. Hosting implies no affiliation with or endorsement by the original authors.
 
 > [!IMPORTANT]
-> The upstream snapshot is pinned to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b`, and the manifest records every file's SHA-256. No execution with the pinned weights has been recorded yet, so this card claims no measured value for this repository.
+> The upstream snapshot is pinned to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b`, and the manifest records every file's SHA-256. Default-path execution recorded on 2026-09-25 (Kaggle T4); REL12 BYOD exercise pending before promotion. The measured values under Metrics come from that one run: small drawn test sets, one seeded split, one runtime. They are tutorial evidence, not a benchmark.
 
 ---
 
@@ -70,7 +70,7 @@ A user is expected to know the following before relying on the output:
 - the threshold trades recall against false boxes and must be set per deployment;
 - drawn graphics, documents, aerial, medical and thermal imagery are distribution shifts from COCO photographs;
 - average precision, precision and recall can only be measured on a labelled set the user supplies;
-- a fine-tune on a few dozen images demonstrates the workflow and does not produce a deployable detector.
+- a fine-tune on a few dozen images demonstrates the workflow and does not produce a deployable detector: the recorded tutorial run reached held-out AP50 0.2668 on 10 drawn images and found nothing on 3 new drawn images at the default threshold.
 
 ###### Out-of-scope use cases
 
@@ -100,7 +100,7 @@ The tutorial's sample data is itself an instrument: Pillow drawings with flat co
 
 ###### Environment
 
-**Operating environment.** Python 3.12 with the pins in `pyproject.toml`: `torch==2.14.0`, `torchvision==0.29.0`, `torchaudio==2.11.0`, `transformers==4.57.6`, `timm==1.0.29`, `scipy==1.18.1`, `safetensors==0.8.0`, `numpy==2.5.3`, `pillow==11.3.0`, `huggingface-hub==0.36.2`. Computation is float32. The code runs on CPU and uses CUDA automatically when available. `timm` builds the ResNet-50 backbone, and `scipy` supplies the Hungarian matcher the fine-tuning loss needs. No run with the pinned weights has been recorded yet, so no runtime, memory or throughput figure is given.
+**Operating environment.** Python 3.12 with the pins in `pyproject.toml`: `torch==2.14.0`, `torchvision==0.29.0`, `torchaudio==2.11.0`, `transformers==4.57.6`, `timm==1.0.29`, `scipy==1.18.1`, `safetensors==0.8.0`, `numpy==2.5.3`, `pillow==11.3.0`, `huggingface-hub==0.36.2`. Computation is float32. The code runs on CPU and uses CUDA automatically when available. `timm` builds the ResNet-50 backbone, and `scipy` supplies the Hungarian matcher the fine-tuning loss needs. One run with the pinned weights is recorded: Kaggle Tesla T4, 2026-09-25 UTC, torch 2.14.0+cu130 (CUDA 13.0), transformers 4.57.6, timm 1.0.29, `cuda:0`. The whole notebook took 357.5 s wall including installs, one kernel restart and the 167 MB weight download; the 10-epoch fine-tune on 30 images took about 32 s. No memory or throughput figure was measured.
 
 **Data environment.** The pretrained model assumes a photograph of an everyday scene containing COCO objects. An adapted model assumes inference images that resemble its training images in camera, scene and object appearance. The tutorial's adaptation data is synthetic, so a model adapted on it transfers to drawn signs of the same style and to nothing else. When these assumptions fail, the model still returns boxes. The pipeline reports no signal that the distribution has shifted.
 
@@ -118,7 +118,17 @@ AP summarises the precision–recall trade-off over all score levels, so it does
 
 `evaluation_report(result, ground_truth_boxes)` covers one image. It reports one `box_iou` per supplied reference box, against the best-overlapping detection **of the same label**, with the verdict `sample-sanity`. Without references it returns `not-measurable` and names the labelled data that would be needed.
 
-The upstream README reports AP 42.0 on COCO 2017 validation. That value is upstream-reported, and this repository does not reproduce it. No value from this repository has been recorded yet.
+The upstream README reports AP 42.0 on COCO 2017 validation. That value is upstream-reported, and this repository does not reproduce it.
+
+Values measured by this repository (one run on Kaggle Tesla T4, 2026-09-25 UTC; exact notebook blob `a98705edf1cb`, commit `e39d680`; every value is one pass with no dispersion estimate):
+
+- **Pretrained COCO model on one drawn scene** (640×480, four drawn objects, threshold 0.9): 3 detections — stop sign 0.999, traffic light 0.997, clock 0.973 — with same-label `box_iou` 0.847, 0.910 and 0.898 against the drawn boxes; the drawn sports ball was not detected (`box_iou` 0.0), so 3 of 4 objects matched at IoU ≥ 0.5. This is a `sample-sanity` check on a single drawn image, not a COCO evaluation.
+- **Degenerate inputs:** a blank image and a noise image each gave 0 detections at the default threshold 0.9 and at the evaluation threshold 0.05.
+- **Bounded fine-tune on the drawn sign dataset** (40 synthetic images, 82 boxes, three classes; seed 0; 30 train / 10 held out with 17 reference boxes; backbone frozen, 18,047,240 of 41,502,152 parameters trainable; 10 epochs, loss 1.6564 → 0.5602): held-out AP / AP50 / AP75 were 0.0063 / 0.0172 / 0.0063 for the re-headed model before fine-tuning and 0.2222 / 0.2668 / 0.2479 after. Adapted per-class AP50: stop-sign 0.2079, yield-sign 0.3140, speed-limit-sign 0.2783. These are low absolute values from 10 images; one image more or less found moves them visibly.
+- **New drawn images:** on 3 further drawn sign images (seed 99, 5 labelled boxes) the adapted model returned **no detection at all** at the default threshold 0.9. The adapted model does not reliably find these signs at that threshold, even on data of the training style.
+- **Adapter export and reload:** the SafeTensors adapter (72.2 MB, sha256 `6a455a219308…`) reloaded onto a fresh base and reproduced 7 detections within tolerance 0.001.
+
+The BYOD branches were not exercised in this run.
 
 ###### Decision thresholds
 
@@ -215,7 +225,7 @@ The following uses are prohibited even where the model would work:
 
 ## Verification records
 
-No execution with the pinned weights has been recorded. The offline test suite runs a tiny random-weight DETR through fine-tuning, evaluation and adapter reload; that exercises the code path and is not a result about this model. `docs/release-verification.md` holds the release gate and the record table.
+Default-path execution recorded on 2026-09-25 (Kaggle T4): exact notebook blob `a98705edf1cb` at commit `e39d680`, 357.5 s, 14/14 post-restart code cells, BYOD off; measured values are under Metrics. REL12 BYOD exercise pending before promotion. The offline test suite runs a tiny random-weight DETR through fine-tuning, evaluation and adapter reload; that exercises the code path and is not a result about this model. `docs/release-verification.md` holds the release gate and the record table.
 
 ## References
 

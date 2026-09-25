@@ -2,7 +2,7 @@
 
 DIMER pipeline for **DETR with a ResNet-50 backbone** (`facebook/detr-resnet-50`), the reference end-to-end set-prediction detector trained on COCO 2017. The pipeline loads the checkpoint only from a digest-verified local snapshot, returns pixel-space boxes with the model's softmax score under a caller-owned threshold, and adds a bounded fine-tuning workflow that re-heads DETR onto a new class vocabulary and exports a SafeTensors adapter.
 
-> **The upstream snapshot is pinned** to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b` (pinned 2026-09-25). The manifest records every file's byte size and SHA-256, and each LFS digest matched the Hub's record. No execution with the pinned weights is recorded yet (see [Release status](#release-status)).
+> **The upstream snapshot is pinned** to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b` (pinned 2026-09-25). The manifest records every file's byte size and SHA-256, and each LFS digest matched the Hub's record. Default-path execution recorded on 2026-09-25 (Kaggle T4); REL12 BYOD exercise pending before promotion (see [Release status](#release-status)).
 
 ## Upstream alignment
 
@@ -65,7 +65,7 @@ weights/detr-resnet-50/
 
 ## Release status
 
-**Candidate.** The snapshot is pinned (`1d5f47b`), but no execution with the pinned weights is recorded. Static checks, unit tests and the tiny-model test do not constitute notebook execution evidence; `docs/release-verification.md` defines the release gate.
+**Candidate.** The snapshot is pinned (`1d5f47b`). Default-path execution recorded on 2026-09-25 (Kaggle T4): the exact notebook blob `a98705edf1cb` (commit `e39d680`) ran top-to-bottom with BYOD off; adapted held-out AP 0.2222 / AP50 0.2668 against 0.0063 / 0.0172 for the re-headed baseline on 10 drawn sign images (17 reference boxes), one seeded split, one runtime; the adapted model returned no detection on any of 3 new drawn images at the default threshold 0.9. REL12 BYOD exercise pending before promotion: release step 7 has not been run. Static checks, unit tests and the tiny-model test do not constitute notebook execution evidence; `docs/release-verification.md` defines the release gate.
 
 ## Documentation
 
