@@ -23,7 +23,7 @@ import numpy as np
 from PIL import Image
 
 MODEL_ID = "facebook/detr-resnet-50"
-MODEL_REVISION = "unpinned"
+MODEL_REVISION = "1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b"
 MODEL_LICENSE = "apache-2.0"
 MODEL_KEY = "detr-resnet-50"
 DEFAULT_WEIGHTS_DIR = Path(__file__).resolve().parents[2] / "weights" / MODEL_KEY

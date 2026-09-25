@@ -134,7 +134,7 @@ def pin(
         print(json.dumps(pinned, indent=2))
         return 0
 
-    manifest_path.write_text(json.dumps(pinned, indent=2) + "\n", encoding="utf-8")
+    manifest_path.write_text(json.dumps(pinned, indent=2) + "\n", encoding="utf-8", newline="\n")
     module_path = root / "src" / template["package"] / template.get("entry_module", "pipeline.py")
     text = module_path.read_text(encoding="utf-8")
     new_text, n = re.subn(
@@ -146,7 +146,7 @@ def pin(
             file=sys.stderr,
         )
         return 1
-    module_path.write_text(new_text, encoding="utf-8")
+    module_path.write_text(new_text, encoding="utf-8", newline="\n")
     print(f"wrote {manifest_path.relative_to(root)} and MODEL_REVISION in {module_path.relative_to(root)}")
 
     leftovers = [

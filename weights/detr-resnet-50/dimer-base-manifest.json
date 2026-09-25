@@ -3,27 +3,27 @@
   "formatVersion": 1,
   "modelKey": "detr-resnet-50",
   "modelId": "facebook/detr-resnet-50",
-  "revision": "unpinned",
+  "revision": "1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b",
   "files": [
     {
       "path": "README.md",
       "bytes": 5891,
-      "sha256": null
+      "sha256": "bc7d74d96a9101113c06be3a90975510dd19671382eb6fdfc5d1edbb042a723b"
     },
     {
       "path": "config.json",
       "bytes": 4592,
-      "sha256": null
+      "sha256": "e7bcf3992363f27717a863f14b193140ad2e41d4338ee012730e58a92cae17e6"
     },
     {
       "path": "model.safetensors",
       "bytes": 166587896,
-      "sha256": null
+      "sha256": "830f5e2eeaada8c8c8281779dcc8ab12833972eb8514ed0a35be6c1d4420ad81"
     },
     {
       "path": "preprocessor_config.json",
       "bytes": 290,
-      "sha256": null
+      "sha256": "0673fea2a6d3cf92cdbab3c7426c0ecdf8a4729a2a4d5199033dcd66a2b8759b"
     }
   ],
   "totalBytes": 166598669
