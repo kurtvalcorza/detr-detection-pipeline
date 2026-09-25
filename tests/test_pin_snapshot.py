@@ -89,10 +89,11 @@ def test_pin_writes_commit_digests_and_module_revision(tmp_path):
 def test_pin_refuses_a_digest_that_disagrees_with_the_hub(tmp_path):
     root = _copy_repo(tmp_path)
     before = (root / "weights/detr-resnet-50/dimer-base-manifest.json").read_text()
+    module_before = (root / "src/detr_detection_pipeline/pipeline.py").read_text()
     model_info, download, _calls = _fake_hub(FILES, lfs_override={"model.safetensors": "f" * 64})
     assert pin_snapshot.pin(root, model_info=model_info, download=download) == 1
     assert (root / "weights/detr-resnet-50/dimer-base-manifest.json").read_text() == before
-    assert 'MODEL_REVISION = "unpinned"' in (root / "src/detr_detection_pipeline/pipeline.py").read_text()
+    assert (root / "src/detr_detection_pipeline/pipeline.py").read_text() == module_before
 
 
 def test_pin_refuses_when_a_manifest_file_is_absent_upstream(tmp_path):
