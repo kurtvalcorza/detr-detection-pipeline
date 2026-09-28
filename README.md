@@ -63,7 +63,15 @@ weights/detr-resnet-50/
 
 `tutorials/detr_detection_colab.ipynb` is declared `E2E` / `GUIDED` under DIMER Notebook Specification 2.1 and is **standalone** (§4): `tools/build_notebook.py` generates it, and it carries the package modules, the model identity, the manifest and the runtime pins, so it runs without this repository. Its default `Run all` path detects on a drawn COCO scene, probes a blank and a noise image, validates a 40-image drawn sign dataset, measures a baseline, fine-tunes, evaluates the held-out split with COCO-style AP, detects on unseen images, and exports and reloads the adapter. BYOD image and dataset branches are off by default. See `tutorials/README.md` and `docs/release-verification.md`.
 
+The separate [Philippine Rice Pest Surveillance capstone](tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb)
+composes adapted DETR with a BioCLIP species head and compares SigLIP and simple baselines.
+Its 200-image sample contains 2,509 published boxes from a CC BY 4.0 PhilRice-affiliated dataset.
+It is an **exploratory published-annotation benchmark**: source-family grouping does not establish
+independent capture events or verified annotation completeness. The new notebook remains
+**Candidate; one passing fresh Colab T4 default Run all recorded; maintainer review required**. See [build and data-audit notes](docs/rice-capstone.md).
+
 ## Release status
+
 
 **Candidate.** The snapshot is pinned (`1d5f47b`). Default-path execution recorded on 2026-09-25 (Kaggle T4): the exact notebook blob `a98705edf1cb` (commit `e39d680`) ran top-to-bottom with BYOD off; adapted held-out AP 0.2222 / AP50 0.2668 against 0.0063 / 0.0172 for the re-headed baseline on 10 drawn sign images (17 reference boxes), one seeded split, one runtime; the adapted model returned no detection on any of 3 new drawn images at the default threshold 0.9. REL12 BYOD exercise pending before promotion: release step 7 has not been run. Static checks, unit tests and the tiny-model test do not constitute notebook execution evidence; `docs/release-verification.md` defines the release gate.
 
