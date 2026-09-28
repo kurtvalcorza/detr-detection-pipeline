@@ -62,11 +62,16 @@ duplicate screening cannot establish independent specimens; dorsal/ventral photo
 show the same insect under different filenames. The sample mixes single-insect photographs
 and multi-insect trays.
 
-The notebook fetches exact ZIP byte ranges and checks member names, compression, byte
-lengths, CRCs, SHA-256 and image dimensions. It does not download arbitrary executable source
-from the dataset. The published archive is 1,005,857,218 bytes with MD5
-`24960c245a3a21b63be95314cc7467da`; its whole-file SHA-256 was not measured. Per-member SHA-256
-pins define the actual experiment. Data/audit JSON use LF to preserve their digest relationship
+The notebook first downloads a hash-pinned bundle of the 200 selected images (see "Sample
+mirror" below). If that fails, it fetches exact ZIP byte ranges from Zenodo and checks member
+names, compression, byte lengths, CRCs, SHA-256 and image dimensions. Either way, every image is
+re-verified against the manifest. It does not download arbitrary executable source from the
+dataset. The published archive is 1,005,857,218 bytes with MD5
+`24960c245a3a21b63be95314cc7467da` and SHA-256
+`f4a0409977e0615e34f3cf2b936a5ca9dd3a91b153d239e314334ea40c2537f7` (measured 2026-09-28 on a
+local copy whose size and MD5 matched Zenodo's). The manifest's `archive.sha256` stays `null` so
+that `rice_data.json` keeps the digest bound by the audit. Per-member SHA-256 pins define the
+actual experiment. Data/audit JSON use LF to preserve their digest relationship
 across Windows and Linux checkouts.
 
 ## Implementation
@@ -136,6 +141,50 @@ evidence. Panels were rendered from synthetic geometric placeholders and inspect
 wrong-species case, a zero-detection image and a crowded image. No model weights, source
 photographs or GPU were used. A fresh Colab T4 Run all on the revised head remains pending.
 
+## Sample mirror and error surfacing (2026-09-28)
+
+The Colab run of `a4a0917` failed at data preparation (see "Recorded executions"). Three changes
+follow from it, all in the generator and runtime:
+
+- **Hash-pinned mirror.** `tools/rice_mirror.json`, carried into the notebook as `mirror.json`,
+  pins a release asset of this repository:
+  `https://github.com/kurtvalcorza/detr-detection-pipeline/releases/download/rice-capstone-sample-v1/rice_capstone_sample_v1.zip`,
+  8,502,987 bytes, SHA-256 `48b44850c62ff07cce97154180965b9c57855cd5bb58f95b41da3bbb4e513e5d`.
+  It holds the 200 selected images at their manifest `relative_path`, `ZIP_STORED`, with sorted
+  names, fixed 1980-01-01 timestamps and no directory entries or extra fields. It was built from
+  the local Zenodo archive after checking each member's offset, sizes, CRC, SHA-256 and decoded
+  dimensions against `rice_data.json`; two builds were byte-identical. Every member is therefore
+  byte-identical to its Zenodo ZIP member. `prepare_images` downloads it once (host allowlist,
+  64 MiB ceiling, exact size and SHA-256), refuses unsafe or unexpected member names, re-checks
+  each member's bytes and SHA-256 before writing, then runs every image through the same cache
+  checks as before (bytes, SHA-256, format, dimensions). The bundle is CC BY 4.0 data with the
+  attribution recorded in `rice_mirror.json` and the release notes. `rice_data.json` is
+  unchanged, so the audit's `manifest_sha256` still binds it.
+- **Zenodo fallback.** Any mirror failure prints one line and falls back to Zenodo, which
+  remains the source of record. The fallback now reads each member in one bounded range request
+  instead of two, uses two threads instead of four, honours `Retry-After` on HTTP 429/503 (capped
+  at 90 s, up to six attempts) and does not retry other 4xx errors. Every length, `Content-Range`
+  and CRC check is unchanged.
+- **Visible errors.** A `checked()` helper runs the bootstrap installs, the Section 2 image
+  helper and the figure renderer with captured output. It always prints stdout; on failure it
+  prints stderr and raises `RuntimeError` with its tail, so the real exception appears in the
+  notebook. `run()` already streamed combined output and is unchanged.
+
+User-visible changes: the Section 2 summary gains a `source` field (`mirror` or `zenodo`), and a
+failed helper now raises `RuntimeError` instead of `CalledProcessError`.
+
+Verification (CPU only, Windows; not clean-runtime evidence): 130 tests passed with the
+CI-pinned CPU stack (119 before plus 11 new in `tests/test_rice_mirror.py`, all offline):
+mirror success, bundle-hash mismatch fallback, a tampered member in a valid-hash bundle,
+path traversal, host separation, 429 then 206 with `Retry-After`, persistent 429, no retry on
+404, and a static check that Section 2 surfaces stderr. Real inputs: with the real manifest,
+`rice_mirror.json` and the real bundle bytes served through a stubbed download, all 200 images
+verified from the mirror without contacting Zenodo. Forcing the fallback against live Zenodo
+fetched and verified all 200 images in 191 s with one range request per member; no 429 was
+received, so `Retry-After` handling is covered only by the offline tests. After the release was
+published, an anonymous download of the pinned URL (302 to `release-assets.githubusercontent.com`,
+8,502,987 bytes) passed the size and SHA-256 checks and verified all 200 images from the mirror.
+
 ## Recorded executions
 
 ### Maintainer-supplied Colab execution of revision `a4a0917` — 2026-09-28 (FAILED at data preparation)
@@ -156,7 +205,7 @@ photographs or GPU were used. A fresh Colab T4 Run all on the revised head remai
 | Data preparation | **Failed** |
 | Features, training, policy, evaluation, activity, reload, report | Not assessed in this run |
 
-Fixed in: pending (surface the helper's error in the notebook; rate-limit-aware fetching and/or a hash-pinned mirror of the 200-image sample).
+Fixed in: the sample-mirror change below (the helper's stderr is now shown in the cell, images come from a hash-pinned mirror, and the Zenodo fallback honours `Retry-After`). A new Colab T4 Run all on that head is pending.
 
 ## Verification and next qualification step
 

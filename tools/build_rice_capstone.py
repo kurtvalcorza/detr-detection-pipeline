@@ -21,6 +21,7 @@ def carried_files() -> dict[str, str]:
         "rice_figures.py": "rice_figures.py",
         "data_manifest.json": "rice_data.json",
         "dataset_audit.json": "rice_dataset_audit.json",
+        "mirror.json": "rice_mirror.json",
         "model_manifest.json": "rice_models.json",
         "requirements.txt": "rice-requirements.lock",
     }
@@ -77,10 +78,21 @@ UV.chmod(0o700)
 ENV = dict(os.environ, HF_HUB_DISABLE_IMPLICIT_TOKEN='1', HF_HUB_DISABLE_TELEMETRY='1', DO_NOT_TRACK='1', MPLBACKEND='Agg')
 ENV.pop('HF_TOKEN', None)
 ENV.pop('HUGGING_FACE_HUB_TOKEN', None)
-subprocess.run([str(UV), 'venv', '--managed-python', '--python', '3.12.12', str(ROOT / 'env')], env=ENV, check=True)
+
+def checked(args, **kwargs):
+    # Capture the child's stderr so a failure shows its real exception in the cell, not only an exit status.
+    result = subprocess.run([str(a) for a in args], env=ENV, capture_output=True, text=True, **kwargs)
+    if result.stdout.strip():
+        print(result.stdout.rstrip(), flush=True)
+    if result.returncode:
+        print(result.stderr.rstrip(), flush=True)
+        raise RuntimeError(f'{Path(str(args[0])).name} failed ({result.returncode}): ' + result.stderr.strip()[-2000:])
+    return result
+
+checked([UV, 'venv', '--managed-python', '--python', '3.12.12', ROOT / 'env'])
 PYTHON = ROOT / 'env/bin/python'
-subprocess.run([str(UV), 'pip', 'install', '--python', str(PYTHON), '--require-hashes', '--only-binary', ':all:', '-r', str(ROOT / 'requirements.txt')], env=ENV, check=True)
-subprocess.run([str(PYTHON), '-c', 'import torch; assert torch.cuda.is_available(); print(torch.__version__)'], env=ENV, check=True)
+checked([UV, 'pip', 'install', '--python', PYTHON, '--require-hashes', '--only-binary', ':all:', '-r', ROOT / 'requirements.txt'])
+checked([PYTHON, '-c', 'import torch; assert torch.cuda.is_available(); print(torch.__version__)'])
 (ROOT / 'bootstrap.json').write_text(json.dumps({'seconds': time.perf_counter()-started, 'gpu': GPU}), encoding='utf-8')
 
 def run(stage):
@@ -118,7 +130,7 @@ def table(name, limit=16):
     display(FileLink(str(path)))
 
 def figures(stage):
-    subprocess.run([str(PYTHON), str(ROOT / 'rice_figures.py'), '--root', str(ROOT), '--stage', stage], env=ENV, check=True)
+    checked([PYTHON, ROOT / 'rice_figures.py', '--root', ROOT, '--stage', stage])
     for path in sorted((ROOT / 'outputs' / 'figures').glob(stage + '*.png')):
         display(Image(filename=str(path)))
     if stage == 'evaluate':
@@ -214,13 +226,15 @@ The next cell is **collapsed on purpose**: it holds about 1.3 million characters
         {"cellView": "form", "collapsed": True, "jupyter": {"source_hidden": True}},
     )
     md("""## 2. Audit the sample before using models
-Only frozen ZIP members are downloaded. Their SHA-256, ZIP CRC, byte length and image dimensions are verified. Source-family splits, annotations and limitations are checked before training.
+Only frozen ZIP members are downloaded. Their SHA-256, ZIP CRC, byte length and image dimensions are verified.
+
+The 200 images come from a hash-pinned sample bundle published as a release asset of this repository (`mirror.json` records its URL, size and SHA-256). Every member is byte-identical to the Zenodo ZIP member named in the manifest and is re-checked against it. If the bundle cannot be fetched or fails a check, the cell prints one line and falls back to reading the frozen members directly from Zenodo, which remains the source of record. Source-family splits, annotations and limitations are checked before training.
 
 The archive has 112,940 entries, mostly images and crops. We fetch a bounded sample rather than extracting it all. Per-member hashes establish the assets used; this run does not claim to hash the entire approximately 1 GB archive. Original creator attribution and licence references travel with the manifest.
 
 **Notice:** image dimensions, objects per image, species support and source-family counts. The first table gives support per split: the species columns count reference boxes (insects), not images. The second lists the audit gates: *unresolved* gates are the reasons this is an exploratory benchmark. A missing annotation is not evidence that no pests are present.""")
     code(
-        "subprocess.run([str(PYTHON), '-c', \"import json; from pathlib import Path; from rice_assets import prepare_images; root=Path('.'); print(prepare_images(root,json.loads((root/'data_manifest.json').read_text())))\"], cwd=ROOT, env=ENV, check=True)\nrun('prepare')\ntable('sample_summary.csv')\ntable('audit_gates.csv')\ntable('split_manifest.csv')\nfigures('prepare')"
+        "checked([PYTHON, '-c', \"import json; from pathlib import Path; from rice_assets import prepare_images; root=Path('.'); load=lambda name: json.loads((root/name).read_text(encoding='utf-8')); print(prepare_images(root, load('data_manifest.json'), load('mirror.json')))\"], cwd=ROOT)\nrun('prepare')\ntable('sample_summary.csv')\ntable('audit_gates.csv')\ntable('split_manifest.csv')\nfigures('prepare')"
     )
     md("""## 3. Reference crops and representation baselines
 **Input:** crops reconstructed from published reference boxes. **Models:** majority class, RGB colour centroid, BioCLIP 2 and SigLIP 2. **Output:** validation classification metrics.
