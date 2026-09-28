@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "url": "https://github.com/kurtvalcorza/detr-detection-pipeline/releases/download/rice-capstone-sample-v1/rice_capstone_sample_v1.zip",
+  "bytes": 8502987,
+  "sha256": "48b44850c62ff07cce97154180965b9c57855cd5bb58f95b41da3bbb4e513e5d",
+  "members": 200,
+  "layout": "ZIP_STORED; one member per manifest record at its relative_path; sorted names; timestamps 1980-01-01; no directory entries or extra fields",
+  "source": "zenodo 10.5281/zenodo.20066074",
+  "source_archive": {
+    "bytes": 1005857218,
+    "md5": "24960c245a3a21b63be95314cc7467da",
+    "sha256": "f4a0409977e0615e34f3cf2b936a5ca9dd3a91b153d239e314334ea40c2537f7"
+  },
+  "integrity": "Every member is byte-identical to the Zenodo ZIP member named in data_manifest.json and is re-verified against that manifest (bytes, SHA-256, format, dimensions). Zenodo remains the source of record and the fallback.",
+  "licence": "CC-BY-4.0",
+  "attribution": "Deleña, Reymark; Balleras, Gina; Dequiña, Brent Jason; Jumawan, Rexter; Flores, Christine. Annotated light-trap rice pest image dataset with detector-derived region-of-interest crops for species–sex recognition of rice black bug and white stemborer. Version 1. Zenodo, DOI 10.5281/zenodo.20066074. CC BY 4.0."
+}

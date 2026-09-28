@@ -5,7 +5,11 @@ tools/rice_dataset_audit.json text eol=lf
 tools/rice_capstone.py text eol=lf
 tools/rice_core.py text eol=lf
 tools/rice_assets.py text eol=lf
+tools/rice_mirror.json text eol=lf
 tools/rice_figures.py text eol=lf
 tools/build_rice_capstone.py text eol=lf
 tools/rice_models.json text eol=lf
 tools/rice-requirements.lock text eol=lf
+
+# Executed notebooks are evidence; keep their bytes exactly as delivered.
+docs/execution-evidence/** -text

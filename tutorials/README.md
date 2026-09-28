@@ -29,7 +29,7 @@ This repository’s code and accompanying documentation were developed with gene
 
 `DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb` is a separate standalone `E2E` / `WORKSHOP`
 notebook under DIMER Notebook Specification 2.2. Upload the file to Colab, choose a fresh T4,
-and Run all with defaults. Status: **Candidate; hosted execution pending**. The original DETR
+and Run all with defaults. Status: **Candidate; revised after review; one passing fresh Colab T4 default Run all recorded (`bfa45cc`, 2026-09-28); maintainer review required**. The original DETR
 tutorial's earlier execution evidence does not qualify this capstone.
 
 The default sample has 200 image exports (120/40/40), 2,509 published reference boxes and two

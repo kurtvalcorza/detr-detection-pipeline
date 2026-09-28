@@ -31,6 +31,8 @@ PINS = {
     "bioclip": ("imageomics/bioclip-2", "2957b322090f9cb17ae72c71981c7218a28d81e0"),
     "siglip": ("google/siglip2-base-patch16-224", "5ffaac51d5e2f3367f7dab0cad4be4cb07c0caa2"),
 }
+# Model stages run on the T4; CPU tests override this to exercise the same code paths.
+DEVICE = "cuda"
 STAGES = (
     "prepare",
     "features",
@@ -259,6 +261,32 @@ def prepare(root):
         [{k: r[k] for k in ("image_id", "capture_group_id", "split", "sha256")} for r in records],
     )
     write(root / "outputs" / "lineage.json", lineage)
+    csv_write(
+        root / "outputs" / "sample_summary.csv",
+        [
+            {
+                "split": split,
+                "images": sum(r["split"] == split for r in records),
+                "source_families": len({r["capture_group_id"] for r in records if r["split"] == split}),
+                **{
+                    species: sum(x["split"] == split and x["species"] == species for x in lineage)
+                    for species in SPECIES
+                },
+                "max_objects_per_image": max(
+                    (len(active_objects(r)) for r in records if r["split"] == split), default=0
+                ),
+            }
+            for split in ("train", "validation", "test")
+        ],
+    )
+    audit = read(root / "dataset_audit.json")
+    csv_write(
+        root / "outputs" / "audit_gates.csv",
+        [
+            {"gate": name, "status": gate.get("status"), "evidence": gate.get("evidence", "see audit JSON")}
+            for name, gate in audit.get("gates", {}).items()
+        ],
+    )
     write(
         root / "outputs" / "environment.json",
         {
@@ -514,6 +542,60 @@ def detr_model(root, adapted=False):
     return model.eval(), processor
 
 
+def validate_raw_detections(logits, pred_boxes, *, queries, classes):
+    """Refuse malformed or nonfinite DETR tensors before any score threshold is applied.
+
+    The pinned postprocessor keeps entries whose score exceeds the threshold, so a NaN
+    score is silently dropped and an all-NaN image would look like a valid empty result.
+    Returns the fewest queries the threshold-0 postprocessor may keep.
+    """
+    logits = np.asarray(logits, dtype=np.float64)
+    pred_boxes = np.asarray(pred_boxes, dtype=np.float64)
+    if logits.shape != (1, queries, classes + 1) or pred_boxes.shape != (1, queries, 4):
+        raise ValueError(
+            f"Malformed DETR output: logits {logits.shape}, boxes {pred_boxes.shape}; "
+            f"expected (1, {queries}, {classes + 1}) and (1, {queries}, 4)"
+        )
+    if not (np.isfinite(logits).all() and np.isfinite(pred_boxes).all()):
+        raise ValueError("Nonfinite DETR logits or boxes; refusing to treat them as zero detections")
+    if (pred_boxes < 0).any() or (pred_boxes > 1).any():
+        raise ValueError("DETR normalised boxes fall outside [0, 1]")
+    # Explicit filtering policy: threshold 0 may drop only queries whose target-class
+    # probability underflows in float32; anything above 1e-30 must be retained.
+    return int((softmax(logits[0])[:, :-1].max(axis=1) > 1e-30).sum())
+
+
+def validate_postprocessed(scores, boxes, labels, minimum, queries):
+    scores, boxes, labels = np.asarray(scores), np.asarray(boxes), np.asarray(labels)
+    kept = len(scores)
+    if (
+        not minimum <= kept <= queries
+        or scores.shape != (kept,)
+        or boxes.shape != (kept, 4)
+        or labels.shape != (kept,)
+    ):
+        raise ValueError(
+            f"Postprocessed detections {scores.shape}/{boxes.shape} disagree with "
+            f"{minimum}-{queries} valid queries"
+        )
+    if not (np.isfinite(scores).all() and np.isfinite(boxes).all()):
+        raise ValueError("Nonfinite postprocessed detections")
+    if ((scores < 0) | (scores > 1)).any() or (labels != 0).any():
+        raise ValueError("Postprocessed detection scores or labels outside the declared domain")
+
+
+def validate_species_scores(probabilities, rows):
+    probabilities = np.asarray(probabilities, dtype=np.float64)
+    if probabilities.shape != (rows, len(SPECIES)):
+        raise ValueError(f"Species scores {probabilities.shape} disagree with {rows} detections")
+    if not np.isfinite(probabilities).all():
+        raise ValueError("Nonfinite species scores; refusing to count these detections")
+    if ((probabilities < 0) | (probabilities > 1)).any() or not np.allclose(
+        probabilities.sum(axis=1), 1, atol=1e-4
+    ):
+        raise ValueError("Species scores are not a probability distribution")
+
+
 def detections(root, model, processor, records):
     import torch
 
@@ -521,20 +603,30 @@ def detections(root, model, processor, records):
     with torch.inference_mode():
         for record in records:
             original = image(root, record)
-            inputs = processor(images=original, return_tensors="pt").to("cuda")
+            inputs = processor(images=original, return_tensors="pt").to(DEVICE)
             output = model(**inputs)
+            minimum = validate_raw_detections(
+                output.logits.float().cpu().numpy(),
+                output.pred_boxes.float().cpu().numpy(),
+                queries=model.config.num_queries,
+                classes=model.config.num_labels,
+            )
             post = processor.post_process_object_detection(
                 output,
                 threshold=0.0,
-                target_sizes=torch.tensor([[original.height, original.width]], device="cuda"),
+                target_sizes=torch.tensor([[original.height, original.width]], device=DEVICE),
             )[0]
-            # Preserve all 100 ranked queries; thresholds applied later, no NMS.
-            order = np.argsort(-post["scores"].cpu().numpy(), kind="stable")
+            scores, boxes = post["scores"].cpu().numpy(), post["boxes"].cpu().numpy()
+            validate_postprocessed(
+                scores, boxes, post["labels"].cpu().numpy(), minimum, model.config.num_queries
+            )
+            # Preserve all ranked queries; thresholds applied later, no NMS.
+            order = np.argsort(-scores, kind="stable")
             result.append(
                 {
                     "image_id": record["image_id"],
-                    "boxes": post["boxes"].cpu().numpy()[order].tolist(),
-                    "scores": post["scores"].cpu().numpy()[order].tolist(),
+                    "boxes": boxes[order].tolist(),
+                    "scores": scores[order].tolist(),
                 }
             )
     return result
@@ -709,13 +801,15 @@ def compose(root, records):
     with torch.inference_mode():
         text = (
             model.encode_text(
-                tokenizer(["a photo of a rice black bug.", "a photo of a white stemborer."]).cuda(),
+                tokenizer(["a photo of a rice black bug.", "a photo of a white stemborer."]).to(DEVICE),
                 normalize=True,
             )
             .cpu()
             .numpy()
         )
     scale = float(model.logit_scale.exp().item())
+    if not (np.isfinite(text).all() and math.isfinite(scale)):
+        raise ValueError("Nonfinite BioCLIP text embeddings or logit scale")
     for record, output in zip(records, predicted, strict=True):
         original = image(root, record)
         # Clip only predicted crop extraction, retaining original predicted boxes
@@ -733,8 +827,13 @@ def compose(root, records):
                 raise ValueError("Invalid predicted crop extent")
             crop_images.append(original.crop(bounded))
         vectors = embed(model, transform, crop_images)
-        output["adapted"] = softmax(vectors @ head["weight"].T + head["bias"]).tolist()
-        output["zero_shot"] = softmax(scale * vectors @ text.T).tolist()
+        if vectors.shape != (len(crop_images), head["weight"].shape[1]) or not np.isfinite(vectors).all():
+            raise ValueError(f"Invalid BioCLIP crop embeddings for {record['image_id']}")
+        adapted = softmax(vectors @ head["weight"].T + head["bias"])
+        zero_shot = softmax(scale * vectors @ text.T)
+        validate_species_scores(adapted, len(crop_images))
+        validate_species_scores(zero_shot, len(crop_images))
+        output["adapted"], output["zero_shot"] = adapted.tolist(), zero_shot.tolist()
     return predicted
 
 
@@ -761,14 +860,23 @@ def review_policy(y, probabilities):
             else None
         )
         rows.append({"threshold": threshold, "coverage": coverage, "accuracy": accuracy})
-    eligible = [r for r in rows if r["coverage"] >= 0.5]
-    target = [r for r in eligible if r["accuracy"] >= 0.8]
+    # Specification section 7, decision 5: target >=80% selective accuracy at >=50% coverage;
+    # if unattainable, maximise accuracy, then coverage, then margin over every nonempty set.
+    target = [r for r in rows if r["coverage"] >= 0.5 and r["accuracy"] >= 0.8]
+    candidates = target or [r for r in rows if r["accuracy"] is not None]
+    if not candidates:
+        raise ValueError("Review policy needs at least one validation crop")
     selected = (
         max(target, key=lambda r: (r["coverage"], r["threshold"]))
         if target
-        else max(eligible, key=lambda r: (r["accuracy"], r["coverage"], r["threshold"]))
+        else max(candidates, key=lambda r: (r["accuracy"], r["coverage"], r["threshold"]))
     )
-    return {**selected, "target_met": bool(target), "curve": rows}
+    rule = (
+        "target met: highest coverage with >=80% selective accuracy and >=50% coverage"
+        if target
+        else "fallback: target unattainable; maximise accuracy, then coverage, then margin"
+    )
+    return {**selected, "target_met": bool(target), "selection_rule": rule, "curve": rows}
 
 
 def policy(root):
@@ -793,6 +901,9 @@ def policy(root):
         "detector_threshold": selected["threshold"],
         "review_margin": review["threshold"],
         "review_target_met": review["target_met"],
+        "review_selection_rule": review["selection_rule"],
+        "review_validation_coverage": review["coverage"],
+        "review_validation_accuracy": review["accuracy"],
         "selection_split": "validation",
         "selected_at_unix": time.time(),
         "classifier_sha256": core.sha256(root / "outputs" / "classifier_adapter" / "head.safetensors"),
@@ -849,6 +960,121 @@ def chosen_objects(prediction, policy):
             }
         )
     return result
+
+
+CHART_FIGURES = ("classifier.png", "detector.png", "evaluate.png", "activity.png")
+SHORT = {"rice_black_bug": "RBB", "white_stemborer": "WSB"}
+OUTCOMES = ("correct", "wrong_species", "missed", "spurious")
+
+
+def object_outcomes(record, objects):
+    """One row per reference or retained prediction: correct, wrong_species, missed or spurious."""
+    references = active_objects(record)
+    err = core.error_decomposition(references, objects)
+    rows = []
+
+    def row(outcome, reference, prediction, iou):
+        scores = prediction["species_scores"] if prediction else None
+        return {
+            "image_id": record["image_id"],
+            "outcome": outcome,
+            "reference_species": reference["species"] if reference else "",
+            "predicted_species": prediction["species"] if prediction else "",
+            "detector_score": round(prediction["detector_score"], 4) if prediction else "",
+            "species_score": round(max(scores), 4) if prediction else "",
+            "species_margin": round(prediction["margin"], 4) if prediction else "",
+            "review": ("REVIEW" if prediction["review"] else "accepted") if prediction else "",
+            "iou": round(iou, 3) if iou is not None else "",
+            "reference_box": reference["bbox_xyxy"] if reference else None,
+            "predicted_box": prediction["bbox_xyxy"] if prediction else None,
+        }
+
+    for r, q, iou in err["matches"]:
+        same = references[r]["species"] == objects[q]["species"]
+        rows.append(row("correct" if same else "wrong_species", references[r], objects[q], iou))
+    rows += [row("missed", references[r], None, None) for r in err["misses"]]
+    rows += [row("spurious", None, objects[q], None) for q in err["spurious"]]
+    return rows
+
+
+def species_reconciliation(image_id, rows, objects):
+    """Per-species identities: reference = correct + wrong_out + missed;
+    raw = correct + wrong_in + spurious."""
+    result = []
+    for species in SPECIES:
+        entry = {
+            "image_id": image_id,
+            "species": species,
+            "reference": sum(r["reference_species"] == species for r in rows),
+            "raw": sum(o["species"] == species for o in objects),
+            "accepted": sum(o["species"] == species and not o["review"] for o in objects),
+            "referred": sum(o["species"] == species and o["review"] for o in objects),
+            "correct": sum(r["outcome"] == "correct" and r["reference_species"] == species for r in rows),
+            "wrong_in": sum(
+                r["outcome"] == "wrong_species" and r["predicted_species"] == species for r in rows
+            ),
+            "wrong_out": sum(
+                r["outcome"] == "wrong_species" and r["reference_species"] == species for r in rows
+            ),
+            "missed": sum(r["outcome"] == "missed" and r["reference_species"] == species for r in rows),
+            "spurious": sum(r["outcome"] == "spurious" and r["predicted_species"] == species for r in rows),
+        }
+        if (
+            entry["reference"] != entry["correct"] + entry["wrong_out"] + entry["missed"]
+            or entry["raw"] != entry["correct"] + entry["wrong_in"] + entry["spurious"]
+        ):
+            raise ValueError("Error decomposition does not reconcile with counts")
+        result.append(entry)
+    return result
+
+
+def error_summaries(root, records, predictions, policy_value):
+    """Test-set decomposition learners read beside the panels: per-species counts and confusion."""
+    totals = {
+        s: dict.fromkeys(
+            (
+                "reference",
+                "raw",
+                "accepted",
+                "referred",
+                "correct",
+                "wrong_in",
+                "wrong_out",
+                "missed",
+                "spurious",
+            ),
+            0,
+        )
+        for s in SPECIES
+    }
+    confusion = np.zeros((3, 3), dtype=int)  # rows: reference RBB/WSB/none; cols: predicted RBB/WSB/none
+    for record, prediction in zip(records, predictions, strict=True):
+        objects = chosen_objects(prediction, policy_value)
+        rows = object_outcomes(record, objects)
+        for entry in species_reconciliation(record["image_id"], rows, objects):
+            for key in totals[entry["species"]]:
+                totals[entry["species"]][key] += entry[key]
+        for r in rows:
+            ref = SPECIES.index(r["reference_species"]) if r["reference_species"] else 2
+            pred = SPECIES.index(r["predicted_species"]) if r["predicted_species"] else 2
+            confusion[ref, pred] += 1
+    summary = [{"species": s, **totals[s]} for s in SPECIES]
+    summary.append({"species": "all", **{k: sum(t[k] for t in totals.values()) for k in totals[SPECIES[0]]}})
+    csv_write(root / "outputs" / "error_summary.csv", summary)
+    labels = [*SPECIES, "no match"]
+    csv_write(
+        root / "outputs" / "matched_species_confusion.csv",
+        [
+            {
+                "reference": ("reference " + labels[i]) if i < 2 else "no reference (spurious)",
+                **{
+                    f"predicted {labels[j]}" if j < 2 else "not detected (missed)": int(confusion[i, j])
+                    for j in range(3)
+                },
+            }
+            for i in range(3)
+        ],
+    )
 
 
 def evaluate(root):
@@ -965,6 +1191,7 @@ def evaluate(root):
         recall=matched / (matched + misses) if matched + misses else None,
     )
     write(root / "outputs" / "detection_metrics.json", detection_metrics)
+    error_summaries(root, test, predictions, policy_value)
     write(
         root / "outputs" / "reload_expected.json",
         {"pid": os.getpid(), "policy_digest": policy_value["digest"], "predictions": predictions[:2]},
@@ -972,8 +1199,17 @@ def evaluate(root):
     panels(root, test, predictions, policy_value)
 
 
+PANEL_STYLE = {
+    "correct": ("#1a9850", "-"),
+    "wrong_species": ("#d01c8b", "-"),
+    "spurious": ("#ff7f00", "-"),
+    "missed": ("#00bfff", "--"),
+}
+
+
 def panels(root, records, predictions, policy_value):
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
     from matplotlib.patches import Rectangle
 
     folder = root / "outputs" / "local_figures"
@@ -992,60 +1228,204 @@ def panels(root, records, predictions, policy_value):
                 found[category] = record["image_id"]
                 if record["image_id"] not in [r[0]["image_id"] for r in selected]:
                     selected.append((record, prediction))
+    absent = sorted(set(("misses", "spurious", "wrong_species", "success")) - set(found))
     write(
         root / "outputs" / "error_panel_inventory.json",
         {
             "selected": found,
-            "absent_categories": sorted(set(("misses", "spurious", "wrong_species", "success")) - set(found)),
+            "absent_categories": absent,
+            "note": "An absent category was not found in the held-out split; none is manufactured.",
         },
     )
+    example_rows, example_counts = [], []
     for record, prediction in selected:
-        fig, ax = plt.subplots(figsize=(10, 8))
+        objects = chosen_objects(prediction, policy_value)
+        rows = object_outcomes(record, objects)
+        reconciled = species_reconciliation(record["image_id"], rows, objects)
+        example_counts += reconciled
+        shown_for = [c for c, image_id in found.items() if image_id == record["image_id"]]
+        fig, ax = plt.subplots(figsize=(10, 8.5))
         ax.imshow(image(root, record))
-        for obj in active_objects(record):
-            x1, y1, x2, y2 = obj["bbox_xyxy"]
+        tag = 0
+        # Crowded trays get compact #tags; the table below carries the full labels and scores.
+        compact = sum(r["outcome"] != "correct" for r in rows) > 12
+        for row in sorted(rows, key=lambda r: OUTCOMES.index(r["outcome"])):
+            colour, style = PANEL_STYLE[row["outcome"]]
+            box = row["predicted_box"] or row["reference_box"]
+            x1, y1, x2, y2 = box
             ax.add_patch(
                 Rectangle(
-                    (x1, y1), x2 - x1, y2 - y1, fill=False, edgecolor="white", linestyle="--", linewidth=1
+                    (x1, y1),
+                    x2 - x1,
+                    y2 - y1,
+                    fill=False,
+                    edgecolor=colour,
+                    linestyle=style,
+                    linewidth=1.6 if row["outcome"] != "correct" else 0.9,
                 )
             )
-        objects = chosen_objects(prediction, policy_value)
-        for obj in objects:
-            x1, y1, x2, y2 = obj["bbox_xyxy"]
-            ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, edgecolor="orange", linewidth=1))
-            ax.text(
-                x1,
-                y1,
-                f"{obj['species']} {obj['detector_score']:.2f}" + (" REVIEW" if obj["review"] else ""),
-                fontsize=5,
-                color="black",
-                backgroundcolor="white",
-            )
+            if row["outcome"] == "correct":
+                continue
+            tag += 1
+            row["tag"] = tag
+            if row["outcome"] == "wrong_species":
+                rx1, ry1, rx2, ry2 = row["reference_box"]
+                ax.add_patch(
+                    Rectangle(
+                        (rx1, ry1),
+                        rx2 - rx1,
+                        ry2 - ry1,
+                        fill=False,
+                        edgecolor="white",
+                        linestyle="--",
+                        linewidth=0.8,
+                    )
+                )
+                text = (
+                    f"#{tag} ref {SHORT[row['reference_species']]} → pred {SHORT[row['predicted_species']]}"
+                )
+            elif row["outcome"] == "missed":
+                text = f"#{tag} missed ref {SHORT[row['reference_species']]}"
+            else:
+                text = f"#{tag} extra pred {SHORT[row['predicted_species']]}"
+            if row["review"] == "REVIEW":
+                text += " REVIEW"
+            if compact:
+                ax.text(x1, y1, f"#{tag}", fontsize=5, color="black", backgroundcolor=colour, va="top")
+            else:
+                ax.text(x1, y1 - 2, text, fontsize=6, color="black", backgroundcolor=colour, va="bottom")
+        for row in rows:
+            if row["outcome"] != "correct":
+                example_rows.append({"panel_tag": row["tag"], **{k: v for k, v in row.items() if k != "tag"}})
+        totals = {k: sum(e[k] for e in reconciled) for k in ("reference", "raw", "accepted", "referred")}
+        counted = {o: sum(r["outcome"] == o for r in rows) for o in OUTCOMES}
         ax.set_title(
-            f"Test {record['image_id']} | reference dashed / prediction solid\n"
-            f"Reference {len(active_objects(record))}; predicted {len(objects)} | {record['attribution']}",
+            f"Test {record['image_id']} · example of: {', '.join(shown_for)}\n"
+            f"reference {totals['reference']} · raw predicted {totals['raw']} · accepted {totals['accepted']}"
+            f" · referred {totals['referred']} | correct {counted['correct']} · wrong species "
+            f"{counted['wrong_species']} · missed {counted['missed']} · spurious {counted['spurious']}\n"
+            + (
+                "Crowded image: #tags only; see the error-example table for species and scores\n"
+                if compact
+                else ""
+            )
+            + record["attribution"],
             fontsize=8,
+        )
+        handles = [
+            Line2D([], [], color=PANEL_STYLE["correct"][0], label="correct species (matched)"),
+            Line2D(
+                [],
+                [],
+                color=PANEL_STYLE["wrong_species"][0],
+                label="wrong species (matched; white = reference)",
+            ),
+            Line2D([], [], color=PANEL_STYLE["missed"][0], linestyle="--", label="missed reference box"),
+            Line2D([], [], color=PANEL_STYLE["spurious"][0], label="spurious prediction (no reference)"),
+        ]
+        ax.legend(
+            handles=handles,
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.01),
+            ncol=2,
+            fontsize=7,
+            title="RBB = rice black bug · WSB = white stemborer · scores per #tag in the table below",
+            title_fontsize=7,
+            frameon=False,
         )
         ax.axis("off")
         fig.savefig(folder / f"{record['image_id']}.png", dpi=120, bbox_inches="tight")
         plt.close(fig)
+    fields = [
+        "panel_tag",
+        "image_id",
+        "outcome",
+        "reference_species",
+        "predicted_species",
+        "detector_score",
+        "species_score",
+        "species_margin",
+        "review",
+        "iou",
+    ]
+    csv_write(
+        root / "outputs" / "error_examples.csv", [{k: r[k] for k in fields} for r in example_rows], fields
+    )
+    csv_write(
+        root / "outputs" / "error_example_counts.csv",
+        example_counts,
+        list(species_reconciliation("", [], [])[0]),
+    )
+
+
+# The validation threshold grid is i/20 for i = 1..19; display thresholds stay inside it,
+# because a threshold of 1.0 drops every box and only reproduces the zero-count baseline.
+DISPLAY_THRESHOLD_BOUNDS = (0.05, 0.95)
+REVIEW_ILLUSTRATION_COVERAGE = (0.9, 0.8)
+
+
+def display_thresholds(locked):
+    low, high = DISPLAY_THRESHOLD_BOUNDS
+    return sorted({round(max(low, locked - 0.1), 6), locked, round(min(high, locked + 0.1), 6)})
+
+
+def review_margin_rows(test, predictions, policy_value):
+    """Display-only: what stricter review margins would refer, next to the locked margin.
+
+    Illustrative margins come from the validation curve (the margin whose validation coverage is
+    closest to, without exceeding, 90% and 80%). Test detections are counted at the locked
+    detector threshold; the locked review margin and counts are not changed.
+    """
+    review = policy_value.get("review_validation") or {}
+    curve = [r for r in review.get("curve", []) if r.get("accuracy") is not None]
+    locked_margin = policy_value["review_margin"]
+    margins = [(locked_margin, "canonical", review.get("coverage"), review.get("accuracy"))]
+    for target in REVIEW_ILLUSTRATION_COVERAGE:
+        eligible = [r for r in curve if r["coverage"] <= target]
+        if not eligible:
+            continue
+        row = max(eligible, key=lambda r: (r["coverage"], -r["threshold"]))
+        if all(abs(row["threshold"] - m[0]) > 1e-12 for m in margins):
+            role = f"illustrative ~{target:.0%} coverage"
+            margins.append((row["threshold"], role, row["coverage"], row["accuracy"]))
+    rows = []
+    for margin, role, coverage, accuracy in margins:
+        referred = {"correct": 0, "wrong_species": 0, "spurious": 0}
+        retained = 0
+        for record, prediction in zip(test, predictions, strict=True):
+            objects = chosen_objects(prediction, {**policy_value, "review_margin": margin})
+            retained += len(objects)
+            for outcome in object_outcomes(record, objects):
+                if outcome["review"] == "REVIEW":
+                    referred[outcome["outcome"]] += 1
+        rows.append(
+            {
+                "review_margin": round(margin, 6),
+                "role": role,
+                "validation_coverage": "" if coverage is None else round(coverage, 4),
+                "validation_selective_accuracy": "" if accuracy is None else round(accuracy, 4),
+                "test_retained": retained,
+                "test_referred": sum(referred.values()),
+                "referred_correct": referred["correct"],
+                "referred_wrong_species": referred["wrong_species"],
+                "referred_spurious": referred["spurious"],
+                "note": "Retrospective test illustration; locked review margin unchanged",
+            }
+        )
+    return rows
 
 
 def activity(root):
     _, records = context(root)
     test = [r for r in records if r["split"] == "test"]
+    canonical = core.sha256(root / "outputs" / "test_detections.json")
     policy_value = locked_policy(root)
     predictions = read(root / "outputs" / "test_detections.json")
-    rows = []
-    for threshold in sorted(
-        set(
-            [
-                max(0.0, policy_value["detector_threshold"] - 0.1),
-                policy_value["detector_threshold"],
-                min(1.0, policy_value["detector_threshold"] + 0.1),
-            ]
-        )
-    ):
+    locked = policy_value["detector_threshold"]
+    thresholds = display_thresholds(locked)
+    role = {t: "canonical" if t == locked else ("lower" if t < locked else "higher") for t in thresholds}
+    rows, per_image = [], {}
+    for threshold in thresholds:
         count_result = core.count_metrics(count_reference(test), count_predictions(predictions, threshold))
         errors = [
             core.error_decomposition(
@@ -1053,16 +1433,69 @@ def activity(root):
             )
             for r, p in zip(test, predictions, strict=True)
         ]
+        per_image[threshold] = count_predictions(predictions, threshold)
         rows.append(
             {
                 "display_threshold": threshold,
+                "role": role[threshold],
                 "mae": count_result["mae"],
                 "missed": sum(e["missed"] for e in errors),
                 "spurious": sum(e["spurious_count"] for e in errors),
+                "wrong_species": sum(e["wrong_species"] for e in errors),
                 "note": "Retrospective test illustration; canonical policy unchanged",
             }
         )
     csv_write(root / "outputs" / "activity_thresholds.csv", rows)
+    # Paired view: the held-out image whose raw count moves most across the three
+    # settings (earliest on ties), so a learner can follow one photograph end to end.
+    spread = [
+        int(max(per_image[t][i].sum() for t in thresholds) - min(per_image[t][i].sum() for t in thresholds))
+        for i in range(len(test))
+    ]
+    chosen = int(np.argmax(spread)) if test else None
+    paired = []
+    if chosen is not None:
+        record, prediction = test[chosen], predictions[chosen]
+        for threshold in thresholds:
+            objects = chosen_objects(prediction, {**policy_value, "detector_threshold": threshold})
+            for entry in species_reconciliation(
+                record["image_id"], object_outcomes(record, objects), objects
+            ):
+                paired.append(
+                    {
+                        "image_id": record["image_id"],
+                        "display_threshold": threshold,
+                        "role": role[threshold],
+                        "species": entry["species"],
+                        "reference": entry["reference"],
+                        "raw": entry["raw"],
+                        "missed": entry["missed"],
+                        "spurious": entry["spurious"],
+                        "wrong_species": entry["wrong_out"],
+                    }
+                )
+    csv_write(
+        root / "outputs" / "activity_paired_counts.csv",
+        paired,
+        [
+            "image_id",
+            "display_threshold",
+            "role",
+            "species",
+            "reference",
+            "raw",
+            "missed",
+            "spurious",
+            "wrong_species",
+        ],
+    )
+    margins = review_margin_rows(test, predictions, policy_value)
+    csv_write(root / "outputs" / "activity_review_margins.csv", margins)
+    if (
+        core.sha256(root / "outputs" / "test_detections.json") != canonical
+        or locked_policy(root)["digest"] != policy_value["digest"]
+    ):
+        raise ValueError("Activity changed canonical predictions or policy")
 
 
 def reload(root):
@@ -1134,6 +1567,8 @@ def report(root):
             ) or int(exported["unresolved_total"]) != sum(o["review"] for o in objects):
                 raise ValueError("Referral count parity failed")
     verified["csv_metric_parity"] = True
+    # Chart PNGs carry no source photographs; previews and annotated panels stay excluded.
+    charts = [out / "figures" / name for name in CHART_FIGURES if (out / "figures" / name).is_file()]
     write(
         out / "run_summary.json",
         {
@@ -1154,6 +1589,7 @@ def report(root):
             ],
             "metrics": read(out / "metrics.json"),
             "verification": verified,
+            "charts_included": [path.relative_to(out).as_posix() for path in charts],
             "stage_resources": {
                 name: read(out / f"receipt_{name}.json")
                 for name in STAGES[:-1]
@@ -1168,7 +1604,8 @@ def report(root):
         "Creative Commons Attribution 4.0 International\n"
         "https://creativecommons.org/licenses/by/4.0/\n"
         "Attributions for each selected source image are recorded in data_manifest.json.\n"
-        "Source images and annotated image panels are excluded from this archive.\n",
+        "Source images, annotated image panels and photo previews are excluded from this archive;\n"
+        "only the metric charts listed in run_summary.json (no photographs) are included.\n",
         encoding="utf-8",
     )
     files = sorted(
@@ -1179,6 +1616,7 @@ def report(root):
         and p.name not in {"results.zip", "checksums.json"}
         and p.suffix in {".json", ".jsonl", ".csv", ".safetensors", ".txt"}
     )
+    files = sorted(files + charts)
     if sum(p.stat().st_size for p in files) > 100 * 1024**2:
         raise ValueError("Derived artifact archive exceeds the 100 MiB bound")
     checksums = {p.relative_to(out).as_posix(): core.sha256(p) for p in files}

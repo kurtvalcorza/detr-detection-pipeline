@@ -45,6 +45,37 @@ def render(root: Path, stage: str) -> None:
         )
         fig.tight_layout(rect=(0, 0.025, 1, 0.96))
         fig.subplots_adjust(hspace=0.22)
+    elif stage == "crops":
+        # What the species classifier receives: crops cut from published reference boxes.
+        manifest = read(root / "data_manifest.json")
+        by_id = {r["image_id"]: r for r in manifest["records"]}
+        lineage = [x for x in read(out / "lineage.json") if x["split"] == "train"]
+        species = ("rice_black_bug", "white_stemborer")
+        fig, axes = plt.subplots(2, 6, figsize=(15, 6))
+        for row_axes, name in zip(axes, species, strict=True):
+            chosen, parents = [], set()
+            for crop in lineage:
+                if crop["species"] == name and crop["parent_image_id"] not in parents:
+                    chosen.append(crop)
+                    parents.add(crop["parent_image_id"])
+                if len(chosen) == len(row_axes):
+                    break
+            for ax in row_axes:
+                ax.axis("off")
+            for ax, crop in zip(row_axes, chosen, strict=False):
+                record = by_id[crop["parent_image_id"]]
+                with Image.open(root / "data" / record["relative_path"]) as source:
+                    ax.imshow(source.convert("RGB").crop(tuple(crop["effective_crop_xyxy"])))
+                x1, y1, x2, y2 = crop["effective_crop_xyxy"]
+                ax.set_title(f"{name.replace('_', ' ')}\n{x2 - x1}×{y2 - y1} px", fontsize=8)
+        fig.suptitle("Classifier input: training crops from published reference boxes · labels unverified")
+        fig.text(
+            0.5,
+            0.01,
+            "Deleña et al. · Zenodo 10.5281/zenodo.20066074 · CC BY 4.0 · crops of resized exports",
+            ha="center",
+        )
+        fig.tight_layout(rect=(0, 0.03, 1, 0.95))
     elif stage in {"classifier", "detector"}:
         history = read(out / f"{stage}_history.json")
         keys = (
@@ -85,8 +116,8 @@ def render(root: Path, stage: str) -> None:
     elif stage == "activity":
         with (out / "activity_thresholds.csv").open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle))
-        fig, axes = plt.subplots(1, 3, figsize=(13, 4))
-        for ax, key in zip(axes.flat, ("mae", "missed", "spurious"), strict=True):
+        fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+        for ax, key in zip(axes.flat, ("mae", "missed", "spurious", "wrong_species"), strict=True):
             ax.plot([float(r["display_threshold"]) for r in rows], [float(r[key]) for r in rows], marker="o")
             ax.set(xlabel="Display threshold", ylabel=key, title=key)
         fig.suptitle("Retrospective illustration · locked policy unchanged")
