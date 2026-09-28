@@ -109,7 +109,7 @@ def table(name, limit=16):
         columns, rows = reader.fieldnames, list(reader)
     if not columns:
         raise RuntimeError('Missing table columns: ' + name)
-    visible = [c for c in columns if c not in ('scores', 'bbox_xyxy')][:9]
+    visible = [c for c in columns if c not in ('scores', 'bbox_xyxy')][:12]
     clean = lambda value: str(value).replace('|', '/').replace('\n', ' ')
     lines = ['| ' + ' | '.join(visible) + ' |', '| ' + ' | '.join('---' for _ in visible) + ' |']
     lines += ['| ' + ' | '.join(clean(row[c]) for c in visible) + ' |' for row in rows[:limit]]
@@ -151,12 +151,12 @@ def build() -> dict:
             }
         )
 
-    def code(source):
+    def code(source, metadata=None):
         ast.parse(source)
         cells.append(
             {
                 "cell_type": "code",
-                "metadata": {},
+                "metadata": metadata or {},
                 "id": f"code-{len(cells):02}",
                 "source": source.strip().splitlines(True),
                 "outputs": [],
@@ -181,33 +181,58 @@ The source is a CC BY 4.0 [PhilRice-affiliated Zenodo dataset](https://doi.org/1
 
 **Predict before running:** will missed boxes or species mistakes contribute more to count error? Write one reason. Completion notes are optional, not required submissions.
 
+**How to read this notebook:** each section says what goes in, what comes out and what to notice. Terms are defined in the glossary below; come back to it when a metric first appears.
+
 **AI Assistance Disclosure:** Code and instructional text were developed with generative AI assistance under maintainer direction. The maintainer is responsible for review, validation and release decisions. AI assistance is not independent verification or provider endorsement.
 """)
+    md("""### Glossary
+| Term | Meaning in this notebook |
+|---|---|
+| **Reference box** | A box and species label published with the dataset. Treated as the answer key, but not independently verified. |
+| **IoU** (intersection over union) | Overlap between two boxes, from 0 (none) to 1 (identical). A prediction matches a reference box when IoU ≥ 0.5. |
+| **AP50** | Detection average precision at IoU 0.5: how well ranked boxes find reference insects, from 0 to 1. It ignores species. |
+| **Detector score** | DETR's confidence that a box contains *a target pest*. It says nothing about which species. |
+| **Species score / margin** | The classifier's probability for its chosen species, and the gap between the two species' probabilities. A small margin sends the detection to **review**. |
+| **Raw / accepted / referred count** | Raw counts every detection above the detector threshold. Accepted excludes detections sent to review; referred counts those review items. Review never deletes insects. |
+| **Count MAE** | Mean absolute error of per-image, per-species counts. 0.5 means counts are off by half an insect per image and species on average. |
+| **Missed / spurious / wrong species** | A reference with no matching prediction; a prediction with no matching reference; a matched pair whose species differ. |
+| **Macro-F1** | The average of per-species F1 scores, so the rarer species counts as much as the common one. |
+| **Cross-entropy** | The training loss for the species head; lower on validation means better-calibrated species scores. |
+| **RGB centroid** | A deliberately simple baseline that classifies crops by average colour. Beating it shows the model uses more than colour. |
+| **Bootstrap interval** | A range from resampling source families with replacement. It shows sampling uncertainty over these families, not over independent field captures. |""")
     code(PREFLIGHT)
     md("""## 1. Reconstruct the portable experiment
-The notebook carries its own source, immutable data/model manifests and a hashed dependency lock. The separate Python environment avoids changing libraries already loaded by Colab. Hash failures stop execution rather than substituting a different experiment.""")
+The notebook carries its own source, immutable data/model manifests and a hashed dependency lock. The separate Python environment avoids changing libraries already loaded by Colab. Hash failures stop execution rather than substituting a different experiment.
+
+The next cell is **collapsed on purpose**: it holds about 1.3 million characters of embedded source and manifests, and you do not need to read it to follow the experiment. Readable copies are in the repository: the [runtime](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_capstone.py), [metrics and matching](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_core.py) and [figures](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_figures.py). The same files are written into the run directory.""")
     code(
+        "# @title Carrier cell: write embedded source, manifests and lock, then build the isolated environment\n"
         "FILES = "
         + repr(files)
         + "\nfor name, source in FILES.items():\n    target = ROOT / name\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_bytes(source.encode('utf-8'))\nprint('Carried files:', len(FILES))\n"
-        + BOOTSTRAP
+        + BOOTSTRAP,
+        {"cellView": "form", "collapsed": True, "jupyter": {"source_hidden": True}},
     )
     md("""## 2. Audit the sample before using models
 Only frozen ZIP members are downloaded. Their SHA-256, ZIP CRC, byte length and image dimensions are verified. Source-family splits, annotations and limitations are checked before training.
 
 The archive has 112,940 entries, mostly images and crops. We fetch a bounded sample rather than extracting it all. Per-member hashes establish the assets used; this run does not claim to hash the entire approximately 1 GB archive. Original creator attribution and licence references travel with the manifest.
 
-**Notice:** image dimensions, objects per image, species support and source-family counts. A missing annotation is not evidence that no pests are present.""")
+**Notice:** image dimensions, objects per image, species support and source-family counts. The first table gives support per split: the species columns count reference boxes (insects), not images. The second lists the audit gates: *unresolved* gates are the reasons this is an exploratory benchmark. A missing annotation is not evidence that no pests are present.""")
     code(
-        "subprocess.run([str(PYTHON), '-c', \"import json; from pathlib import Path; from rice_assets import prepare_images; root=Path('.'); print(prepare_images(root,json.loads((root/'data_manifest.json').read_text())))\"], cwd=ROOT, env=ENV, check=True)\nrun('prepare')\ntable('split_manifest.csv')\nfigures('prepare')"
+        "subprocess.run([str(PYTHON), '-c', \"import json; from pathlib import Path; from rice_assets import prepare_images; root=Path('.'); print(prepare_images(root,json.loads((root/'data_manifest.json').read_text())))\"], cwd=ROOT, env=ENV, check=True)\nrun('prepare')\ntable('sample_summary.csv')\ntable('audit_gates.csv')\ntable('split_manifest.csv')\nfigures('prepare')"
     )
     md("""## 3. Reference crops and representation baselines
 **Input:** crops reconstructed from published reference boxes. **Models:** majority class, RGB colour centroid, BioCLIP 2 and SigLIP 2. **Output:** validation classification metrics.
 
 Crop evaluation assumes an object has already been located. It cannot measure missed insects. Common-name prompts and crop preprocessing are fixed before test inspection. RGB success can indicate background shortcuts; large confidence does not establish biological correctness.
 
-**Predict:** will the biodiversity representation outperform the general representation? Compare macro-F1 and class support rather than confidence alone.""")
-    code("run('features')\nrecord('validation_crops.json')")
+The first figure shows what the classifier receives: training crops cut from reference boxes, labelled with their published species. Small crops carry little detail.
+
+**Predict:** will the biodiversity representation outperform the general representation? Compare macro-F1 and class support rather than confidence alone.
+
+**How to read the result:** for each method, `accuracy` and `macro_f1` range from 0 to 1; `confusion` rows are reference species and columns predicted species (rice black bug first). The majority baseline's macro-F1 shows what "no information" looks like.""")
+    code("figures('crops')\nrun('features')\nrecord('validation_crops.json')")
     md("""## 4. Adapt only the species head
 The BioCLIP image tower stays frozen. A small linear head starts from text embeddings and trains for at most 20 epochs. Epoch zero is eligible; minimum validation cross-entropy selects the checkpoint, with earlier ties.
 
@@ -225,24 +250,45 @@ Checkpoint selection is finished. Choose the detection threshold on validation d
 
 Every retained detection contributes to the raw count. Review flags create unresolved work; they do not make insects disappear. A missed detection cannot be referred by the classifier. Scores are not calibrated probabilities or operational pest-alert thresholds.
 
+The review policy first looks for the margin with the highest coverage that keeps at least 80% selective accuracy while accepting at least 50% of validation crops. If no margin reaches that target, it falls back to the most accurate margin, then the widest coverage. The output states which rule applied; a fallback can send many detections to review.
+
 **Predict:** will the full pipeline match the reference-crop classifier? Name a failure the crop classifier cannot expose.""")
-    code("run('policy')\nrecord('selected_policy.json')")
+    code(
+        "run('policy')\nrecord('selected_policy.json')\n"
+        "locked = json.loads((ROOT / 'outputs' / 'selected_policy.json').read_text(encoding='utf-8'))\n"
+        "print('Detector threshold:', locked['detector_threshold'])\n"
+        "print('Review margin:', locked['review_margin'], '|', locked['review_selection_rule'])\n"
+        "print('Validation coverage / selective accuracy:', locked['review_validation_coverage'], '/', locked['review_validation_accuracy'])"
+    )
     md("""## 7. Reveal the held-out benchmark
 The primary metric averages absolute count error over images and both species, including zero counts. Compare it with the training-mean and zero-count baselines. Oracle localisation uses published boxes; it is not a deployable system or a guaranteed mathematical upper bound because counting errors can cancel.
 
-Inspect crop macro-F1, detection AP, misses, spurious/duplicate boxes and wrong-species matches. Bootstrap intervals resample source families; they do not establish independent capture events, complete annotations, pretraining independence or wider field performance. Two-class top-2 accuracy would be uninformative and is not a headline metric.""")
+Inspect crop macro-F1, detection AP, misses, spurious/duplicate boxes and wrong-species matches. Bootstrap intervals resample source families; they do not establish independent capture events, complete annotations, pretraining independence or wider field performance. Two-class top-2 accuracy would be uninformative and is not a headline metric.
+
+**Where does count error enter?** After the metrics, three tables trace it:
+1. **Error summary**, per species: `reference = correct + wrong_out + missed` and `raw = correct + wrong_in + spurious`. `wrong_out` is a reference insect of this species labelled as the other; `wrong_in` is the reverse. `accepted` and `referred` split the raw count by the review policy.
+2. **Matched-species confusion**: rows are reference species, columns predicted species; the last column counts missed references, and the last row counts spurious predictions.
+3. **Example panels**: one held-out photograph per error category (misses, spurious, wrong species, success). Each title says which category it illustrates and gives its counts. Green boxes are correct matches, magenta boxes are wrong-species matches (the white dashed box is the reference), dashed blue boxes are missed references, and orange boxes are spurious predictions. Each error box carries a `#tag`; the table after the panels lists each tag's reference species, predicted species, **detector score**, **species score**, margin and review state. The last table reconciles each example's per-species counts.
+
+If a category is absent from the held-out split, the inventory says so; no example is manufactured.""")
     code(
-        "run('evaluate')\ntable('metrics.csv')\nrecord('test_crop_metrics.json')\nrecord('detection_metrics.json')\nrecord('bootstrap.json')\ntable('counts.csv')\nfigures('evaluate')"
+        "run('evaluate')\ntable('metrics.csv')\nrecord('test_crop_metrics.json')\nrecord('detection_metrics.json')\nrecord('bootstrap.json')\n"
+        "table('error_summary.csv')\ntable('matched_species_confusion.csv')\ntable('counts.csv')\nfigures('evaluate')\n"
+        "record('error_panel_inventory.json')\ntable('error_examples.csv', limit=40)\ntable('error_example_counts.csv')"
     )
     md("""## 8. Change one thing: the display threshold
 Predict what a lower detector threshold will do to misses, spurious boxes and count MAE. The activity compares lower/canonical/higher settings with the same models. It is retrospective test analysis, not permission to replace the locked result with the best-looking test setting.
 
-Canonical predictions and policy remain unchanged. Explain any error cancellation: a correct total can still contain missed and extra insects.""")
-    code("run('activity')\ntable('activity_thresholds.csv')\nfigures('activity')")
+Canonical predictions and policy remain unchanged. Explain any error cancellation: a correct total can still contain missed and extra insects.
+
+The second table follows one held-out photograph: the image whose raw count changes most across the three settings. For each setting and species it shows the reference count, the raw count and the stage errors, so you can see which errors a threshold change adds or removes.""")
+    code(
+        "run('activity')\ntable('activity_thresholds.csv')\ntable('activity_paired_counts.csv')\nfigures('activity')"
+    )
     md("""## 9. Export, reload and verify
 Both adapters reload in a fresh process with pinned bases. Original held-out images are reprocessed; boxes, species, counts and review decisions must agree within declared tolerances. Hashes and class order must match before tensors are loaded.
 
-The results archive includes derived evidence and attribution, excluding source photographs by default. A passing archive check proves internal consistency, not independent biological validation.""")
+The results archive includes derived evidence, attribution and the metric charts (learning curves, count comparison and threshold charts). Source photographs, photo previews and annotated panels are excluded by default. A passing archive check proves internal consistency, not independent biological validation.""")
     code(
         "run('reload')\nrecord('verification.json')\nrun('report')\nrecord('run_summary.json')\ndisplay(FileLink(str(ROOT / 'outputs' / 'results.zip')))"
     )

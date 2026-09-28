@@ -27,6 +27,26 @@ One filename family crosses the published train/test split. Human-complete annot
 verification is undocumented. Creator affiliations establish Philippine institutional
 provenance, not the origin of every photograph. These findings remain visible in the notebook.
 
+## Specification amendment A1 (exploratory scope)
+
+This amendment records how the implemented capstone departs from the supplied
+`PHILIPPINE_RICE_PEST_SURVEILLANCE_CAPSTONE_SPEC.md`, version 1.0. It does not mark
+any original gate as passed.
+
+| Specification 1.0 requirement | Status under amendment A1 |
+|---|---|
+| Independently justified capture groups (§2, §5) | **Not met.** Replaced by source-filename families plus duplicate screening. Groups are not verified capture sessions or specimens. |
+| Documented Philippine capture provenance (§2) | **Not met.** Creator affiliation is documented; capture location, date and trap fields are blank. |
+| Human-created or human-verified complete annotations (§5, §11) | **Not met.** Published boxes are used as unverified references. |
+| Qualification of the full surveillance study (§11) | **Not claimed.** Results measure agreement with published annotations only. |
+| Review policy, §7 decision 5 | Implemented as written: ≥80% selective accuracy at ≥50% coverage, otherwise accuracy, then coverage, then margin. |
+
+Scope decision: the maintainer chose the exploratory benchmark on 2026-09-27 after the
+archive failed the independent-capture gate (see "Agreed scope and source audit"). The
+runtime refuses strict capacity certification for this scope, and the dataset audit
+records the three unresolved gates. A future full-scope study needs a new dataset that
+meets specification 1.0 unchanged.
+
 ## Frozen sample
 
 The frozen sample contains 200 images: 120 train, 40 validation and 40 test, preserving
@@ -73,6 +93,48 @@ Exports include predictions, counts, error decomposition, metrics, attribution, 
 adapters, receipts and checksums. The default ZIP excludes source photos and annotated panels.
 Results measure agreement with published annotations, not independently verified pest counts,
 field abundance, crop damage or pesticide-intervention needs. Completion records are optional.
+
+## Review fixes (PR #2 review, 2026-09-28)
+
+The capstone review of PR head `2b8544a` (notebook blob `939beef`) asked for two major and
+four minor changes. All were made in the generator and runtime, never by hand in the notebook.
+
+- **M1, detector output validation.** `detections()` checks raw DETR logits and boxes (batch,
+  query count, class count, box shape, finite values, normalised range) before the pinned
+  postprocessor can drop NaN scores. It then checks the postprocessed rows. `compose()` checks
+  BioCLIP embeddings and both species-score distributions. A NaN, Inf or malformed output now
+  stops the stage before AP, threshold selection, counts or a receipt. A finite result with
+  every score below the operating threshold remains a valid zero count.
+- **M2, error diagnosis.** Section 7 shows an error summary per species (reference = correct +
+  wrong_out + missed; raw = correct + wrong_in + spurious), a matched-species confusion table,
+  the panel inventory including absent categories, and a table of every tagged error in the
+  example panels with reference species, predicted species, detector score, species score,
+  margin and review state. Panels are colour-coded by outcome, titled with their category,
+  and use compact tags in crowded images. Section 3 shows labelled training crops first.
+- **m1, review fallback.** The fallback now follows specification §7 decision 5 over every
+  nonempty margin, not only those with ≥50% coverage. The selected rule, coverage and accuracy
+  are printed in Section 6. This can change the referral workload, not raw counts.
+- **m2, learner guidance.** The 1.3-million-character carrier cell is collapsed with a title
+  and links to readable source. A glossary defines the metrics. Section 2 shows sample support
+  per split and the audit-gate statuses.
+- **m3, paired count view.** The threshold activity adds wrong-species totals and follows the
+  held-out image whose raw count moves most across lower/canonical/higher thresholds. It checks
+  that canonical predictions and the policy lock are unchanged.
+- **m4, charts in the bundle.** `results.zip` now includes the four metric charts. Photo
+  previews, reference-crop grids and annotated panels stay excluded.
+
+User-visible changes: new output files (`sample_summary.csv`, `audit_gates.csv`,
+`error_summary.csv`, `matched_species_confusion.csv`, `error_examples.csv`,
+`error_example_counts.csv`, `activity_paired_counts.csv`, `figures/crops.png`), new
+`selected_policy.json` fields, a `wrong_species` column in `activity_thresholds.csv`, and
+charts in `results.zip`. Invalid model outputs that were previously filtered now stop the run.
+
+Verification (CPU only; not clean-runtime evidence): 119 tests passed with the CI-pinned
+CPU stack (102 existing plus 17 new). The M1 tests run the real pinned Transformers 4.57.6
+postprocessor on a tiny randomly initialised DETR; they are not pretrained-inference
+evidence. Panels were rendered from synthetic geometric placeholders and inspected for a
+wrong-species case, a zero-detection image and a crowded image. No model weights, source
+photographs or GPU were used. A fresh Colab T4 Run all on the revised head remains pending.
 
 ## Verification and next qualification step
 

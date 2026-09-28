@@ -146,14 +146,31 @@ def test_synthetic_evaluation_activity_report_and_csv_tamper(tmp_path, monkeypat
         np.save(out / f"{name}.npy", scores)
     run.evaluate(tmp_path)
     assert run.read(out / "metrics.json")["detector_adapted"]["mae"] == 0
+    with (out / "error_summary.csv").open(encoding="utf-8", newline="") as handle:
+        summary = {row["species"]: row for row in csv.DictReader(handle)}
+    assert summary["all"]["correct"] == "2" and summary["all"]["missed"] == "0"
     run.activity(tmp_path)
     assert policy["detector_threshold"] == 0.5
+    with (out / "activity_thresholds.csv").open(encoding="utf-8", newline="") as handle:
+        activity_rows = list(csv.DictReader(handle))
+    assert [r["role"] for r in activity_rows] == ["lower", "canonical", "higher"]
+    assert all(r["wrong_species"] == "0" for r in activity_rows)
+    with (out / "activity_paired_counts.csv").open(encoding="utf-8", newline="") as handle:
+        paired = list(csv.DictReader(handle))
+    assert len(paired) == 6 and {r["image_id"] for r in paired} == {"2"}
+    # Metric charts join the archive; photo previews never do.
+    (out / "figures").mkdir()
+    for name in ("evaluate.png", "prepare.png", "crops.png"):
+        (out / "figures" / name).write_bytes(b"png fixture")
     # A clearly marked fixture, not a substitute for actual fresh-process inference.
     run.write(out / "verification.json", {"fresh_process": True, "test_fixture": True})
     run.report(tmp_path)
     assert run.read(out / "run_summary.json")["verification"]["csv_metric_parity"]
     with zipfile.ZipFile(out / "results.zip") as archive:
         assert archive.testzip() is None and "DATA_LICENSE.txt" in archive.namelist()
+        assert "figures/evaluate.png" in archive.namelist()
+        assert not {"figures/prepare.png", "figures/crops.png"} & set(archive.namelist())
+    assert run.read(out / "run_summary.json")["charts_included"] == ["figures/evaluate.png"]
     with (out / "counts.csv").open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
     rows[0]["raw"] = 999
