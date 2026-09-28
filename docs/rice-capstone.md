@@ -136,6 +136,28 @@ evidence. Panels were rendered from synthetic geometric placeholders and inspect
 wrong-species case, a zero-detection image and a crowded image. No model weights, source
 photographs or GPU were used. A fresh Colab T4 Run all on the revised head remains pending.
 
+## Recorded executions
+
+### Maintainer-supplied Colab execution of revision `a4a0917` — 2026-09-28 (FAILED at data preparation)
+
+| Field | Value |
+|---|---|
+| File | `docs/execution-evidence/2026-09-28/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_a4a0917_failed-prepare.ipynb`, SHA-256 `a62a769256b56ad97e48fe0ecb098891f6fc80d4c10bbb46a2967060ab04228a` (byte copy of the upload) |
+| Source match | All 22 cells, ids, order and `dimer` metadata identical to the notebook at `a4a0917` (blob `83c20ae`); no `# @param` or other diffs |
+| Runtime | Colab, `Tesla T4`; kernel Python 3.13; isolated environment built from the hashed lock |
+| Executed cells | Preflight (1), carrier/bootstrap (2), Section 2 data preparation (3, error); cells 4–10 not executed |
+| Result | `CalledProcessError`: the `prepare_images` helper exited with status 1. Its own traceback went to the kernel's raw stderr and is not in the notebook, so the exact exception is unknown. |
+| Probable cause (not proven) | Zenodo sends `x-ratelimit-limit: 133` per 60 s window for this archive. Preparing 200 images issues 400 range requests over 4 threads; `read_range` retries twice after 1 s and 2 s, far shorter than `retry-after: 60`. The same helper and manifest passed outside Colab on 2026-09-28 (200 images, all digests verified, 102 s through a throttling proxy). |
+| Evidence boundary | Saved outputs were inspected; execution was not independently repeated. No model stage ran, so this run is not evidence for M1–m4 behaviour. |
+
+| Journey | Verdict |
+|---|---|
+| Preflight and isolated environment | Passed |
+| Data preparation | **Failed** |
+| Features, training, policy, evaluation, activity, reload, report | Not assessed in this run |
+
+Fixed in: pending (surface the helper's error in the notebook; rate-limit-aware fetching and/or a hash-pinned mirror of the 200-image sample).
+
 ## Verification and next qualification step
 
 The starting repository suite passed 56 tests using CPU PyTorch 2.11.0. New offline tests
