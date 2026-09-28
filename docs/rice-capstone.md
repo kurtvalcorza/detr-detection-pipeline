@@ -1,6 +1,6 @@
 # Rice-pest exploratory capstone
 
-**Candidate: one passing Colab T4 default Run all recorded (revision `bfa45cc`, 2026-09-28); maintainer review required.** The implementation is separate
+**Candidate: passing Colab T4 default Run all recorded on `main` (`9f85155`, 2026-09-28) and on `bfa45cc`; maintainer review required.** The implementation is separate
 from the original DETR tutorial. Original package code and original notebook are unchanged.
 
 ## Agreed scope and source audit
@@ -292,8 +292,52 @@ and a new output file `activity_review_margins.csv` appears (included in `result
 
 Verification (CPU only; not clean-runtime evidence): 137 tests passed with the CI-pinned CPU
 stack (130 before plus 7 new in `tests/test_rice_activity_fixes.py`, synthetic fixtures only).
-The run of `bfa45cc` above does not cover this head: the new Section 6 message, the 0.95
-setting and the review-margin table have not yet run on a T4 with real models.
+The run of `bfa45cc` above does not cover this head; the run of `9f85155` below does.
+
+### Maintainer-supplied Colab execution of revision `9f85155` (main) — 2026-09-28 (PASSED, default Run all)
+
+| Field | Value |
+|---|---|
+| File | `docs/execution-evidence/2026-09-28/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_9f85155_default.ipynb`, SHA-256 `3f771111504919febf8647abbef023d31352de475d97e4f7947ee8b45066a0a6` (byte copy of the upload) |
+| Source match | All 22 cells, ids, order and `dimer` metadata identical to the notebook on `main` at `9f85155` (blob `325f4c9983`); no `# @param` or other diffs |
+| Runtime | Colab, `Tesla T4`; isolated environment from the hashed lock |
+| Executed cells | All 10 code cells, execution counts 1–10 in order; no errors; no stderr outputs |
+| Data preparation | 200 images, 8,463,531 bytes, all SHA-256 verified, `'source': 'mirror'` |
+| Stage time | 1,140 s total (prepare 0.7, features 250.6, classifier 4.0, detector 307.2, policy 272.5, evaluate 274.0, activity 0.8, reload 29.9) |
+| Peak GPU memory | 1,828,172,800 bytes allocated (same as the `bfa45cc` run) |
+| Reload | Fresh process; identical labels, counts and referrals; CSV/metric parity true |
+| Evidence boundary | Saved outputs were inspected; execution was not independently repeated. |
+
+Reproducibility against the `bfa45cc` run: every held-out metric in the report is identical, and
+the recorded digests of all features, classifier, detector and evaluate outputs match, apart from
+`selected_policy.json`, which stores the selection time (`selected_at_unix`), and
+`reload_expected.json`, which stores the process ID and that policy's digest. Both runs locked
+detector threshold 0.9 and review margin 0.0052.
+
+New in this head, now executed:
+- Section 6 printed the zero-referral explanation (validation coverage 1.0, selective accuracy
+  0.929).
+- Section 8 display thresholds were 0.8 / 0.9 / 0.95. At 0.95 the count MAE is 2.70
+  (229 missed, 47 spurious, 10 wrong-species), against 2.05 at the canonical 0.9.
+- `activity_review_margins.csv`, at the locked detector threshold (445 retained detections):
+
+| Review margin | Role | Validation coverage / accuracy | Test referred | Correct | Wrong species | Spurious |
+|---|---|---|---|---|---|---|
+| 0.0052 | canonical | 1.000 / 0.929 | 0 | 0 | 0 | 0 |
+| 0.5430 | ~90% coverage | 0.900 / 0.965 | 34 | 14 | 7 | 13 |
+| 0.8298 | ~80% coverage | 0.800 / 0.982 | 81 | 40 | 11 | 30 |
+
+A stricter margin would catch 7 of the 13 wrong-species boxes at a cost of 34 referrals, of which
+13 are spurious detections that a reviewer would reject and 14 are correct.
+
+| Journey | Verdict |
+|---|---|
+| Preflight, isolated environment, mirror data preparation | Passed |
+| Features, classifier, detector, policy (incl. zero-referral message) | Passed |
+| Evaluation and error diagnosis (Section 7) | Passed |
+| Threshold and review-margin activity (Section 8) | Passed |
+| Fresh-process reload and report | Passed |
+| Zenodo fallback, BYOD, repeated Run all | Not assessed in this run |
 
 ## Verification and next qualification step
 
