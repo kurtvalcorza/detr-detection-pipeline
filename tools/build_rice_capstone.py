@@ -283,7 +283,7 @@ Checkpoint selection is finished. Choose the detection threshold on validation d
 
 Every retained detection contributes to the raw count. Review flags create unresolved work; they do not make insects disappear. A missed detection cannot be referred by the classifier. Scores are not calibrated probabilities or operational pest-alert thresholds.
 
-The review policy first looks for the margin with the highest coverage that keeps at least 80% selective accuracy while accepting at least 50% of validation crops. If no margin reaches that target, it falls back to the most accurate margin, then the widest coverage. The output states which rule applied; a fallback can send many detections to review.
+The review policy first looks for the margin with the highest coverage that keeps at least 80% selective accuracy while accepting at least 50% of validation crops. If no margin reaches that target, it falls back to the most accurate margin, then the widest coverage. The output states which rule applied; a fallback can send many detections to review. The opposite can also happen: if the classifier already reaches the target on every validation crop, the rule accepts them all and refers nothing. That is the rule working as specified, not a missing step; Section 8 shows what stricter margins would have referred.
 
 **Predict:** will the full pipeline match the reference-crop classifier? Name a failure the crop classifier cannot expose.""")
     code(
@@ -291,7 +291,9 @@ The review policy first looks for the margin with the highest coverage that keep
         "locked = json.loads((ROOT / 'outputs' / 'selected_policy.json').read_text(encoding='utf-8'))\n"
         "print('Detector threshold:', locked['detector_threshold'])\n"
         "print('Review margin:', locked['review_margin'], '|', locked['review_selection_rule'])\n"
-        "print('Validation coverage / selective accuracy:', locked['review_validation_coverage'], '/', locked['review_validation_accuracy'])"
+        "print('Validation coverage / selective accuracy:', locked['review_validation_coverage'], '/', locked['review_validation_accuracy'])\n"
+        "if locked['review_validation_coverage'] >= 1.0:\n"
+        "    print('No validation crop falls below this margin: accuracy already meets the target with nothing referred, so this policy refers nothing. Section 8 shows what stricter margins would refer.')"
     )
     md("""## 7. Reveal the held-out benchmark
 The primary metric averages absolute count error over images and both species, including zero counts. Compare it with the training-mean and zero-count baselines. Oracle localisation uses published boxes; it is not a deployable system or a guaranteed mathematical upper bound because counting errors can cancel.
@@ -314,9 +316,13 @@ Predict what a lower detector threshold will do to misses, spurious boxes and co
 
 Canonical predictions and policy remain unchanged. Explain any error cancellation: a correct total can still contain missed and extra insects.
 
-The second table follows one held-out photograph: the image whose raw count changes most across the three settings. For each setting and species it shows the reference count, the raw count and the stage errors, so you can see which errors a threshold change adds or removes.""")
+The display thresholds stay inside the validation grid (0.05–0.95): a threshold of 1.0 would drop every box and simply repeat the zero-count baseline.
+
+The second table follows one held-out photograph: the image whose raw count changes most across the three settings. For each setting and species it shows the reference count, the raw count and the stage errors, so you can see which errors a threshold change adds or removes.
+
+The third table changes the review margin instead, at the locked detector threshold. Next to the locked margin it lists stricter margins that would accept about 90% and 80% of validation crops, and counts which held-out detections each would refer: correct, wrong-species or spurious. A useful margin refers mostly wrong-species boxes; referring spurious boxes needs a human to reject them, and missed insects are never referred.""")
     code(
-        "run('activity')\ntable('activity_thresholds.csv')\ntable('activity_paired_counts.csv')\nfigures('activity')"
+        "run('activity')\ntable('activity_thresholds.csv')\ntable('activity_paired_counts.csv')\ntable('activity_review_margins.csv')\nfigures('activity')"
     )
     md("""## 9. Export, reload and verify
 Both adapters reload in a fresh process with pinned bases. Original held-out images are reprocessed; boxes, species, counts and review decisions must agree within declared tolerances. Hashes and class order must match before tensors are loaded.

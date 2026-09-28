@@ -1358,6 +1358,63 @@ def panels(root, records, predictions, policy_value):
     )
 
 
+# The validation threshold grid is i/20 for i = 1..19; display thresholds stay inside it,
+# because a threshold of 1.0 drops every box and only reproduces the zero-count baseline.
+DISPLAY_THRESHOLD_BOUNDS = (0.05, 0.95)
+REVIEW_ILLUSTRATION_COVERAGE = (0.9, 0.8)
+
+
+def display_thresholds(locked):
+    low, high = DISPLAY_THRESHOLD_BOUNDS
+    return sorted({round(max(low, locked - 0.1), 6), locked, round(min(high, locked + 0.1), 6)})
+
+
+def review_margin_rows(test, predictions, policy_value):
+    """Display-only: what stricter review margins would refer, next to the locked margin.
+
+    Illustrative margins come from the validation curve (the margin whose validation coverage is
+    closest to, without exceeding, 90% and 80%). Test detections are counted at the locked
+    detector threshold; the locked review margin and counts are not changed.
+    """
+    review = policy_value.get("review_validation") or {}
+    curve = [r for r in review.get("curve", []) if r.get("accuracy") is not None]
+    locked_margin = policy_value["review_margin"]
+    margins = [(locked_margin, "canonical", review.get("coverage"), review.get("accuracy"))]
+    for target in REVIEW_ILLUSTRATION_COVERAGE:
+        eligible = [r for r in curve if r["coverage"] <= target]
+        if not eligible:
+            continue
+        row = max(eligible, key=lambda r: (r["coverage"], -r["threshold"]))
+        if all(abs(row["threshold"] - m[0]) > 1e-12 for m in margins):
+            role = f"illustrative ~{target:.0%} coverage"
+            margins.append((row["threshold"], role, row["coverage"], row["accuracy"]))
+    rows = []
+    for margin, role, coverage, accuracy in margins:
+        referred = {"correct": 0, "wrong_species": 0, "spurious": 0}
+        retained = 0
+        for record, prediction in zip(test, predictions, strict=True):
+            objects = chosen_objects(prediction, {**policy_value, "review_margin": margin})
+            retained += len(objects)
+            for outcome in object_outcomes(record, objects):
+                if outcome["review"] == "REVIEW":
+                    referred[outcome["outcome"]] += 1
+        rows.append(
+            {
+                "review_margin": round(margin, 6),
+                "role": role,
+                "validation_coverage": "" if coverage is None else round(coverage, 4),
+                "validation_selective_accuracy": "" if accuracy is None else round(accuracy, 4),
+                "test_retained": retained,
+                "test_referred": sum(referred.values()),
+                "referred_correct": referred["correct"],
+                "referred_wrong_species": referred["wrong_species"],
+                "referred_spurious": referred["spurious"],
+                "note": "Retrospective test illustration; locked review margin unchanged",
+            }
+        )
+    return rows
+
+
 def activity(root):
     _, records = context(root)
     test = [r for r in records if r["split"] == "test"]
@@ -1365,7 +1422,7 @@ def activity(root):
     policy_value = locked_policy(root)
     predictions = read(root / "outputs" / "test_detections.json")
     locked = policy_value["detector_threshold"]
-    thresholds = sorted({max(0.0, locked - 0.1), locked, min(1.0, locked + 0.1)})
+    thresholds = display_thresholds(locked)
     role = {t: "canonical" if t == locked else ("lower" if t < locked else "higher") for t in thresholds}
     rows, per_image = [], {}
     for threshold in thresholds:
@@ -1432,6 +1489,8 @@ def activity(root):
             "wrong_species",
         ],
     )
+    margins = review_margin_rows(test, predictions, policy_value)
+    csv_write(root / "outputs" / "activity_review_margins.csv", margins)
     if (
         core.sha256(root / "outputs" / "test_detections.json") != canonical
         or locked_policy(root)["digest"] != policy_value["digest"]

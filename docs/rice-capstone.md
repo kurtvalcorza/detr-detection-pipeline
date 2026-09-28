@@ -263,12 +263,37 @@ reported absent rather than manufactured.
 Observations for maintainer review (not execution failures):
 - The selected review margin (0.0052) reaches 100% validation coverage, so no held-out
   detection was referred (`referred` = 0 throughout). The review step is present but inactive
-  under this policy.
+  under this policy. Addressed below without changing the policy.
 - The activity's "higher" display threshold is 1.0, which no score reaches: every box is
-  dropped and its MAE equals the zero-count baseline. A threshold below 1.0 would illustrate
-  the trade-off better.
-- The reload log prints Transformers' "newly initialized" warning for the 2-class head before
-  the adapter weights are applied; reload parity passed.
+  dropped and its MAE equals the zero-count baseline. Fixed below.
+- The reload log prints Transformers' "newly initialized" warning for the 2-class head. It
+  comes from `DetrForObjectDetection.from_pretrained` (`tools/rice_capstone.py:503`), before
+  the adapter tensors are loaded (`:539`); reload parity passed.
+
+### Activity fixes after the `bfa45cc` run (2026-09-28)
+
+The maintainer asked for both observations to be fixed. Neither change touches the locked policy,
+the canonical predictions or any metric in Section 7:
+
+- **Display thresholds stay inside the validation grid.** `display_thresholds()` clamps the
+  lower/higher settings to 0.05–0.95, the bounds of the `i/20` grid the policy is chosen from.
+  With the locked 0.9 from this run the activity now shows 0.8 / 0.9 / 0.95 instead of
+  0.8 / 0.9 / 1.0.
+- **The review rule is kept as written (§7 decision 5), and the zero-referral case is
+  explained and illustrated.** When validation accuracy already meets the target with nothing
+  referred, the rule accepts everything; Section 6 now prints that this is the rule working as
+  specified. The Section 8 activity adds `activity_review_margins.csv`: the locked margin plus
+  the validation-curve margins that would accept about 90% and 80% of validation crops, with the
+  held-out detections each would refer, split into correct, wrong-species and spurious.
+  Display only; the locked margin and counts are unchanged.
+
+User-visible changes: the activity's higher setting changes from 1.0 to 0.95 for this policy,
+and a new output file `activity_review_margins.csv` appears (included in `results.zip`).
+
+Verification (CPU only; not clean-runtime evidence): 137 tests passed with the CI-pinned CPU
+stack (130 before plus 7 new in `tests/test_rice_activity_fixes.py`, synthetic fixtures only).
+The run of `bfa45cc` above does not cover this head: the new Section 6 message, the 0.95
+setting and the review-margin table have not yet run on a T4 with real models.
 
 ## Verification and next qualification step
 
