@@ -170,8 +170,18 @@ follow from it, all in the generator and runtime:
   prints stderr and raises `RuntimeError` with its tail, so the real exception appears in the
   notebook. `run()` already streamed combined output and is unchanged.
 
+- **Compressed carrier.** Opening the notebook at `c113a9c` in Colab made the browser report
+  "page unresponsive": the collapsed carrier cell held its embedded files as one
+  1,348,754-character line. The generator now embeds them as zlib-compressed base64 in
+  100-character lines, with the SHA-256 of the uncompressed JSON checked before any file is
+  written. The notebook shrinks from 1,484,378 to about 297,000 bytes; the carrier cell has about
+  2,500 lines, none longer than 192 characters. The decoded files are identical to the generator's
+  carried files. `build_rice_capstone.py --check` passes with Windows zlib 1.3.1 and Linux
+  zlib 1.3, so parity does not depend on the platform used for regeneration.
+
 User-visible changes: the Section 2 summary gains a `source` field (`mirror` or `zenodo`), and a
-failed helper now raises `RuntimeError` instead of `CalledProcessError`.
+failed helper now raises `RuntimeError` instead of `CalledProcessError`. The carrier cell's source
+is no longer readable in place; the readable copies linked above it are unchanged.
 
 Verification (CPU only, Windows; not clean-runtime evidence): 130 tests passed with the
 CI-pinned CPU stack (119 before plus 11 new in `tests/test_rice_mirror.py`, all offline):

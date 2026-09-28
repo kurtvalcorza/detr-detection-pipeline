@@ -5,12 +5,30 @@ from __future__ import annotations
 
 import argparse
 import ast
+import base64
 import hashlib
 import json
+import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = "DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb"
+
+
+def carrier_source(files: dict[str, str]) -> str:
+    """Embed files as compressed base64 in short lines: one 1.3-million-character line froze Colab's editor."""
+    payload = json.dumps(files, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    encoded = base64.b64encode(zlib.compress(payload, 9)).decode("ascii")
+    lines = "\n".join(encoded[i : i + 100] for i in range(0, len(encoded), 100))
+    return (
+        f"PAYLOAD_SHA256 = '{hashlib.sha256(payload).hexdigest()}'\n"
+        f"PAYLOAD = \"\"\"\n{lines}\n\"\"\"\n"
+        "raw = zlib.decompress(base64.b64decode(PAYLOAD), bufsize=len(PAYLOAD) * 4)\n"
+        "if hashlib.sha256(raw).hexdigest() != PAYLOAD_SHA256:\n"
+        "    raise RuntimeError('Embedded source digest mismatch; reopen the notebook from the repository.')\n"
+        "FILES = json.loads(raw.decode('utf-8'))\n"
+        "del raw, PAYLOAD\n"
+    )
 
 
 def carried_files() -> dict[str, str]:
@@ -33,6 +51,7 @@ def carried_files() -> dict[str, str]:
 
 
 PREFLIGHT = r"""
+import base64
 import csv
 import hashlib
 import io
@@ -46,6 +65,7 @@ import time
 import urllib.request
 import uuid
 import zipfile
+import zlib
 from IPython.display import Image, Markdown, FileLink, display
 
 if platform.system() != 'Linux' or platform.machine() != 'x86_64':
@@ -216,12 +236,11 @@ The source is a CC BY 4.0 [PhilRice-affiliated Zenodo dataset](https://doi.org/1
     md("""## 1. Reconstruct the portable experiment
 The notebook carries its own source, immutable data/model manifests and a hashed dependency lock. The separate Python environment avoids changing libraries already loaded by Colab. Hash failures stop execution rather than substituting a different experiment.
 
-The next cell is **collapsed on purpose**: it holds about 1.3 million characters of embedded source and manifests, and you do not need to read it to follow the experiment. Readable copies are in the repository: the [runtime](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_capstone.py), [metrics and matching](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_core.py) and [figures](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_figures.py). The same files are written into the run directory.""")
+The next cell is **collapsed on purpose**: it holds the embedded source and manifests as compressed, SHA-256-checked text, and you do not need to read it to follow the experiment. Readable copies are in the repository: the [runtime](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_capstone.py), [metrics and matching](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_core.py) and [figures](https://github.com/kurtvalcorza/detr-detection-pipeline/blob/main/tools/rice_figures.py). The same files are written into the run directory.""")
     code(
         "# @title Carrier cell: write embedded source, manifests and lock, then build the isolated environment\n"
-        "FILES = "
-        + repr(files)
-        + "\nfor name, source in FILES.items():\n    target = ROOT / name\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_bytes(source.encode('utf-8'))\nprint('Carried files:', len(FILES))\n"
+        + carrier_source(files)
+        + "for name, source in FILES.items():\n    target = ROOT / name\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_bytes(source.encode('utf-8'))\nprint('Carried files:', len(FILES))\n"
         + BOOTSTRAP,
         {"cellView": "form", "collapsed": True, "jupyter": {"source_hidden": True}},
     )

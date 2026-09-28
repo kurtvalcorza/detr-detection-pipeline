@@ -1,5 +1,6 @@
 """Offline tests for the hash-pinned sample mirror and the rate-limit-aware Zenodo fallback."""
 
+import base64
 import email.message
 import hashlib
 import io
@@ -7,6 +8,7 @@ import json
 import sys
 import urllib.error
 import zipfile
+import zlib
 from pathlib import Path
 
 import pytest
@@ -233,7 +235,11 @@ def test_section_2_cell_surfaces_helper_stderr_and_carries_mirror():
     carrier = next(s for s in sources if "def checked" in s)
     assert "capture_output=True" in carrier and "result.stderr" in carrier
     assert "raise RuntimeError" in carrier.split("def checked", 1)[1].split("\ndef ", 1)[0]
-    assert "'mirror.json'" in carrier
-    mirror = json.loads((ROOT / "tools" / "rice_mirror.json").read_text(encoding="utf-8"))
+    assert max(len(line) for line in carrier.splitlines()) <= 1000, "long lines freeze Colab's editor"
+    namespace = {"base64": base64, "hashlib": hashlib, "zlib": zlib, "json": json}
+    exec(carrier.split("\nfor name, source", 1)[0], namespace)
+    mirror_text = (ROOT / "tools" / "rice_mirror.json").read_text(encoding="utf-8")
+    assert namespace["FILES"]["mirror.json"] == mirror_text
+    mirror = json.loads(mirror_text)
     assert mirror["members"] == 200 and len(mirror["sha256"]) == 64
     assert assets.urllib.parse.urlsplit(mirror["url"]).hostname in assets.MIRROR_HOSTS
