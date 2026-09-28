@@ -681,8 +681,9 @@ def _validate_notebook_content(
 def validate_notebooks() -> None:
     tutorials = ROOT / "tutorials"
     notebooks = sorted(tutorials.glob("*.ipynb"))
-    _check(len(notebooks) == 1, f"exactly one tutorial notebook is expected, found {len(notebooks)}")
-    path = notebooks[0]
+    capstone_name = "DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb"
+    _check({p.name for p in notebooks} == {NOTEBOOK_NAME, capstone_name}, "Unexpected tutorial inventory")
+    path = tutorials / NOTEBOOK_NAME
     _check(path.name == NOTEBOOK_NAME, f"tutorial notebook must be named {NOTEBOOK_NAME}, found {path.name}")
     build = _load_tool("build_notebook")
     _check(build.NOTEBOOK_SPEC == NOTEBOOK_SPEC, f"tools/build_notebook.py targets notebook spec {build.NOTEBOOK_SPEC}, expected {NOTEBOOK_SPEC}")
@@ -701,6 +702,17 @@ def validate_notebooks() -> None:
         "tutorials/README.md must name the notebook spec version",
     )
     _check("standalone" in registry.lower(), "tutorials/README.md must record that the notebook is standalone")
+    capstone = json.loads(_read(tutorials / capstone_name))
+    _check(capstone == _load_tool("build_rice_capstone").build(), "Rice capstone source parity failed")
+    metadata = capstone["metadata"]["dimer"]
+    _check(metadata["notebook_spec"] == "2.2", "Rice capstone spec differs")
+    _check(metadata["study_scope"] == "exploratory_published_annotations", "Rice study scope differs")
+    _check(metadata["release_status"] == "Candidate", "Rice capstone needs hosted qualification")
+    for cell in capstone["cells"]:
+        if cell["cell_type"] == "code":
+            ast.parse(_cell_source(cell))
+            _check(cell["outputs"] == [] and cell["execution_count"] is None, "Rice notebook has stale outputs")
+    _check(f"`{capstone_name}`" in registry, "Rice capstone missing from tutorial registry")
 
 
 def validate_all() -> list[str]:

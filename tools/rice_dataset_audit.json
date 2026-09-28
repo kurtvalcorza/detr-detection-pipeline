@@ -1,0 +1,835 @@
+{
+  "scope": "exploratory_published_annotations",
+  "qualification": {
+    "passed": true,
+    "scope": "exploratory_published_annotations",
+    "capture_independence_verified": false,
+    "human_reference_completeness_verified": false,
+    "field_surveillance_qualified": false,
+    "meaning": "Passed the user-approved exploratory published-annotation benchmark data checks only."
+  },
+  "manifest_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+  "gates": {
+    "rights": {
+      "status": "passed",
+      "evidence": "Zenodo record API license cc-by-4.0; user screenshot confirms CC BY 4.0."
+    },
+    "original_images": {
+      "status": "passed",
+      "evidence": "Selected whole detection images downloaded and decoded; these are 640x640 processed Roboflow exports, not original camera files."
+    },
+    "crop_lineage": {
+      "status": "passed",
+      "evidence": "Canonical crops derive from manifest boxes with unique image/object IDs; all 91577 distributed ROI filenames map to source detection image names, with zero split mismatches. Canonical run does not use distributed ROI pixels."
+    },
+    "capacity": {
+      "status": "passed",
+      "images": {
+        "train": 120,
+        "validation": 40,
+        "test": 40
+      },
+      "instances": {
+        "train": {
+          "rice_black_bug": 713,
+          "white_stemborer": 991
+        },
+        "validation": {
+          "rice_black_bug": 186,
+          "white_stemborer": 164
+        },
+        "test": {
+          "rice_black_bug": 271,
+          "white_stemborer": 184
+        }
+      },
+      "groups": {
+        "train": 120,
+        "validation": 40,
+        "test": 40
+      },
+      "group_kind": "source-filename families only"
+    },
+    "philippine_capture_provenance": {
+      "status": "unresolved",
+      "evidence": "PhilRice Midsayap creator affiliations; all7098 location values absent."
+    },
+    "capture_independence": {
+      "status": "unresolved",
+      "evidence": "All7098 capture_date,capture_time,light_trap_id,camera_device,operator,notes fields absent; filename grouping cannot establish specimen independence."
+    },
+    "reference_completeness": {
+      "status": "unresolved",
+      "evidence": "Published YOLO box table; no human verification/completeness documentation."
+    }
+  },
+  "source_inventory": {
+    "archive_entries": 112940,
+    "archive_files": 112898,
+    "detection_images": 7098,
+    "detection_label_files": 7097,
+    "raw_folder_images": 7068,
+    "raw_manifest_rows": 7098,
+    "roi_images": 91577,
+    "annotation_rows": 91577,
+    "source_filename_families": 1685,
+    "cross_role_source_families": 1,
+    "images_above_100_targets": 4,
+    "maximum_targets": 106
+  },
+  "selection": {
+    "salt": "dimer-ph-rice-pests-v1",
+    "source_roles_preserved": true,
+    "variant_rule": "Within each source stem retain minimum SHA256(salt + colon + filename); rank families by SHA256(salt + colon + stem).",
+    "sample_rule": "Role quotas120/40/40; conservative exclusion of exact hashes, decoded hashes or dHash Hamming distance <=4 to any previously selected image; refill using next deterministic candidate.",
+    "exclusions": [
+      {
+        "family": "6095710224539913189_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913190_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913191_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913192_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913193_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913194_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913215_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913216_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913217_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913218_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913286_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913299_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913487_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913490_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913493_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913494_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913495_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913496_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913497_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913499_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913500_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913502_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913509_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913510_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913511_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913512_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913514_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913517_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913518_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913519_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913520_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913521_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913523_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913524_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913554_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913558_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913559_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913560_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913561_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913563_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913564_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913565_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913566_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913567_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6095710224539913568_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913569_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6095710224539913571_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6100321344378571883_jpg",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "6100321344378571884_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "6179275676641332334_jpg",
+        "reason": "family_contains_more_than_100_targets",
+        "images": 5
+      },
+      {
+        "family": "IMG_0730_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0778_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0779_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0780_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0781_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0782_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0783_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0784_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0785_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0786_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0787_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0793_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0800_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0820_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0825_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0828_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0829_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0831_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0832_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0836_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0838_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0840_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0841_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0843_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0845_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0850_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0860_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0861_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0863_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0864_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0865_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_0867_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0869_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0872_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0874_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0876_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_0878_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0879_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0881_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0883_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_0891_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1028_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1034_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1035_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1037_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1043_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1044_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1045_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1047_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1053_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1056_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1062_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1063_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1074_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1075_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1080_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1082_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1083_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1086_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1096_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1097_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1107_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1108_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1109_JPG",
+        "reason": "no_valid_box_member",
+        "images": 10
+      },
+      {
+        "family": "IMG_1110_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1128_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1131_JPG",
+        "reason": "source_family_cross_split",
+        "images": 6
+      },
+      {
+        "family": "IMG_1137_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1142_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1151_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1155_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1176_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1177_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1179_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1189_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1197_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1201_JPG",
+        "reason": "no_valid_box_member",
+        "images": 1
+      },
+      {
+        "family": "IMG_1203_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1221_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1223_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_1226_JPG",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_20260110_144752_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_20260110_145616_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_20260110_150009_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_20260110_150630_jpg",
+        "reason": "no_valid_box_member",
+        "images": 5
+      },
+      {
+        "family": "IMG_2681_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2535_JPG"
+      },
+      {
+        "family": "IMG_2290_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2414_JPG"
+      },
+      {
+        "family": "IMG_2306_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2414_JPG"
+      },
+      {
+        "family": "IMG_2041_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2105_JPG"
+      },
+      {
+        "family": "IMG_2114_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2116_JPG"
+      },
+      {
+        "family": "IMG_2483_JPG",
+        "reason": "conservative_dhash_or_exact_duplicate",
+        "against": "IMG_2552_JPG"
+      }
+    ],
+    "discarded_source_crops": true,
+    "missing_label_policy": "Canonical references use published bounding_box_annotations.csv; missing label file is never interpreted as zero targets.",
+    "target_free_images": 0
+  },
+  "source_metadata_files": {
+    "acquisition_metadata.csv": {
+      "sha256": "968072410d1c4608fcad3aa388ce7e4a4f5bff08e762b4c4a495b20f71298102",
+      "bytes": 1715179
+    },
+    "bounding_box_annotations.csv": {
+      "sha256": "87e78d239cd5eb59097113cf409cb6d2efac9081e9d9f419eec510ab93ada084",
+      "bytes": 34666466
+    },
+    "class_dictionary.csv": {
+      "sha256": "e1a239d7476fd963e17ed2a209e29db0b542ccf7529a7da33d64058a3b216b05",
+      "bytes": 760
+    },
+    "image_quality_flags.csv": {
+      "sha256": "169ef17d9e076f65a9dc043f0bb0d211f55016c4ac77643d958986c338e4b175",
+      "bytes": 17804691
+    },
+    "split_manifest.csv": {
+      "sha256": "a61eb3502131e1f8a609c21b1e784161a21575943e03696a8edc891e91633159",
+      "bytes": 1218249
+    }
+  },
+  "integrity": {
+    "central_directory_sha256": "6047989ee5e1b4fe244b2065c3cea1b2093d10d70d0066711f0e77db94c08804",
+    "full_archive_downloaded": false,
+    "archive_md5_publisher": "24960c245a3a21b63be95314cc7467da",
+    "member_crc_and_size_verified": true,
+    "selected_member_sha256_pinned": true
+  },
+  "limitations": [
+    "Source filename families are not verified independent capture events.",
+    "Published boxes and species-sex labels are not verified human-complete references.",
+    "Source images are processed Roboflow exports, not untouched camera originals.",
+    "Capture location is absent; Philippine affiliation does not establish every capture origin.",
+    "Single-insect and multi-insect photographs are mixed. Dorsal/ventral views may represent the same specimen across filename families.",
+    "dHash is an approximate duplicate screen and cannot prove biological or acquisition independence.",
+    "Source resize/contrast/augmentation cannot be undone; no claim to unprocessed camera imagery.",
+    "All performance is agreement with published annotations, not independently verified pest count accuracy."
+  ]
+}

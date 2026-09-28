@@ -1,2 +1,11 @@
 # Snapshot files are digest-verified byte-for-byte against dimer-base-manifest.json; never convert their line endings.
 weights/** -text
+tools/rice_data.json text eol=lf
+tools/rice_dataset_audit.json text eol=lf
+tools/rice_capstone.py text eol=lf
+tools/rice_core.py text eol=lf
+tools/rice_assets.py text eol=lf
+tools/rice_figures.py text eol=lf
+tools/build_rice_capstone.py text eol=lf
+tools/rice_models.json text eol=lf
+tools/rice-requirements.lock text eol=lf

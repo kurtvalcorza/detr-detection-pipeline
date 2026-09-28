@@ -25,3 +25,21 @@ Notebook specification: **DIMER Notebook Specification 2.1**. The notebook is **
 ## AI Assistance Disclosure
 
 This repository’s code and accompanying documentation were developed with generative AI assistance for code development and technical writing under maintainer direction. The maintainer remains responsible for reviewing the implementation, validating results, and making release decisions. AI assistance does not constitute independent verification, provider endorsement, or release approval.
+# Rice-pest capstone
+
+`DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb` is a separate standalone `E2E` / `WORKSHOP`
+notebook under DIMER Notebook Specification 2.2. Upload the file to Colab, choose a fresh T4,
+and Run all with defaults. Status: **Candidate; hosted execution pending**. The original DETR
+tutorial's earlier execution evidence does not qualify this capstone.
+
+The default sample has 200 image exports (120/40/40), 2,509 published reference boxes and two
+species categories. It trains a target-pest detector and a frozen-feature BioCLIP head, measures
+count error against baselines, explains mistakes and exports reloadable artifacts. SigLIP and
+RGB/majority crop classifiers provide comparisons. Four-way sex classification is not enabled.
+
+Capture sessions, exact Philippine capture locations and human annotation completeness are
+unverified. The explicitly approved scope is agreement with published annotations under
+source-image-family/duplicate grouping. It is not field-surveillance qualification.
+
+Regenerate with `python tools/build_rice_capstone.py`; verify with `--check`.
+See [data audit, scope and qualification details](../docs/rice-capstone.md).
