@@ -68,7 +68,7 @@ composes adapted DETR with a BioCLIP species head and compares SigLIP and simple
 Its 200-image sample contains 2,509 published boxes from a CC BY 4.0 PhilRice-affiliated dataset.
 It is an **exploratory published-annotation benchmark**: source-family grouping does not establish
 independent capture events or verified annotation completeness. The new notebook remains
-**Candidate; one passing fresh Colab T4 default Run all recorded; maintainer review required**. See [build and data-audit notes](docs/rice-capstone.md).
+**Candidate; passing fresh Colab T4 default Run all recorded on the current notebook; maintainer review required**. See [build and data-audit notes](docs/rice-capstone.md).
 
 ## Release status
 
