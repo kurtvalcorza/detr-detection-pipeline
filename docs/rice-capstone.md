@@ -1,6 +1,6 @@
 # Rice-pest exploratory capstone
 
-**Candidate: fresh Colab T4 default Run all remains pending.** The implementation is separate
+**Candidate: one passing Colab T4 default Run all recorded (revision `bfa45cc`, 2026-09-28); maintainer review required.** The implementation is separate
 from the original DETR tutorial. Original package code and original notebook are unchanged.
 
 ## Agreed scope and source audit
@@ -215,7 +215,60 @@ published, an anonymous download of the pinned URL (302 to `release-assets.githu
 | Data preparation | **Failed** |
 | Features, training, policy, evaluation, activity, reload, report | Not assessed in this run |
 
-Fixed in: the sample-mirror change below (the helper's stderr is now shown in the cell, images come from a hash-pinned mirror, and the Zenodo fallback honours `Retry-After`). A new Colab T4 Run all on that head is pending.
+Fixed in: `c113a9c` (the helper's stderr is now shown in the cell, images come from a hash-pinned mirror, and the Zenodo fallback honours `Retry-After`) and `bfa45cc` (compressed carrier; the `c113a9c` notebook froze Colab's editor on open). Confirmed by the run of `bfa45cc` below.
+
+### Maintainer-supplied Colab execution of revision `bfa45cc` — 2026-09-28 (PASSED, default Run all)
+
+| Field | Value |
+|---|---|
+| File | `docs/execution-evidence/2026-09-28/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_bfa45cc_default.ipynb`, SHA-256 `fbbb0a2ec8d3b5d00783fa6f81d347f714be0334f59ef2c30a59a30df43c307a` (byte copy of the upload) |
+| Source match | All 22 cells, ids, order and `dimer` metadata identical to the notebook at `bfa45cc` (blob `398006540b`); no `# @param` or other diffs |
+| Runtime | Colab, `Tesla T4`; isolated environment from the hashed lock (torch `2.11.0+cu130`) |
+| Executed cells | All 10 code cells, execution counts 1–10 in order; no errors; no stderr outputs |
+| Data preparation | `{'images': 200, 'bytes': 8463531, 'sha256_verified': True, 'source': 'mirror'}` |
+| Stage time | 1,107 s total (prepare 0.8, features 238.7, classifier 4.4, detector 317.5, policy 253.9, evaluate 259.3, activity 0.9, reload 31.9); environment bootstrap not timed in the saved outputs |
+| Peak GPU memory | 1,828,172,800 bytes allocated (features stage) |
+| Policy | Detector threshold 0.9; review margin 0.0052; validation coverage 1.0, selective accuracy 0.929; policy digest `87b4689d…5ccb7d` |
+| Reload | Fresh process (pid 4943 → 6111) on two original held-out images: identical labels, counts and referrals within box atol 1e-3 / score atol 1e-5; CSV/metric parity true |
+| Bundle | `results.zip` produced; report lists `figures/classifier.png`, `detector.png`, `evaluate.png`, `activity.png`. The zip itself was not returned, so its member list was not inspected. |
+| Evidence boundary | Saved outputs were inspected; execution was not independently repeated. |
+
+Held-out test (40 images, 80 image/species pairs, 455 reference boxes):
+
+| System | Count MAE | Bias | Exact-count rate |
+|---|---|---|---|
+| training_mean | 8.123 | +1.412 | 0.000 |
+| zero_count | 5.688 | −5.688 | 0.438 |
+| detector_majority | 6.950 | −0.125 | 0.400 |
+| detector_bioclip | 2.125 | −0.125 | 0.350 |
+| detector_adapted | 2.050 | −0.125 | 0.363 |
+| oracle_bioclip (reference boxes) | 0.925 | 0.000 | 0.675 |
+| oracle_adapted (reference boxes) | 0.650 | 0.000 | 0.725 |
+
+Error decomposition for `detector_adapted` (all species): 306 correct, 13 wrong-species in each
+direction, 136 missed, 126 spurious. Detection errors, not species errors, dominate count error.
+No held-out image was counted exactly for both species, so the `success` panel category is
+reported absent rather than manufactured.
+
+| Journey | Verdict |
+|---|---|
+| Preflight and isolated environment | Passed |
+| Data preparation (mirror) | Passed |
+| Features, classifier, detector, policy | Passed |
+| Evaluation, error diagnosis (Section 7 tables and panels) | Passed; tables and four figures present and inspected |
+| Threshold activity (Section 8, `activity_paired_counts.csv`) | Passed |
+| Fresh-process reload and report | Passed |
+| Zenodo fallback, BYOD, repeated Run all | Not assessed in this run |
+
+Observations for maintainer review (not execution failures):
+- The selected review margin (0.0052) reaches 100% validation coverage, so no held-out
+  detection was referred (`referred` = 0 throughout). The review step is present but inactive
+  under this policy.
+- The activity's "higher" display threshold is 1.0, which no score reaches: every box is
+  dropped and its MAE equals the zero-count baseline. A threshold below 1.0 would illustrate
+  the trade-off better.
+- The reload log prints Transformers' "newly initialized" warning for the 2-class head before
+  the adapter weights are applied; reload parity passed.
 
 ## Verification and next qualification step
 
