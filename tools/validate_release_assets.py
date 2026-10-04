@@ -1,6 +1,6 @@
 """Static release-asset validation for the DETR ResNet-50 object-detection DIMER pipeline.
 
-Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.1 §4), the tutorial
+Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.2 §4), the tutorial
 registry, model card (DIMER Model Card Specification 1.2), README, STATUS.md and weight documentation
 for source conformance and cross-document identity consistency, the snapshot pin state, and runs the
 generator parity checks (PAR1–PAR3).
@@ -32,9 +32,9 @@ UNPINNED_PHRASE = "not yet pinned"
 # Extra 40-hex commits the docs may legitimately cite (none yet).
 KNOWN_SHAS: frozenset[str] = frozenset(())
 
-# NOTEBOOK_SPEC 2.1 §10.3: BYOD is gated off by default so the sample path runs top-to-bottom.
+# NOTEBOOK_SPEC 2.2 §10.3: BYOD is gated off by default so the sample path runs top-to-bottom.
 BYOD_GATES = ("USE_BYOD_IMAGE", "USE_BYOD_DATASET")
-# NOTEBOOK_SPEC 2.1 EXE2: every file-reading branch has a location field.
+# NOTEBOOK_SPEC 2.2 EXE2: every file-reading branch has a location field.
 LOCATION_FIELDS = ("BYOD_IMAGE_PATH", "BYOD_DATASET_DIR")
 
 EXPECTED_OUTPUTS = (
@@ -64,7 +64,28 @@ CODE_MARKERS = (
     "new_records = sign_dataset(3, seed=NEW_DATA_SEED)",
     "descriptor = adapter.save_artifact(artifact_path, notes='DETR ResNet-50 sign adaptation tutorial adapter')",
     "reloaded = DetrDetectionPipeline.load_artifact(artifact_path, weights_dir=WEIGHTS_DIR)",
-    "assert len(det_orig) == len(det_reloaded)",
+    "if len(det_orig) != len(det_reloaded):",
+    # DTR-M2 (review 2026-10-02): the held-out decision view at the operating threshold, and the reload helper reused by BYOD.
+    "operating_check = threshold_check(adapter, held_out, threshold)",
+    # DTR-M2 (Kurt, 2026-10-04, as conditional-detr CDT-M2 option B): an adapted threshold chosen on the TRAINING split only, shown next to the 0.9 view.
+    "adapted_threshold = select_adapted_threshold(adapter, train_records)",
+    "adapted_check = threshold_check(adapter, held_out, ADAPTED_THRESHOLD)",
+    "'same_label_iou_at_adapted_threshold': ious_adapted",
+    "'adapted_threshold': adapted_threshold,",
+    "byod_threshold = select_adapted_threshold(byod_pipe, byod_train)",
+    # FIX_PACKET addendum: the isolated worker's google.colab stubs carry a ModuleSpec (accelerate calls find_spec).
+    "importlib.machinery.ModuleSpec(name, None, is_package=package)",
+    "reload_check = reload_equivalence(adapter, reloaded, new_records[0]['image'])",
+    "'best_same_label_at_evaluation_threshold': best_at_evaluation_threshold",
+    "'held_out_at_operating_threshold': operating_check",
+    # DTR-m2: the BYOD dataset branch exports results and compares the reloaded adapter.
+    "byod_reload_check = reload_equivalence(byod_pipe, byod_reloaded, byod_held[0]['image'])",
+    "byod_detr_result.json",
+    "byod_detr_detections.csv",
+    # DTR-m3: a fresh upload directory, one image per image upload, zip extraction member by member.
+    "shutil.rmtree(target, ignore_errors=True)",
+    "upload exactly one image for the image branch",
+    "if name.startswith('/') or ':' in name or '..' in parts:",
     "byod_records = read_detection_records(dataset_dir)",
     "byod_pipe.finetune(byod_train",
     "'model_revision': MODEL_REVISION",
@@ -84,7 +105,32 @@ MARKDOWN_MARKERS = (
     "**Read the loss as optimisation evidence only.**",
     "COCO mean average precision needs a labelled image set",
     "AP@[.50:.95]",
+    # DTR-M2: the AP/threshold distinction and the observed outcome replace the claim that the adapter detects the new classes.
+    "**AP is computed at the evaluation threshold.**",
+    "**What the recorded runs show.** At 0.9 the adapted model returned **no** boxes",
+    "**Scores and thresholds.**",
+    "**An adapted threshold, chosen on the training split only.**",
+    # DTR-M3: every fine-tune starts from the re-headed model; the activity names its re-run range.
+    "**Adaptation always starts from the re-headed model.**",
+    # DTR-M4: the guided layer of a GUIDED notebook (NOTEBOOK_SPEC 2.2 GDL1-GDL14).
+    "**Who this is for.**",
+    "**Input → Model → Output.**",
+    "**How to use this notebook.**",
+    "**Roadmap:**",
+    "> **Infrastructure.**",
+    "## 14. Your turn — change one thing: unfreeze the backbone",
+    "Runtime → Run after",
+    "## Troubleshooting",
+    "## Glossary",
+    "## Conclusion (your notes)",
+    # DTR-M2 / DTR-m3.
+    "**The count is capped.**",
+    "**Upload the files flat",
 )
+# DTR-M4: Sections 4, 5, 7, 8, 9 and 10 ask for a prediction; the following sections and the closing open worked answers.
+GUIDED_PREDICT_SECTIONS = (4, 5, 7, 8, 9, 10)
+GUIDED_MIN_WORKED_ANSWERS = 7
+GLOSSARY_TERMS = ("Object query", "Hungarian matching", "Softmax score and no-object class", "Threshold", "Re-heading", "AP50 / AP@[.50:.95]", "Held-out split", "Adapter / reload equivalence")
 
 # Runtime/model-library access must stay inside the carried module (ST1/ST2).
 FORBIDDEN_OUTSIDE_MODULE = (
@@ -104,10 +150,20 @@ FORBIDDEN_OUTSIDE_MODULE = (
 # ---------------------------------------------------------------------------
 # Shared checks. Everything below is source/structure validation only. Passing
 # these checks is NOT clean-runtime execution evidence under DIMER Notebook
-# Specification 2.1; see docs/release-verification.md for the release gate.
+# Specification 2.2; see docs/release-verification.md for the release gate.
 # ---------------------------------------------------------------------------
 
-NOTEBOOK_SPEC = "2.1"
+# 2.2 since 2026-10-03 (DTR-M1): the tutorial runs in the uv isolated environment (generator /2.1), no in-kernel install.
+NOTEBOOK_SPEC = "2.2"
+# Learner-facing text that must not come back (review 2026-10-02).
+STALE_MARKDOWN = (
+    "installed directly — there is no repository clone",  # DTR-M1
+    "the cell stops with a restart instruction",  # DTR-M1
+    "The adapted pipeline detects the new sign classes",  # DTR-M2
+    "Runtimes are not measured in this revision",  # DTR-m1
+    "Change `FREEZE_BACKBONE` to `False` and compare held-out AP and runtime",  # DTR-M3
+        "@@",  # an unfilled number placeholder of the template
+)
 MODEL_CARD_SPEC = "1.2"
 ALLOWED_PROFILES = {"E2E", "ARTIFACT-INFERENCE", "TASK-INFERENCE", "MULTI-CAPABILITY", "SMOKE"}
 STATUS_TOKENS = ("Candidate", "Release-grade")
@@ -664,6 +720,16 @@ def _validate_notebook_content(
     _check(not present, f"{path.name}: forbidden/insecure source: {present}")
     leaked = [marker for marker in FORBIDDEN_OUTSIDE_MODULE if marker in outside]
     _check(not leaked, f"{path.name}: direct library use outside the carried module cell (G2): {leaked}")
+    # DTR-M1: only the uv install cell and the router run in the kernel; the install is hash-locked and Linux x86_64 only.
+    kernel = [source for _index, source, _tree in code_cells if "# dimer: kernel cell" in source]
+    _check(len(kernel) == 2, f"{path.name}: exactly the install and router cells run in the kernel, found {len(kernel)}")
+    install = next((k for k in kernel if "LOCK_TEXT = r" in k), "")
+    for needed in ('"--managed-python"', '"--require-hashes"', '"--only-binary"', '":all:"', "UV_SHA256", "LOCK_SHA256", 'platform.machine() != "x86_64"'):
+        _check(needed in install, f"{path.name}: the isolated install cell must use {needed} (uv isolated environment)")
+    learner = "\n".join(text for index, text in stripped.items() if index not in embedded_indices and "# dimer: kernel cell" not in text)
+    _check("from IPython" not in learner, f"{path.name}: learner cells run in the isolated environment, which has no IPython")
+    stale = [marker for marker in STALE_MARKDOWN if marker in markdown]
+    _check(not stale, f"{path.name}: stale learner-facing text: {stale}")
     _check(
         f"pipe = {PIPELINE_CLASS}.from_pretrained(weights_dir=WEIGHTS_DIR)" in outside,
         f"{path.name}: must load through {PIPELINE_CLASS}.from_pretrained(weights_dir=WEIGHTS_DIR) (INF1)",
@@ -676,6 +742,36 @@ def _validate_notebook_content(
     _check(not missing_md, f"{path.name}: missing learner-facing markers: {missing_md}")
     _check(f"**Profile:** `{EXPECTED_PROFILE}`" in markdown, f"{path.name}: markdown must state the profile")
     _check(f"https://huggingface.co/{model_id}" in markdown, f"{path.name}: references must link {model_id}")
+
+
+def _section_cells(notebook: dict, number: int) -> tuple[str, str]:
+    """(markdown, code) of the stage `## <number>. ...`: the markdown cell holding the heading and the code cell after it."""
+    cells = notebook.get("cells", [])
+    for index, cell in enumerate(cells):
+        if cell.get("cell_type") == "markdown" and f"## {number}. " in _cell_source(cell):
+            code = next((_cell_source(c) for c in cells[index + 1 :] if c.get("cell_type") == "code"), "")
+            return _cell_source(cell), code
+    raise ValidationError(f"no '## {number}.' section in the tutorial notebook")
+
+
+def _validate_guided_layer(path: Path, notebook: dict) -> None:
+    """DTR-M3 / DTR-M4: predictions, worked answers, glossary, collapsed infrastructure, and the Section 8 rebuild."""
+    for number in GUIDED_PREDICT_SECTIONS:
+        md, _code = _section_cells(notebook, number)
+        _check("**Predict before running:**" in md.split(f"## {number}. ", 1)[1], f"{path.name}: Section {number} must ask for a prediction before it runs (GDL6)")
+    markdown = "\n".join(_cell_source(c) for c in notebook.get("cells", []) if c.get("cell_type") == "markdown")
+    answers = markdown.count("<details><summary>Check your reasoning</summary>")
+    _check(answers >= GUIDED_MIN_WORKED_ANSWERS, f"{path.name}: {answers} worked answers, at least {GUIDED_MIN_WORKED_ANSWERS} expected (GDL7)")
+    glossary = markdown.split("## Glossary", 1)[-1]
+    missing = [term for term in GLOSSARY_TERMS if f"- **{term}" not in glossary]
+    _check(not missing, f"{path.name}: glossary misses {missing}")
+    for cell in notebook.get("cells", []):
+        if cell.get("metadata", {}).get("dimer", {}).get("embedded_module"):
+            _check(cell["metadata"].get("jupyter", {}).get("source_hidden") is True, f"{path.name}: carried module cells must be collapsed (GDL11)")
+    _md, code = _section_cells(notebook, 8)
+    body = _strip_comments(code)
+    rebuild = re.search(r"if adapter\.adapted:\n(?:[ \t]*\n)*[ \t]+adapter = DetrDetectionPipeline\.from_pretrained\(", body)
+    _check(rebuild is not None and rebuild.start() < body.find("run = adapter.finetune("), f"{path.name}: Section 8 must rebuild the re-headed model before it fine-tunes (DTR-M3)")
 
 
 def validate_notebooks() -> None:
@@ -694,6 +790,7 @@ def validate_notebooks() -> None:
     _validate_identity(path, code_cells, embedded_indices, revision)
     _validate_parity(path, notebook, code_cells, build)
     _validate_notebook_content(path, code_cells, markdown, embedded_indices)
+    _validate_guided_layer(path, notebook)
     registry = _read(tutorials / "README.md")
     _check(f"`{path.name}`" in registry, f"{path.name} missing from tutorials/README.md")
     _check(f"`{EXPECTED_PROFILE}`" in registry, f"tutorials/README.md must record `{EXPECTED_PROFILE}`")

@@ -1,4 +1,4 @@
-"""NOTEBOOK_SPEC 2.1 parity tests (PAR1–PAR3) for the standalone tutorial notebook.
+"""NOTEBOOK_SPEC 2.2 parity tests (PAR1–PAR3) for the standalone tutorial notebook.
 
 The notebook carries `src/<package>/*.py` verbatim; these tests fail whenever a carried cell, the inline
 manifest, or the inline pins diverge from the repository at HEAD.
@@ -105,7 +105,7 @@ def test_par2_inline_manifest_and_pins_match_repository(notebook: dict) -> None:
     assert re.findall(r"'([^']+)'", pins_block.group(1)) == build._pins(ROOT)
     meta = notebook["metadata"]["dimer"]
     assert meta["standalone"] is True
-    assert meta["notebook_spec"] == build.NOTEBOOK_SPEC == "2.1"
+    assert meta["notebook_spec"] == build.NOTEBOOK_SPEC == "2.2"
     assert meta["generated_from"]["module"] == f"src/{TEMPLATE['package']}/pipeline.py"
     assert meta["generated_from"]["module_sha256"] == build.load_context(ROOT, TEMPLATE)["module_sha256"]
 

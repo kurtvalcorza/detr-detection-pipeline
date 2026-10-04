@@ -18,7 +18,7 @@ date_published_source: "month of the DETR paper and first code release (arXiv:20
 > ⚠️ **Provided for research, training, and evaluation purposes only.** Model weights are redistributed unmodified under their upstream license, which controls your use, including any commercial use or redistribution; the accompanying code and notebooks are released under this repository's license. All of it is supplied **"as is"**, without warranty of any kind, and has not been validated for production, clinical, or safety-critical use. Running the notebooks downloads third-party weights and datasets governed by their own licenses and consumes compute on your own Colab/Kaggle account. To the maximum extent permitted by law, the maintainers of this repository and the DIMER platform accept no liability for any damages arising from their use. Hosting implies no affiliation with or endorsement by the original authors.
 
 > [!IMPORTANT]
-> The upstream snapshot is pinned to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b`, and the manifest records every file's SHA-256. Default-path execution recorded on 2026-09-25 (Kaggle T4); REL12 BYOD exercise pending before promotion. The measured values under Metrics come from that one run: small drawn test sets, one seeded split, one runtime. They are tutorial evidence, not a benchmark.
+> The upstream snapshot is pinned to Hub commit `1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b`, and the manifest records every file's SHA-256. A default-path execution was recorded on 2026-09-25 (Kaggle T4); it needed a manual restart after the install cell, so it is not a one-pass `Run all`, and the tutorial now runs in an isolated `uv` environment instead (Linux x86_64 runtimes only). REL12 BYOD exercise pending before promotion. The measured values under Metrics come from that one run: small drawn test sets, one seeded split, one runtime. They are tutorial evidence, not a benchmark.
 
 ---
 
@@ -225,7 +225,7 @@ The following uses are prohibited even where the model would work:
 
 ## Verification records
 
-Default-path execution recorded on 2026-09-25 (Kaggle T4): exact notebook blob `a98705edf1cb` at commit `e39d680`, 357.5 s, 14/14 post-restart code cells, BYOD off; measured values are under Metrics. REL12 BYOD exercise pending before promotion. The offline test suite runs a tiny random-weight DETR through fine-tuning, evaluation and adapter reload; that exercises the code path and is not a result about this model. `docs/release-verification.md` holds the release gate and the record table.
+Default-path execution recorded on 2026-09-25 (Kaggle T4): exact notebook blob `a98705edf1cb` at commit `e39d680`, 357.5 s, 14/14 code cells only after a manual restart following the install cell — not a one-pass `Run all`, not promotion evidence — BYOD off; measured values are under Metrics. The 2026-10-04 revision of the tutorial (isolated `uv` environment, review fixes, an adapted threshold chosen on the training split) has a local CPU pre-flight only. REL12 BYOD exercise pending before promotion. The offline test suite runs a tiny random-weight DETR through fine-tuning, evaluation and adapter reload; that exercises the code path and is not a result about this model. `docs/release-verification.md` holds the release gate and the record table.
 
 ## References
 
