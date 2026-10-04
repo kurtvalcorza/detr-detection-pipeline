@@ -1,0 +1,173 @@
+[colab] Parsing notebook '/home/kurt/colab-runs/detr-detection-pipeline-c3c81cb-dd8247/detr_detection_colab_c3c81cb_colab-cli-t4.ipynb'...
+[colab] Executing cell 1/16 - Infrastructure: install the locked runtime into an isolated environment...
+{'isolated_environment': '/content/dimer_isolated_env', 'isolated_python': '3.12.12', 'kernel_python': '3.13.15', 'locked_packages': 49, 'setup_seconds': 60}
+[colab] Executing cell 2/16 - Route the remaining cells to the isolated environment...
+Every later code cell now runs in /content/dimer_isolated_env/bin/python (pid 1476).
+[colab] Executing cell 3/16 - detr_detection-07...
+{'notebook_source': {'repository': 'detr-detection-pipeline', 'repository_revision': '808b10c975520e6abb6bb974e23a0d0ba1100705', 'embedded_module': 'src/detr_detection_pipeline/pipeline.py', 'embedded_modules': ['src/detr_detection_pipeline/pipeline.py', 'src/detr_detection_pipeline/samples.py'], 'module_sha256': '0d5067df1c9ac5ea97b50b52f14d23e8067a3b69dd85ffb168ca36cf5d12a640', 'generator': 'build_notebook.py/2.1', 'notebook_spec': '2.2'}, 'python': '3.12.12', 'torch': '2.14.0+cu130', 'transformers': '4.57.6', 'timm': '1.0.29', 'scipy': '1.18.1', 'numpy': '2.5.3', 'PIL': '11.3.0', 'cuda': True}
+[colab] Executing cell 4/16 - detr_detection-09...
+[colab] Executing cell 5/16 - detr_detection-11...
+[colab] Executing cell 6/16 - detr_detection-13...
+{'model_id': 'facebook/detr-resnet-50', 'revision': '1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b', 'license': 'apache-2.0', 'files': 4, 'total_bytes': 166598669}
+{'weights_dir': '/content/weights/detr-resnet-50', 'fetched': ['README.md', 'config.json', 'model.safetensors', 'preprocessor_config.json']}
+{'verified_files': 4, 'revision': '1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b'}
+Some weights of the model checkpoint at /content/weights/detr-resnet-50 were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+{'device': 'cuda:0', 'source': '/content/weights/detr-resnet-50'}
+[colab] Executing cell 7/16 - detr_detection-15...
+{'MIN_IMAGE_SIDE': 16, 'MAX_IMAGE_SIDE': 4096, 'MAX_DETECTIONS': 100, 'label_slots': 91, 'unannotated_slots': 11, 'DETECTION_THRESHOLD': 0.9}
+{'sample_kind': 'synthetic', 'size': [640, 480], 'sha256': 'ff819833457d69be', 'references': {'stop sign': 1, 'traffic light': 1, 'clock': 1, 'sports ball': 1}}
+{'verdict': 'accepted', 'findings': [{'probe': 'threshold=1.5', 'rejected': 'threshold must be a number in [0, 1], got 1.5'}], 'inputs': [{'id': 'tutorial-scene', 'mode': 'RGB', 'size': [640, 480]}]}
+     stop sign 0.999  [53, 94, 168, 218]
+ traffic light 0.997  [269, 59, 323, 217]
+         clock 0.973  [412, 73, 552, 219]
+{'verdict': 'sample-sanity', 'n_detections': 3}
+         stop sign-0  box_iou 0.847  same-label detections 1
+     traffic light-0  box_iou 0.910  same-label detections 1
+             clock-0  box_iou 0.898  same-label detections 1
+       sports ball-0  box_iou 0.000  same-label detections 0
+3/4 drawn objects matched at IoU >= 0.5
+<PIL.Image.Image image mode=RGB size=640x480 at 0x78528D43AF00>
+
+[Image saved to: /tmp/tmpucrni34w.png]
+[colab] Executing cell 8/16 - detr_detection-17...
+{
+  "blank": {
+    "at_default_threshold": 0,
+    "at_evaluation_threshold": 0,
+    "cap": 100,
+    "top": []
+  },
+  "noise": {
+    "at_default_threshold": 0,
+    "at_evaluation_threshold": 0,
+    "cap": 100,
+    "top": []
+  }
+}
+[colab] Executing cell 9/16 - detr_detection-19...
+{
+  "n_records": 40,
+  "n_boxes": 82,
+  "class_names": [
+    "stop-sign",
+    "yield-sign",
+    "speed-limit-sign"
+  ],
+  "boxes_per_class": {
+    "stop-sign": 21,
+    "yield-sign": 34,
+    "speed-limit-sign": 27
+  },
+  "epochs": 10,
+  "findings": [],
+  "verdict": "accepted"
+}
+<PIL.Image.Image image mode=RGB size=480x320 at 0x78528CD7A000>
+
+[Image saved to: /tmp/tmpljk35qk9.png]
+[colab] Executing cell 10/16 - detr_detection-21...
+{'train': 30, 'held_out': 10, 'train_boxes': 65, 'held_out_boxes': 17}
+Some weights of the model checkpoint at /content/weights/detr-resnet-50 were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/weights/detr-resnet-50 and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([4]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([4, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+{'class_names': ['stop-sign', 'yield-sign', 'speed-limit-sign'], 'device': 'cuda:0', 'reinitialised': ['class_labels_classifier.weight', 'class_labels_classifier.bias']}
+{
+  "ap": 0.0063,
+  "ap50": 0.0172,
+  "per_class_ap50": {
+    "stop-sign": 0.0,
+    "yield-sign": 0.0218,
+    "speed-limit-sign": 0.0297
+  },
+  "n_references": 17
+}
+[colab] Executing cell 11/16 - detr_detection-23...
+epoch 1/10  loss 1.6564
+epoch 2/10  loss 1.0888
+epoch 3/10  loss 0.9157
+epoch 4/10  loss 0.8218
+epoch 5/10  loss 0.8045
+epoch 6/10  loss 0.7688
+epoch 7/10  loss 0.7231
+epoch 8/10  loss 0.6761
+epoch 9/10  loss 0.6328
+epoch 10/10  loss 0.6103
+{
+  "freeze_backbone": true,
+  "trainable_parameters": 18047240,
+  "total_parameters": 41502152,
+  "epochs": 10,
+  "batch_size": 4,
+  "learning_rate": 0.0001,
+  "optimizer": "AdamW",
+  "precision": "float32",
+  "device": "cuda:0",
+  "first_epoch_loss": 1.6564,
+  "final_loss": 0.6103,
+  "train_seconds": 33.7
+}
+[colab] Executing cell 12/16 - detr_detection-25...
+metric     baseline    adapted     change
+ap           0.0063     0.2983    +0.2920
+ap50         0.0172     0.3851    +0.3680
+ap75         0.0063     0.3527    +0.3464
+per-class AP50: {'stop-sign': 0.4059, 'yield-sign': 0.4638, 'speed-limit-sign': 0.2857}
+{'evaluation_threshold': 0.05, 'max_detections_scored_per_image': 100}
+adapted operating threshold, chosen on the training split only: {'threshold': 0.2231, 'selected_on': 'training split', 'rule': 'max F1 at IoU >= 0.5, same label', 'train_f1': 0.5538, 'train_precision': 0.5538, 'train_recall': 0.5538, 'train_images': 30}
+held-out at the COCO threshold:      {'threshold': 0.9, 'returned': 0, 'correct': 0, 'references': 17, 'precision': None, 'recall': 0.0, 'highest_score': 0.3078}
+held-out at the adapted threshold:   {'threshold': 0.2231, 'returned': 15, 'correct': 5, 'references': 17, 'precision': 0.3333, 'recall': 0.2941, 'highest_score': 0.3078}
+run history (one row per evaluation; row 0 is the first run of this session):
+0 {'freeze_backbone': True, 'epochs': 10, 'learning_rate': 0.0001, 'first_epoch_loss': 1.6564, 'final_loss': 0.6103, 'ap': 0.2983, 'ap50': 0.3851, 'returned_at_threshold': 0, 'adapted_threshold': 0.2231, 'correct_at_adapted_threshold': 5, 'train_seconds': 33.7}
+[colab] Executing cell 13/16 - detr_detection-27...
+{"id": "sign-99-000", "truth": ["yield-sign", "yield-sign"], "threshold": 0.9, "detections": [], "same_label_iou": [0.0, 0.0], "adapted_threshold": 0.2231, "detections_at_adapted_threshold": [["speed-limit-sign", 0.279]], "same_label_iou_at_adapted_threshold": [0.0, 0.0], "highest_score": 0.279, "best_same_label_at_evaluation_threshold": [{"iou": 0.0, "score": 0.147}, {"iou": 0.874, "score": 0.147}]}
+{"id": "sign-99-001", "truth": ["speed-limit-sign", "yield-sign"], "threshold": 0.9, "detections": [], "same_label_iou": [0.0, 0.0], "adapted_threshold": 0.2231, "detections_at_adapted_threshold": [["stop-sign", 0.273], ["stop-sign", 0.253]], "same_label_iou_at_adapted_threshold": [0.0, 0.0], "highest_score": 0.273, "best_same_label_at_evaluation_threshold": [{"iou": 0.0, "score": 0.0}, {"iou": 0.0, "score": 0.0}]}
+{"id": "sign-99-002", "truth": ["stop-sign"], "threshold": 0.9, "detections": [], "same_label_iou": [0.0], "adapted_threshold": 0.2231, "detections_at_adapted_threshold": [["stop-sign", 0.225]], "same_label_iou_at_adapted_threshold": [0.874], "highest_score": 0.225, "best_same_label_at_evaluation_threshold": [{"iou": 0.874, "score": 0.225}]}
+0/5 reference boxes found at the COCO threshold 0.9 (same label, IoU >= 0.5)
+1/5 reference boxes found at the adapted threshold 0.2231 (chosen on the training split)
+[colab] Executing cell 14/16 - detr_detection-29...
+{
+  "path": "outputs/detr_adapter.safetensors",
+  "bytes": 72219224,
+  "sha256": "f433b1063499b1970294159e83c2b93fa3357c50c30a6b44545d35c77c8efa48",
+  "format": "detr-adapter-v1",
+  "class_names": [
+    "stop-sign",
+    "yield-sign",
+    "speed-limit-sign"
+  ],
+  "tensors": 265,
+  "frozen_prefixes": [
+    "model.backbone."
+  ],
+  "base_state_digest": "830f5e2eeaada8c8c8281779dcc8ab12833972eb8514ed0a35be6c1d4420ad81",
+  "model_id": "facebook/detr-resnet-50",
+  "model_revision": "1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b"
+}
+Some weights of the model checkpoint at /content/weights/detr-resnet-50 were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/weights/detr-resnet-50 and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([4]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([4, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+{'reloaded_source': 'artifact:detr_adapter.safetensors', 'adapted': True, 'class_names': ['stop-sign', 'yield-sign', 'speed-limit-sign']}
+{'detections_compared': 18, 'threshold': 0.05, 'tolerance': 0.001, 'equivalent': True}
+[colab] Executing cell 15/16 - detr_detection-31...
+  detr_adapter.safetensors                       72,219,224 bytes
+  detr_detection_annotated.png                       12,669 bytes
+  detr_detection_detections.csv                         487 bytes
+  detr_detection_evaluation_report.json               1,913 bytes
+  detr_detection_input_manifest.json                  2,618 bytes
+  detr_detection_result.json                         10,276 bytes
+[colab] Executing cell 16/16 - detr_detection-33...
+refused as expected: non-image object -> TypeError: image must be a PIL.Image.Image, got str
+refused as expected: box outside the image -> ValueError: record 0 box 0 [0.0, 0.0, 9999.0, 10.0] is empty or outside image bounds (640, 640)
+BYOD image branch is off; set USE_BYOD_IMAGE = True to run detection on your own image.
+BYOD dataset branch is off; set USE_BYOD_DATASET = True to adapt DETR on your own labelled images.
+[colab] Saving notebook with outputs to '/home/kurt/colab-runs/detr-detection-pipeline-c3c81cb-dd8247/detr_detection_colab_c3c81cb_colab-cli-t4_output.ipynb'...
