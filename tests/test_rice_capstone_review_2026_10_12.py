@@ -81,6 +81,51 @@ def test_rps_m3_policy_values_are_labelled_as_reference_crop_values():
     assert "Validation reference-box crops" in policy
 
 
+def test_cx11_margin_roles_follow_the_threshold_ordering():
+    """Illustrative margins looser than the locked margin must not be called stricter."""
+    curve = [
+        {"threshold": 0.05, "coverage": 0.95, "accuracy": 0.9},
+        {"threshold": 0.15, "coverage": 0.9, "accuracy": 0.92},
+        {"threshold": 0.3, "coverage": 0.8, "accuracy": 0.95},
+        {"threshold": 0.5, "coverage": 0.6, "accuracy": 0.97},
+    ]
+    for locked in (0.01, 0.2, 0.5):
+        policy = {
+            "detector_threshold": 0.5,
+            "review_margin": locked,
+            "review_validation": {"coverage": 0.6, "accuracy": 0.97, "curve": curve},
+        }
+        rows = run.review_margin_rows([], [], policy)
+        assert rows[0]["role"] == "canonical"
+        for row in rows[1:]:
+            expected = "stricter" if row["review_margin"] > locked else "looser"
+            assert row["role"].endswith(f"({expected} than locked)"), (locked, row)
+
+
+def test_cx3_full_coverage_margin_is_positive_and_detector_crops_can_be_referred(tmp_path, monkeypatch):
+    """Accepting every validation reference crop keeps the smallest margin, not zero."""
+    probabilities = [[0.9, 0.1], [0.2, 0.8], [0.7, 0.3], [0.35, 0.65]]
+    selected = run.review_policy([0, 1, 0, 1], probabilities)
+    assert selected["coverage"] == 1.0 and selected["threshold"] == pytest.approx(0.3)
+    policy = {"detector_threshold": 0.5, "review_margin": selected["threshold"]}
+    monkeypatch.setattr(run, "locked_policy", lambda root: policy)
+    (tmp_path / "outputs").mkdir()
+    adapted = [[0.55, 0.45], [0.9, 0.1], [0.5, 0.5]]
+    detections = [{"boxes": [[0, 0, 1, 1]] * 3, "scores": [0.9, 0.9, 0.2], "adapted": adapted}]
+    run.write(tmp_path / "outputs" / "validation_detections.json", detections)
+    lines = run.referral_report(tmp_path)
+    assert lines == ["validation: 1 of 2 retained detections referred at review margin 0.3"]
+    policy_cell = next(
+        "".join(c["source"]) for c in _notebook()["cells"] if "run('policy')" in "".join(c["source"])
+    )
+    assert "refers nothing" not in policy_cell
+
+
+def test_cx12_reload_records_how_many_images_were_checked():
+    assert '"images_checked": len(ids)' in inspect.getsource(run.reload)
+    assert "The first two held-out images are reprocessed" in _section(9)
+
+
 def test_rps_m4_m6_m10_opening():
     opening = _markdown()[0]
     assert "**Learning objectives.**" in opening and opening.count("\n1. ") == 1

@@ -57,7 +57,11 @@ def _fixture():
 def test_review_margin_rows_show_what_stricter_margins_would_refer():
     record, prediction, policy = _fixture()
     rows = run.review_margin_rows([record], [prediction], policy)
-    roles = ["canonical", "illustrative ~90% coverage", "illustrative ~80% coverage"]
+    roles = [
+        "canonical",
+        "illustrative ~90% coverage (stricter than locked)",
+        "illustrative ~80% coverage (stricter than locked)",
+    ]
     assert [r["role"] for r in rows] == roles
     assert [r["review_margin"] for r in rows] == [0.01, 0.15, 0.3]
     canonical, ninety, eighty = rows
@@ -80,7 +84,8 @@ def test_notebook_explains_zero_referral_and_shows_the_margin_table():
     cells = json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
     sources = ["".join(c["source"]) for c in cells]
     policy_cell = next(s for s in sources if "run('policy')" in s)
-    assert "review_validation_coverage'] >= 1.0" in policy_cell and "refers nothing" in policy_cell
+    assert "review_validation_coverage'] >= 1.0" in policy_cell and "refers nothing" not in policy_cell
+    assert "detector crops may still be referred" in policy_cell and "referral_report" in policy_cell
     activity_cell = next(s for s in sources if "run('activity')" in s)
     assert "table('activity_review_margins.csv')" in activity_cell
     assert any("0.05–0.95" in s and "zero-count baseline" in s for s in sources)

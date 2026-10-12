@@ -931,6 +931,23 @@ def locked_policy(root):
     return {**policy, "digest": digest}
 
 
+def referral_report(root):
+    """Display-only: detections retained and referred at the locked policy, per composed split."""
+    policy_value = locked_policy(root)
+    lines = []
+    for split in ("validation", "test"):
+        path = root / "outputs" / f"{split}_detections.json"
+        if not path.exists():
+            continue
+        objects = [o for p in read(path) for o in chosen_objects(p, policy_value)]
+        referred = sum(o["review"] for o in objects)
+        lines.append(
+            f"{split}: {referred} of {len(objects)} retained detections referred "
+            f"at review margin {policy_value['review_margin']:.6g}"
+        )
+    return lines
+
+
 def oracle_counts(records, lineage, probabilities):
     by_id = {row["image_id"]: i for i, row in enumerate(records)}
     counts = np.zeros((len(records), 2), dtype=int)
@@ -1384,11 +1401,13 @@ def display_thresholds(locked):
 
 
 def review_margin_rows(test, predictions, policy_value):
-    """Display-only: what stricter review margins would refer, next to the locked margin.
+    """Display-only: what other review margins would refer, next to the locked margin.
 
     Illustrative margins come from the validation curve (the margin whose validation coverage is
-    closest to, without exceeding, 90% and 80%). Test detections are counted at the locked
-    detector threshold; the locked review margin and counts are not changed.
+    closest to, without exceeding, 90% and 80%). They are not required to be stricter than the
+    locked margin, so each role states 'stricter' or 'looser' from the actual threshold. Test
+    detections are counted at the locked detector threshold; the locked review margin and counts
+    are not changed.
     """
     review = policy_value.get("review_validation") or {}
     curve = [r for r in review.get("curve", []) if r.get("accuracy") is not None]
@@ -1400,7 +1419,8 @@ def review_margin_rows(test, predictions, policy_value):
             continue
         row = max(eligible, key=lambda r: (r["coverage"], -r["threshold"]))
         if all(abs(row["threshold"] - m[0]) > 1e-12 for m in margins):
-            role = f"illustrative ~{target:.0%} coverage"
+            direction = "stricter" if row["threshold"] > locked_margin else "looser"
+            role = f"illustrative ~{target:.0%} coverage ({direction} than locked)"
             margins.append((row["threshold"], role, row["coverage"], row["accuracy"]))
     rows = []
     for margin, role, coverage, accuracy in margins:
@@ -1541,6 +1561,8 @@ def reload(root):
             "score_atol": 1e-5,
             "rtol": 1e-5,
             "identical_labels_counts_referrals": True,
+            "images_checked": len(ids),
+            "images_checked_note": "first two held-out images only; a spot check, not all held-out inference",
         },
     )
 
