@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = "DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb"
 # Commit whose tools/ files the readable-source links show. Bump it whenever a carried file changes;
 # tests/test_rice_capstone_review_2026_10_12.py checks it against git history when history is present.
-SOURCE_REVISION = "d542ca4225a00a785e58f366801503a5c9389450"
+SOURCE_REVISION = "40c0e3e94277f5796af7b14187fac0dfe89d7edc"
 SOURCE_URL = f"https://github.com/kurtvalcorza/detr-detection-pipeline/blob/{SOURCE_REVISION}/tools/"
 
 
@@ -392,7 +392,7 @@ The results archive includes derived evidence, attribution and the metric charts
 ### Our answer, from the recorded run
 The numbers below come from the recorded Colab T4 run of revision 9f85155 (2026-09-28, `docs/execution-evidence/2026-09-28/`). They were not re-run for this revision; your run prints its own values above.
 
-- **Count accuracy (measured, exploratory):** on 40 held-out image exports in 40 source families, the composed pipeline (`detector_adapted`) had count MAE 2.05 (source-family bootstrap interval 1.21–3.16), against 5.69 for zero-count and 8.12 for training-mean. The zero-shot BioCLIP head scored 2.13; that run computed no interval for the 0.08 difference, and this revision adds one.
+- **Count accuracy (measured, exploratory):** on 40 held-out image exports in 40 source families, the composed pipeline (`detector_adapted`) had count MAE 2.05 (95% source-family bootstrap interval 1.21–3.16), against 5.69 for zero-count and 8.12 for training-mean. The zero-shot BioCLIP head scored 2.13; that run computed no interval for the 0.08 difference, and this revision adds one.
 - **Where error enters (measured against published, unverified references):** of 455 reference insects, 306 were matched with the right species, 13 with the wrong species and 136 were missed; 126 of 445 retained detections had no matching published reference box. Most count error enters at localisation, not at species assignment.
 - **Limit:** reference completeness is unresolved, so the 126 unmatched detections may include unannotated target insects. They bound detector false positives from above; they do not count them.
 - **Claim level:** agreement with this dataset's published annotations on 40 source-filename families. It does not establish independent-capture generalisation, field abundance, crop damage or intervention thresholds.
