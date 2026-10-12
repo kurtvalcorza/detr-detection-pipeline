@@ -1107,6 +1107,20 @@ def evaluate(root):
     bootstrap = core.paired_group_bootstrap(
         truth, systems["detector_adapted"], baseline, [r["capture_group_id"] for r in test]
     )
+    # RPS-m2: also compare with the strongest trivial floor and the zero-shot head. Each call seeds its
+    # own generator, so the training-mean interval above is unchanged.
+    groups = [r["capture_group_id"] for r in test]
+    vs_zero = core.paired_group_bootstrap(
+        truth, systems["detector_adapted"], systems["zero_count"], groups
+    )
+    vs_bioclip = core.paired_group_bootstrap(
+        truth, systems["detector_adapted"], systems["detector_bioclip"], groups
+    )
+    bootstrap["comparison"] = "detector_adapted minus training_mean"
+    bootstrap["comparisons"] = {
+        "detector_adapted_minus_zero_count": vs_zero,
+        "detector_adapted_minus_detector_bioclip": vs_bioclip,
+    }
     bootstrap["group_interpretation"] = (
         "source-image/duplicate groups; capture independence unverified"
         if manifest.get("scope") == "exploratory_published_annotations"
