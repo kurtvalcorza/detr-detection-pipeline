@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = "DIMER_Philippine_Rice_Pest_Surveillance_Capstone.ipynb"
 # Commit whose tools/ files the readable-source links show. Bump it whenever a carried file changes;
 # tests/test_rice_capstone_review_2026_10_12.py checks it against git history when history is present.
-SOURCE_REVISION = "6d4157d897f7b129f3091dd0db1138fe4ddf5633"
+SOURCE_REVISION = "b88bad57a08849864f6214e5dda3672b451e4cef"
 SOURCE_URL = f"https://github.com/kurtvalcorza/detr-detection-pipeline/blob/{SOURCE_REVISION}/tools/"
 
 
