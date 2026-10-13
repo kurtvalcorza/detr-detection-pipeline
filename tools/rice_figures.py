@@ -116,9 +116,22 @@ def render(root: Path, stage: str) -> None:
     elif stage == "activity":
         with (out / "activity_thresholds.csv").open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle))
+        learner = [r for r in rows if r["role"] == "learner"]
+        rows = [r for r in rows if r["role"] != "learner"]
         fig, axes = plt.subplots(1, 4, figsize=(16, 4))
         for ax, key in zip(axes.flat, ("mae", "missed", "spurious", "wrong_species"), strict=True):
             ax.plot([float(r["display_threshold"]) for r in rows], [float(r[key]) for r in rows], marker="o")
+            if learner:
+                ax.scatter(
+                    [float(r["display_threshold"]) for r in learner],
+                    [float(r[key]) for r in learner],
+                    marker="*",
+                    s=160,
+                    color="#d62728",
+                    zorder=3,
+                    label="your threshold",
+                )
+                ax.legend()
             ax.set(xlabel="Display threshold", ylabel=key, title=key)
         fig.suptitle("Retrospective illustration · locked policy unchanged")
         fig.tight_layout()

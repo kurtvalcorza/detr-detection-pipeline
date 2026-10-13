@@ -229,7 +229,7 @@ Can a detector and crop classifier reproduce published rice-pest counts, and whe
 
 **Learning objectives.** By the end you will be able to:
 1. reconcile each species' raw count with its reference count through missed reference insects, unmatched detections and wrong-species matches, using the Section 7 error summary;
-2. compare the composed pipeline's count MAE with the zero-count and training-mean baselines, with source-family bootstrap intervals (Section 7);
+2. compare the composed pipeline's count MAE with the training-median, zero-count and training-mean baselines, with source-family bootstrap intervals (Section 7);
 3. explain why a reference-crop classifier cannot expose missed insects, and why a review margin that accepts every validation reference crop can still refer detector crops (Sections 3, 6 and 8);
 4. describe how a different display threshold trades misses against unmatched detections, and why a correct total can hide offsetting errors (Section 8);
 5. state what agreement with published, unverified annotations can and cannot establish (Section 10).
@@ -349,14 +349,14 @@ No. The crop classifier only sees insects that a published box has already locat
         "print('Validation reference-box crops: coverage / selective accuracy:', locked['review_validation_coverage'], '/', locked['review_validation_accuracy'])\n"
         "if locked['review_validation_coverage'] >= 1.0:\n"
         "    print('No validation reference crop is referred; detector crops may still be referred (any with margin below', locked['review_margin'], ').')\n"
-        + "checked([PYTHON, '-c', \"from pathlib import Path; import capstone; print(*capstone.referral_report(Path('.')), sep=chr(10))\"], cwd=ROOT)\n"
+        + "_ = checked([PYTHON, '-c', \"from pathlib import Path; import capstone; print(*capstone.referral_report(Path('.')), sep=chr(10))\"], cwd=ROOT)\n"
     )
     md("""## 7. Reveal the held-out benchmark
 The primary metric averages absolute count error over images and both species, including zero counts. Compare it with the training-mean and zero-count baselines. Oracle localisation uses published boxes; it is not a deployable system or a guaranteed mathematical upper bound because counting errors can cancel.
 
 Inspect crop macro-F1, detection AP, misses, detections with no matching published reference box (`spurious`, including duplicates) and wrong-species matches. Bootstrap intervals resample source families; they do not establish independent capture events, complete annotations, pretraining independence or wider field performance. Two-class top-2 accuracy would be uninformative and is not a headline metric.
 
-**Comparing with baselines:** `bootstrap.json` gives source-family intervals for the composed pipeline (`detector_adapted`) minus the training-mean baseline (top-level fields) and, under `comparisons`, minus the zero-count baseline and minus the zero-shot BioCLIP head (`detector_bioclip`). Compare with whichever trivial baseline has the lower MAE in `metrics.csv` (the stronger among those evaluated; neither is a fitted median): beating the weaker one is not informative. The `detector_bioclip` comparison is a head-swap ablation at the adapted system's locked threshold, not two separately tuned systems. All intervals measure test-family sampling uncertainty conditional on the fitted models and policies; they do not cover training-seed variation.
+**Comparing with baselines:** `bootstrap.json` gives source-family intervals for the composed pipeline (`detector_adapted`) minus the training-mean baseline (top-level fields) and, under `comparisons`, minus the zero-count baseline, minus the zero-shot BioCLIP head (`detector_bioclip`) and minus the per-species **training-median** baseline. The training median (fitted on training images only) is the constant count that minimises training absolute error, so it is the fair trivial floor for count MAE; compare the pipeline with it first (`detector_adapted_minus_training_median`). The training mean is kept for continuity, but it is the weakest floor for an absolute-error metric. The `detector_bioclip` comparison is a head-swap ablation at the adapted system's locked threshold, not two separately tuned systems. All intervals measure test-family sampling uncertainty conditional on the fitted models and policies; they do not cover training-seed variation.
 
 **Reading `spurious`:** in these tables `spurious` means an *unmatched* detection, which we also call one with **no matching published reference box**: a retained prediction not assigned to a reference under one-to-one IoU matching. Matching pairs each reference with at most one prediction and vice versa, only where IoU ≥ 0.5; it maximises the number of pairs, then their total IoU, and ties go to the earlier reference (manifest order) and earlier detection (DETR query order). So a duplicate box can overlap an insect above 0.5 and still be unmatched, because another box already claimed it. It is not a confirmed detector error. An unmatched detection may be a duplicate, a poorly localised box on an annotated insect, a non-target insect or a false box, and because the audit gate `reference_completeness` is *unresolved* (the published boxes were never checked for completeness) it may also be an unannotated target insect. Look at the orange boxes in the example panels and judge for yourself. Count MAE inherits the same caveat: part of it may measure gaps in the published annotations rather than detector mistakes.
 
@@ -372,9 +372,9 @@ If a category is absent from the held-out split, the inventory says so; no examp
         "run('evaluate')\ntable('metrics.csv')\nrecord('test_crop_metrics.json')\nrecord('detection_metrics.json')\nrecord('bootstrap.json')\n"
         "table('error_summary.csv')\ntable('matched_species_confusion.csv')\ntable('counts.csv')\nfigures('evaluate')\n"
         "record('error_panel_inventory.json')\ntable('error_examples.csv', limit=40)\ntable('error_example_counts.csv')\n"
-        + "checked([PYTHON, '-c', \"from pathlib import Path; import capstone; print(*capstone.referral_report(Path('.')), sep=chr(10))\"], cwd=ROOT)\n"
+        + "_ = checked([PYTHON, '-c', \"from pathlib import Path; import capstone; print(*capstone.referral_report(Path('.')), sep=chr(10))\"], cwd=ROOT)\n"
     )
-    md("""## 8. Compare three display thresholds
+    md("""## 8. Compare thresholds and review margins
 Predict what a lower detector threshold will do to misses, unmatched (`spurious`) boxes and count MAE. The activity compares lower/canonical/higher settings with the same models. It is retrospective test analysis, not permission to replace the locked result with the best-looking test setting.
 
 <details><summary>One possible answer (open after you predict)</summary>
@@ -389,14 +389,30 @@ The display thresholds stay inside the validation grid (0.05–0.95): a threshol
 
 The second table follows one held-out photograph: the image whose raw count changes most across the three settings. For each setting and species it shows the reference count, the raw count and the stage errors, so you can see which errors a threshold change adds or removes.
 
-The third table changes the review margin instead, at the locked detector threshold. Next to the locked margin it lists margins that would accept about 90% and 80% of validation reference crops, each labelled *stricter* or *looser* than the locked margin from its actual value, and counts which held-out detections each would refer: correct, wrong-species or unmatched (`spurious`). A useful margin refers mostly wrong-species boxes; referring unmatched boxes needs a human to check them, and missed insects are never referred.""")
+The third table changes the review margin instead, at the locked detector threshold. Next to the locked margin it lists margins that would accept about 90% and 80% of validation reference crops, each labelled *stricter* or *looser* than the locked margin from its actual value, and counts which held-out detections each would refer: correct, wrong-species or unmatched (`spurious`). A useful margin refers mostly wrong-species boxes; referring unmatched boxes needs a human to check them, and missed insects are never referred.
+
+### Optional: try your own settings
+The next cell has two optional form controls, both **off by default**:
+- **`USE_DISPLAY_THRESHOLD` / `DISPLAY_THRESHOLD`** adds one `learner` row to the first table: misses, unmatched boxes, wrong-species matches and count MAE at your detector threshold. It must be on the validation grid (0.05–0.95, steps of 0.05); the chart marks it with a red star.
+- **`USE_REVIEW_MARGIN` / `REVIEW_MARGIN`** adds one `learner` row to the review-margin table: how many held-out detections your margin would refer, split into correct, wrong-species and unmatched, labelled stricter or looser than the locked margin.
+
+Either control re-runs only this activity stage. The three fixed rows, the canonical predictions, the locked policy and every Section 7 number stay the same; the stage stops with an error if they would change. With both controls off, the outputs are exactly the default ones. If you change a control after Run all, re-run this cell, then the Section 9 cell to refresh the results archive.
+
+**What to notice:** where your threshold sits between the fixed rows, and whether misses and unmatched boxes move in opposite directions. For the margin, notice which kind of detection a stricter margin starts to refer first. Choosing a setting because it looks best on the test split would be test-set tuning; the locked policy remains the reported result.""")
     code(
+        "USE_DISPLAY_THRESHOLD = False  # @param {type:\"boolean\"}\n"
+        "DISPLAY_THRESHOLD = 0.5  # @param {type:\"slider\", min:0.05, max:0.95, step:0.05}\n"
+        "USE_REVIEW_MARGIN = False  # @param {type:\"boolean\"}\n"
+        "REVIEW_MARGIN = 0.3  # @param {type:\"slider\", min:0, max:1, step:0.01}\n"
+        "controls = {'display_threshold': round(float(DISPLAY_THRESHOLD), 2) if USE_DISPLAY_THRESHOLD else None, 'review_margin': round(float(REVIEW_MARGIN), 2) if USE_REVIEW_MARGIN else None}\n"
+        "(ROOT / 'activity_controls.json').write_text(json.dumps(controls), encoding='utf-8')\n"
+        "print('Activity controls (None = off):', controls)\n"
         "run('activity')\ntable('activity_thresholds.csv')\ntable('activity_paired_counts.csv')\ntable('activity_review_margins.csv')\nfigures('activity')"
     )
     md("""## 9. Export, reload and verify
 Both adapters reload in a fresh process with pinned bases. The first two held-out images are reprocessed (a spot check, not all held-out inference; `verification.json` records `images_checked`); their boxes, species, counts and review decisions must agree within declared tolerances. Hashes and class order must match before tensors are loaded.
 
-The results archive includes derived evidence, attribution and the metric charts (learning curves, count comparison and threshold charts). Source photographs, photo previews and annotated panels are excluded by default. A passing archive check proves internal consistency, not independent biological validation.""")
+If you changed a Section 8 control after Run all, re-run this cell so the archive matches the activity tables. The results archive includes derived evidence, attribution and the metric charts (learning curves, count comparison and threshold charts). Source photographs, photo previews and annotated panels are excluded by default. A passing archive check proves internal consistency, not independent biological validation.""")
     code(
         "run('reload')\nrecord('verification.json')\nrun('report')\nrecord('run_summary.json')\ndisplay(FileLink(str(ROOT / 'outputs' / 'results.zip')))"
     )
@@ -404,7 +420,7 @@ The results archive includes derived evidence, attribution and the metric charts
 ### Our answer, from the recorded run
 The numbers below come from the recorded Colab T4 run of revision 9f85155 (2026-09-28, `docs/execution-evidence/2026-09-28/`). They were not re-run for this revision; your run prints its own values above.
 
-- **Count accuracy (measured, exploratory):** on 40 held-out image exports in 40 source families, the composed pipeline (`detector_adapted`) had count MAE 2.05 (95% source-family bootstrap interval 1.21–3.16), against 5.69 for zero-count and 8.12 for training-mean. The zero-shot BioCLIP head scored 2.13; that run computed no interval for the 0.08 difference, and this revision adds one.
+- **Count accuracy (measured, exploratory):** on 40 held-out image exports in 40 source families, the composed pipeline (`detector_adapted`) had count MAE 2.05 (95% source-family bootstrap interval 1.21–3.16), against 5.69 for zero-count and 8.12 for training-mean. The per-species training-median baseline (1 rice black bug and 0 white stemborers per image) has test MAE 5.41; that value was computed offline from the carried manifest, involves no model, and is reproduced by every run, so the pipeline's point difference from it is 2.05 − 5.41 = −3.36. Its bootstrap interval is new in this revision; read it from `bootstrap.json` in your run. The zero-shot BioCLIP head scored 2.13; that run computed no interval for the 0.08 difference, and this revision adds one.
 - **Where error enters (measured against published, unverified references):** of 455 reference insects, 306 were matched with the right species, 13 with the wrong species and 136 were missed; 126 of 445 retained detections had no matching published reference box. Localisation/matching discrepancies were more frequent than wrong-species matches against these references; these are event counts, not shares of MAE.
 - **Limit:** reference completeness is unresolved, so the 126 unmatched detections may include unannotated target insects. These are unmatched predictions under the evaluation rule; their biological false-positive status cannot be determined without independently checking the images and annotations.
 - **Claim level:** agreement with this dataset's published annotations on 40 source-filename families. It does not establish independent-capture generalisation, field abundance, crop damage or intervention thresholds.
@@ -412,7 +428,7 @@ The numbers below come from the recorded Colab T4 run of revision 9f85155 (2026-
 ### Your statement
 Complete this optional statement using the exported results:
 
-> On [N] held-out image exports grouped into [G] source families, the composed pipeline achieved count MAE [value and interval], compared with [the stronger trivial baseline among those evaluated, and its interval]. Missed reference insects, detections with no matching published reference box (which may include unannotated target insects, because reference completeness is unresolved) and species errors contributed [evidence]. Changing only the display threshold showed [trade-off]. These results describe agreement with this dataset's published annotations; they do not establish independent-capture generalisation, field abundance, crop damage or intervention thresholds.
+> On [N] held-out image exports grouped into [G] source families, the composed pipeline achieved count MAE [value and interval], compared with [the training-median baseline and the interval for the difference]. Missed reference insects, detections with no matching published reference box (which may include unannotated target insects, because reference completeness is unresolved) and species errors contributed [evidence]. Changing only the display threshold showed [trade-off]. These results describe agreement with this dataset's published annotations; they do not establish independent-capture generalisation, field abundance, crop damage or intervention thresholds.
 
 **Limitations to retain:** source-image grouping cannot resolve repeated specimens in different originals; exported images were stretched to 640×640; annotations and completeness were not independently verified; source capture locations are unavailable; the sample excludes over-capacity images; pretrained-model overlap is unresolved. Report absent error categories and zero detections honestly.
 

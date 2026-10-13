@@ -341,6 +341,8 @@ A stricter margin would catch 7 of the 13 wrong-species boxes at a cost of 34 re
 
 ### Colab CLI execution of PR #6 head `49a7ff8` — 2026-10-12 (PASSED, default path, CLI sequential)
 
+**Scope of this record:** this 2026-10-12 T4 run of `49a7ff8` covers the previous design, before the owner decisions RPS-m5 = C (optional `DISPLAY_THRESHOLD` / `REVIEW_MARGIN` activity controls) and RPS-CX4 = A (per-species training-median baseline with its own paired bootstrap). Those change the notebook blob, add a `training_median` row to `metrics.csv`, a `training_median` column to `counts.csv` and a bootstrap comparison, so a new T4 run of the new head is required; the numbers recorded here remain valid for every output the decisions did not add.
+
 | Field | Value |
 |---|---|
 | File | `docs/execution-evidence/2026-10-12/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_49a7ff8_colab-cli-t4.ipynb`, SHA-256 `1c7f5672589a91b34fea519d5d8f72f6831aa768cc6c6371cb20fbb3706bad24` (byte copy of the CLI output); `..._49a7ff8_run_summary.json` `c37560160b0a83cb09340d225d9c3ccf638e1dee7ffa70b0024782de5d8e5db3`; `..._49a7ff8_exec.log` `911612458c0cb4ccb198a16e8a7260556e14b063ba1e241fd97e85bbb933c769` |
