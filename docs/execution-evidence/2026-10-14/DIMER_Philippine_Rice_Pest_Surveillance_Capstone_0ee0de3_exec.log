@@ -1,0 +1,2067 @@
+[colab] Parsing notebook '/home/kurt/colab-runs/detr-detection-pipeline-0ee0de3-7c5e7e/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_0ee0de3_colab-cli-t4.ipynb'...
+[colab] Executing cell 1/10 - code-02...
+GPU: Tesla T4 
+Run directory: /content/outputs/rice_pest/6cf6a898a0e0
+[colab] Executing cell 2/10 - Carrier cell: write embedded source, manifests and lock, then build the isolated environment...
+Carried files: 11
+2.11.0+cu130
+[colab] Executing cell 3/10 - code-06...
+{'images': 200, 'bytes': 8463531, 'sha256_verified': True, 'source': 'mirror'}
+Running prepare — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/prepare.log
+
+                                                                                
+ split       images  source_famil…  rice_black_b…  white_stemb…  max_objects_p… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ train       120     120            713            991           90             
+ validation  40      40             186            164           55             
+ test        40      40             271            184           73             
+                                                                                
+Rows: 3 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/sample_summary.csv              
+
+                                                                                
+ gate                           status      evidence                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ rights                         passed      Zenodo record API license           
+                                            cc-by-4.0; user screenshot confirms 
+                                            CC BY 4.0.                          
+ original_images                passed      Selected whole detection images     
+                                            downloaded and decoded; these are   
+                                            640x640 processed Roboflow exports, 
+                                            not original camera files.          
+ crop_lineage                   passed      Canonical crops derive from         
+                                            manifest boxes with unique          
+                                            image/object IDs; all 91577         
+                                            distributed ROI filenames map to    
+                                            source detection image names, with  
+                                            zero split mismatches. Canonical    
+                                            run does not use distributed ROI    
+                                            pixels.                             
+ capacity                       passed      see audit JSON                      
+ philippine_capture_provenance  unresolved  PhilRice Midsayap creator           
+                                            affiliations; all7098 location      
+                                            values absent.                      
+ capture_independence           unresolved  All7098                             
+                                            capture_date,capture_time,light_tr… 
+                                            fields absent; filename grouping    
+                                            cannot establish specimen           
+                                            independence.                       
+ reference_completeness         unresolved  Published YOLO box table; no human  
+                                            verification/completeness           
+                                            documentation.                      
+                                                                                
+Rows: 7 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/audit_gates.csv                 
+
+                                                                                
+ image_id               capture_group_id  split  sha256                         
+ ────────────────────────────────────────────────────────────────────────────── 
+ rice_000a5d20e06da761  IMG_1187_JPG      train  802ba5298ed8ce69db41cb3cc75fd… 
+ rice_00265d1f786a5bc1  IMG_3994_JPG      train  0cb5e5157c17863d1de24f4175597… 
+ rice_00a40547147261b0  IMG_2187_JPG      train  3ad78bb7037f57012f581aa914490… 
+ rice_00f254bf89d663bb  IMG_1874_JPG      train  1954c2f7e3a2713d22a0322865617… 
+ rice_01148661d1d45f35  IMG_2068_JPG      train  193441b50dcabe936e2f99a9a65e0… 
+ rice_01259d351b177814  IMG_1162_JPG      train  b92bd82bf562cc19e1ac2c05b7c5d… 
+ rice_0171eef12070e8ff  IMG_1988_JPG      train  5d792cced75e00e2d62bb1a762f18… 
+ rice_017a99caec398785  IMG_0821_JPG      train  7396c2e132059feaca52a8bd5a57d… 
+ rice_017b5f57ad0cf098  IMG_2729_JPG      train  1d851dde51de48238b23ff1f9524b… 
+ rice_01e174f98aa70874  IMG_2474_JPG      train  be6b6426d9c3f7c4d738311a80186… 
+ rice_0200e8f2d56f85c9  IMG_4046_JPG      train  099066d9ea064189482cb9cd1dc34… 
+ rice_0206daa1bae3251b  IMG_2523_JPG      train  5e01261b6d458c65eaacc87aaace2… 
+ rice_0216f8a97a50aa0b  IMG_2732_JPG      train  e80234140b228102c8aad6d667a1c… 
+ rice_028131df8871f0d5  IMG_1986_JPG      train  40a49b564ca3ee28b58de5a870b9c… 
+ rice_02b24b20f53eae77  IMG_2469_JPG      train  5c97fac7deaa4d2cae88c9729c85b… 
+ rice_02e43da96331e069  IMG_1038_JPG      train  7cbb84dc291b101f180a3c12d9bc3… 
+                                                                                
+Rows: 200 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/split_manifest.csv              
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpq4w3d1q3.png]
+[colab] Executing cell 4/10 - code-08...
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpfwl2lx06.png]
+Running features — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/features.log
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+{
+  "bioclip": {
+    "accuracy": 0.9142857142857143,
+    "macro_f1": 0.9127791068580542,
+    "confusion": [
+      [
+        183,
+        3
+      ],
+      [
+        27,
+        137
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.8714285714285714,
+        "recall": 0.9838709677419355,
+        "f1": 0.9242424242424242,
+        "support": 186
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.9785714285714285,
+        "recall": 0.8353658536585366,
+        "f1": 0.9013157894736842,
+        "support": 164
+      }
+    ]
+  },
+  "siglip": {
+    "accuracy": 0.7057142857142857,
+    "macro_f1": 0.6626900584795321,
+    "confusion": [
+      [
+        186,
+        0
+      ],
+      [
+        103,
+        61
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.643598615916955,
+        "recall": 1.0,
+        "f1": 0.783157894736842,
+        "support": 186
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 1.0,
+        "recall": 0.3719512195121951,
+        "f1": 0.5422222222222222,
+        "support": 164
+      }
+    ]
+  },
+  "rgb": {
+    "accuracy": 0.8485714285714285,
+    "macro_f1": 0.846250756313665,
+    "confusion": [
+      [
+        170,
+        16
+      ],
+      [
+        37,
+        127
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.821256038647343,
+        "recall": 0.9139784946236559,
+        "f1": 0.8651399491094147,
+        "support": 186
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.8881118881118881,
+        "recall": 0.774390243902439,
+        "f1": 0.8273615635179152,
+        "support": 164
+      }
+    ]
+  },
+  "majority": {
+    "accuracy": 0.4685714285714286,
+    "macro_f1": 0.31906614785992216,
+    "confusion": [
+      [
+        0,
+        186
+      ],
+      [
+        0,
+        164
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 186
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.4685714285714286,
+        "recall": 1.0,
+        "f1": 0.6381322957198443,
+        "support": 164
+      }
+    ]
+  }
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/validation_crops.json           
+[colab] Executing cell 5/10 - code-10...
+Running classifier — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/classifier.log
+[
+  {
+    "epoch": 0,
+    "validation_cross_entropy": 0.21322102844715118,
+    "training_cross_entropy": 0.319577157497406
+  },
+  {
+    "epoch": 1,
+    "validation_cross_entropy": 0.2071920782327652,
+    "training_cross_entropy": 0.3108231723308563
+  },
+  {
+    "epoch": 2,
+    "validation_cross_entropy": 0.20167799293994904,
+    "training_cross_entropy": 0.30270496010780334
+  },
+  {
+    "epoch": 3,
+    "validation_cross_entropy": 0.19689810276031494,
+    "training_cross_entropy": 0.29554539918899536
+  },
+  {
+    "epoch": 4,
+    "validation_cross_entropy": 0.19259709119796753,
+    "training_cross_entropy": 0.28900349140167236
+  },
+  {
+    "epoch": 5,
+    "validation_cross_entropy": 0.1889556497335434,
+    "training_cross_entropy": 0.2833585739135742
+  },
+  {
+    "epoch": 6,
+    "validation_cross_entropy": 0.1859355866909027,
+    "training_cross_entropy": 0.2785908877849579
+  },
+  {
+    "epoch": 7,
+    "validation_cross_entropy": 0.18295373022556305,
+    "training_cross_entropy": 0.27379265427589417
+  },
+  {
+    "epoch": 8,
+    "validation_cross_entropy": 0.18062759935855865,
+    "training_cross_entropy": 0.26998040080070496
+  },
+  {
+    "epoch": 9,
+    "validation_cross_entropy": 0.1786360889673233,
+    "training_cross_entropy": 0.26663967967033386
+  },
+  {
+    "epoch": 10,
+    "validation_cross_entropy": 0.17676858603954315,
+    "training_cross_entropy": 0.26344823837280273
+  },
+  {
+    "epoch": 11,
+    "validation_cross_entropy": 0.17523759603500366,
+    "training_cross_entropy": 0.2607916295528412
+  },
+  {
+    "epoch": 12,
+    "validation_cross_entropy": 0.17389211058616638,
+    "training_cross_entropy": 0.2583997845649719
+  },
+  {
+    "epoch": 13,
+    "validation_cross_entropy": 0.17275455594062805,
+    "training_cross_entropy": 0.2563494145870209
+  },
+  {
+    "epoch": 14,
+    "validation_cross_entropy": 0.17166949808597565,
+    "training_cross_entropy": 0.25435471534729004
+  },
+  {
+    "epoch": 15,
+    "validation_cross_entropy": 0.17074131965637207,
+    "training_cross_entropy": 0.25270190834999084
+  },
+  {
+    "epoch": 16,
+    "validation_cross_entropy": 0.1699165403842926,
+    "training_cross_entropy": 0.25115635991096497
+  },
+  {
+    "epoch": 17,
+    "validation_cross_entropy": 0.16908840835094452,
+    "training_cross_entropy": 0.24971596896648407
+  },
+  {
+    "epoch": 18,
+    "validation_cross_entropy": 0.16836221516132355,
+    "training_cross_entropy": 0.24844864010810852
+  },
+  {
+    "epoch": 19,
+    "validation_cross_entropy": 0.16763214766979218,
+    "training_cross_entropy": 0.24717563390731812
+  },
+  {
+    "epoch": 20,
+    "validation_cross_entropy": 0.16695094108581543,
+    "training_cross_entropy": 0.2459583729505539
+  }
+]
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/classifier_history.json         
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpe80p72_0.png]
+[colab] Executing cell 6/10 - code-12...
+Running detector — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/detector.log
+Some weights of the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([2]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([2, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+[
+  {
+    "epoch": 0,
+    "validation_ap50": 0.0038918178309018934,
+    "training_loss": null
+  },
+  {
+    "epoch": 1,
+    "validation_ap50": 0.2111884675011805,
+    "training_loss": 2.519591522216797
+  },
+  {
+    "epoch": 2,
+    "validation_ap50": 0.33039618968544243,
+    "training_loss": 1.6166149864594141
+  },
+  {
+    "epoch": 3,
+    "validation_ap50": 0.37049405873399904,
+    "training_loss": 1.433236308892568
+  },
+  {
+    "epoch": 4,
+    "validation_ap50": 0.4485950940261172,
+    "training_loss": 1.341773302356402
+  },
+  {
+    "epoch": 5,
+    "validation_ap50": 0.49585069800663517,
+    "training_loss": 1.3652730027834574
+  },
+  {
+    "epoch": 6,
+    "validation_ap50": 0.4927657252154439,
+    "training_loss": 1.2869532282153766
+  },
+  {
+    "epoch": 7,
+    "validation_ap50": 0.5447004641059577,
+    "training_loss": 1.2517937978108724
+  },
+  {
+    "epoch": 8,
+    "validation_ap50": 0.6392919716548884,
+    "training_loss": 1.2537241150935492
+  },
+  {
+    "epoch": 9,
+    "validation_ap50": 0.6438233719042786,
+    "training_loss": 1.1635413149992624
+  },
+  {
+    "epoch": 10,
+    "validation_ap50": 0.6505968460848375,
+    "training_loss": 1.200993850827217
+  },
+  {
+    "epoch": 11,
+    "validation_ap50": 0.6532127287564693,
+    "training_loss": 1.1665369004011155
+  },
+  {
+    "epoch": 12,
+    "validation_ap50": 0.6265305204279192,
+    "training_loss": 1.120133103430271
+  },
+  {
+    "epoch": 13,
+    "validation_ap50": 0.6251215342119135,
+    "training_loss": 1.1002475172281265
+  },
+  {
+    "epoch": 14,
+    "validation_ap50": 0.6698479553512958,
+    "training_loss": 1.0583936442931494
+  },
+  {
+    "epoch": 15,
+    "validation_ap50": 0.6734044948427329,
+    "training_loss": 1.10119738727808
+  }
+]
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/detector_history.json           
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpauafdnyp.png]
+[colab] Executing cell 7/10 - code-14...
+Running policy — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/policy.log
+Some weights of the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([2]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([2, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+{
+  "scope": "exploratory_published_annotations",
+  "detector_threshold": 0.9,
+  "review_margin": 0.005233716860690629,
+  "review_target_met": true,
+  "review_selection_rule": "target met: highest coverage with >=80% selective accuracy and >=50% coverage",
+  "review_validation_coverage": 1.0,
+  "review_validation_accuracy": 0.9285714285714286,
+  "selection_split": "validation",
+  "selected_at_unix": 1791987352.8616986,
+  "classifier_sha256": "82b0c6aa1bc36ec81705dc3c1f0933b48a6ad4f27e6e8adffa2abec3cf5bc2a5",
+  "detector_sha256": "874804239d4bd871d779ebbff453573e78d9a61237cf246c2e87d2d558b352d4",
+  "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+  "validation_threshold_grid": [
+    {
+      "threshold": 0.05,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 20.8375,
+      "bias": 20.8375,
+      "exact_count_rate": 0.275,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        25.85,
+        15.825
+      ],
+      "per_species_bias": [
+        25.85,
+        15.825
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.55
+      ],
+      "total_target_mae": 41.675
+    },
+    {
+      "threshold": 0.1,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 16.7,
+      "bias": 16.7,
+      "exact_count_rate": 0.325,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        19.9,
+        13.5
+      ],
+      "per_species_bias": [
+        19.9,
+        13.5
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.65
+      ],
+      "total_target_mae": 33.4
+    },
+    {
+      "threshold": 0.15,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 13.6375,
+      "bias": 13.6375,
+      "exact_count_rate": 0.3375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        15.425,
+        11.85
+      ],
+      "per_species_bias": [
+        15.425,
+        11.85
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.675
+      ],
+      "total_target_mae": 27.275
+    },
+    {
+      "threshold": 0.2,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 11.0,
+      "bias": 11.0,
+      "exact_count_rate": 0.3375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        11.6,
+        10.4
+      ],
+      "per_species_bias": [
+        11.6,
+        10.4
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.675
+      ],
+      "total_target_mae": 22.0
+    },
+    {
+      "threshold": 0.25,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 9.0375,
+      "bias": 9.0375,
+      "exact_count_rate": 0.3375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        9.025,
+        9.05
+      ],
+      "per_species_bias": [
+        9.025,
+        9.05
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.675
+      ],
+      "total_target_mae": 18.075
+    },
+    {
+      "threshold": 0.3,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 7.6,
+      "bias": 7.6,
+      "exact_count_rate": 0.3625,
+      "all_species_exact_image_rate": 0.05,
+      "per_species_mae": [
+        6.975,
+        8.225
+      ],
+      "per_species_bias": [
+        6.975,
+        8.225
+      ],
+      "per_species_exact_rate": [
+        0.05,
+        0.675
+      ],
+      "total_target_mae": 15.2
+    },
+    {
+      "threshold": 0.35,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 6.3125,
+      "bias": 6.2125,
+      "exact_count_rate": 0.4125,
+      "all_species_exact_image_rate": 0.125,
+      "per_species_mae": [
+        5.3,
+        7.325
+      ],
+      "per_species_bias": [
+        5.1,
+        7.325
+      ],
+      "per_species_exact_rate": [
+        0.125,
+        0.7
+      ],
+      "total_target_mae": 12.625
+    },
+    {
+      "threshold": 0.4,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 5.2625,
+      "bias": 5.0375,
+      "exact_count_rate": 0.3875,
+      "all_species_exact_image_rate": 0.1,
+      "per_species_mae": [
+        4.025,
+        6.5
+      ],
+      "per_species_bias": [
+        3.625,
+        6.45
+      ],
+      "per_species_exact_rate": [
+        0.1,
+        0.675
+      ],
+      "total_target_mae": 10.475
+    },
+    {
+      "threshold": 0.45,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 4.45,
+      "bias": 4.0,
+      "exact_count_rate": 0.4125,
+      "all_species_exact_image_rate": 0.15,
+      "per_species_mae": [
+        3.2,
+        5.7
+      ],
+      "per_species_bias": [
+        2.45,
+        5.55
+      ],
+      "per_species_exact_rate": [
+        0.15,
+        0.675
+      ],
+      "total_target_mae": 8.7
+    },
+    {
+      "threshold": 0.5,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 4.075,
+      "bias": 3.45,
+      "exact_count_rate": 0.45,
+      "all_species_exact_image_rate": 0.225,
+      "per_species_mae": [
+        2.925,
+        5.225
+      ],
+      "per_species_bias": [
+        1.875,
+        5.025
+      ],
+      "per_species_exact_rate": [
+        0.225,
+        0.675
+      ],
+      "total_target_mae": 7.8
+    },
+    {
+      "threshold": 0.55,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 3.8,
+      "bias": 2.95,
+      "exact_count_rate": 0.3875,
+      "all_species_exact_image_rate": 0.1,
+      "per_species_mae": [
+        2.75,
+        4.85
+      ],
+      "per_species_bias": [
+        1.35,
+        4.55
+      ],
+      "per_species_exact_rate": [
+        0.1,
+        0.675
+      ],
+      "total_target_mae": 7.15
+    },
+    {
+      "threshold": 0.6,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 3.6375,
+      "bias": 2.5125,
+      "exact_count_rate": 0.3375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.725,
+        4.55
+      ],
+      "per_species_bias": [
+        0.875,
+        4.15
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.675
+      ],
+      "total_target_mae": 6.625
+    },
+    {
+      "threshold": 0.65,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 3.3625,
+      "bias": 2.1625,
+      "exact_count_rate": 0.35,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.675,
+        4.05
+      ],
+      "per_species_bias": [
+        0.725,
+        3.6
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.7
+      ],
+      "total_target_mae": 5.975
+    },
+    {
+      "threshold": 0.7,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 3.1375,
+      "bias": 1.8375,
+      "exact_count_rate": 0.35,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.625,
+        3.65
+      ],
+      "per_species_bias": [
+        0.525,
+        3.15
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.7
+      ],
+      "total_target_mae": 5.525
+    },
+    {
+      "threshold": 0.75,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.8125,
+      "bias": 1.3875,
+      "exact_count_rate": 0.35,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.525,
+        3.1
+      ],
+      "per_species_bias": [
+        0.275,
+        2.5
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.7
+      ],
+      "total_target_mae": 4.825
+    },
+    {
+      "threshold": 0.8,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.425,
+      "bias": 0.95,
+      "exact_count_rate": 0.3625,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.375,
+        2.475
+      ],
+      "per_species_bias": [
+        0.075,
+        1.825
+      ],
+      "per_species_exact_rate": [
+        0.025,
+        0.7
+      ],
+      "total_target_mae": 4.2
+    },
+    {
+      "threshold": 0.85,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.0625,
+      "bias": 0.5125,
+      "exact_count_rate": 0.375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.225,
+        1.9
+      ],
+      "per_species_bias": [
+        -0.075,
+        1.1
+      ],
+      "per_species_exact_rate": [
+        0.05,
+        0.7
+      ],
+      "total_target_mae": 3.425
+    },
+    {
+      "threshold": 0.9,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 1.7375,
+      "bias": -0.1625,
+      "exact_count_rate": 0.3625,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.1,
+        1.375
+      ],
+      "per_species_bias": [
+        -0.35,
+        0.025
+      ],
+      "per_species_exact_rate": [
+        0.025,
+        0.7
+      ],
+      "total_target_mae": 2.675
+    },
+    {
+      "threshold": 0.95,
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.2,
+      "bias": -1.55,
+      "exact_count_rate": 0.3625,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.625,
+        1.775
+      ],
+      "per_species_bias": [
+        -1.675,
+        -1.425
+      ],
+      "per_species_exact_rate": [
+        0.025,
+        0.7
+      ],
+      "total_target_mae": 3.3
+    }
+  ],
+  "review_validation": {
+    "threshold": 0.005233716860690629,
+    "coverage": 1.0,
+    "accuracy": 0.9285714285714286,
+    "target_met": true,
+    "selection_rule": "target met: highest coverage with >=80% selective accuracy and >=50% coverage",
+    "curve": [
+      {
+        "threshold": 0.0,
+        "coverage": 1.0,
+        "accuracy": 0.9285714285714286
+      },
+      {
+        "threshold": 0.005233716860690629,
+        "coverage": 1.0,
+        "accuracy": 0.9285714285714286
+      },
+      {
+        "threshold": 0.030919706402891545,
+        "coverage": 0.9971428571428571,
+        "accuracy": 0.9312320916905444
+      },
+      {
+        "threshold": 0.06230475088899384,
+        "coverage": 0.9942857142857143,
+        "accuracy": 0.9310344827586207
+      },
+      {
+        "threshold": 0.06478948695584624,
+        "coverage": 0.9914285714285714,
+        "accuracy": 0.9337175792507204
+      },
+      {
+        "threshold": 0.08220959667294314,
+        "coverage": 0.9885714285714285,
+        "accuracy": 0.9364161849710982
+      },
+      {
+        "threshold": 0.08446736469178967,
+        "coverage": 0.9857142857142858,
+        "accuracy": 0.9391304347826087
+      },
+      {
+        "threshold": 0.10346636468494197,
+        "coverage": 0.9828571428571429,
+        "accuracy": 0.938953488372093
+      },
+      {
+        "threshold": 0.10800790180190828,
+        "coverage": 0.98,
+        "accuracy": 0.9416909620991254
+      },
+      {
+        "threshold": 0.13543885992332516,
+        "coverage": 0.9771428571428571,
+        "accuracy": 0.9415204678362573
+      },
+      {
+        "threshold": 0.13746979927925324,
+        "coverage": 0.9742857142857143,
+        "accuracy": 0.9413489736070382
+      },
+      {
+        "threshold": 0.15460723184415454,
+        "coverage": 0.9714285714285714,
+        "accuracy": 0.9441176470588235
+      },
+      {
+        "threshold": 0.16400596829947967,
+        "coverage": 0.9685714285714285,
+        "accuracy": 0.9469026548672567
+      },
+      {
+        "threshold": 0.23229340175332497,
+        "coverage": 0.9657142857142857,
+        "accuracy": 0.9497041420118343
+      },
+      {
+        "threshold": 0.2384173431047969,
+        "coverage": 0.9628571428571429,
+        "accuracy": 0.9495548961424333
+      },
+      {
+        "threshold": 0.2744390615771101,
+        "coverage": 0.96,
+        "accuracy": 0.9494047619047619
+      },
+      {
+        "threshold": 0.27850824628751564,
+        "coverage": 0.9571428571428572,
+        "accuracy": 0.9522388059701492
+      },
+      {
+        "threshold": 0.2891565106466282,
+        "coverage": 0.9542857142857143,
+        "accuracy": 0.9550898203592815
+      },
+      {
+        "threshold": 0.33769292883384544,
+        "coverage": 0.9514285714285714,
+        "accuracy": 0.9579579579579579
+      },
+      {
+        "threshold": 0.3431127908714203,
+        "coverage": 0.9485714285714286,
+        "accuracy": 0.9578313253012049
+      },
+      {
+        "threshold": 0.36089158083008316,
+        "coverage": 0.9457142857142857,
+        "accuracy": 0.9577039274924471
+      },
+      {
+        "threshold": 0.38450731905684243,
+        "coverage": 0.9428571428571428,
+        "accuracy": 0.9575757575757575
+      },
+      {
+        "threshold": 0.38901980752856996,
+        "coverage": 0.94,
+        "accuracy": 0.9604863221884499
+      },
+      {
+        "threshold": 0.39131431757362267,
+        "coverage": 0.9371428571428572,
+        "accuracy": 0.9634146341463414
+      },
+      {
+        "threshold": 0.39822802708591787,
+        "coverage": 0.9342857142857143,
+        "accuracy": 0.963302752293578
+      },
+      {
+        "threshold": 0.4249990063268098,
+        "coverage": 0.9314285714285714,
+        "accuracy": 0.9631901840490797
+      },
+      {
+        "threshold": 0.45462337878416376,
+        "coverage": 0.9285714285714286,
+        "accuracy": 0.963076923076923
+      },
+      {
+        "threshold": 0.45754184965873557,
+        "coverage": 0.9257142857142857,
+        "accuracy": 0.9629629629629629
+      },
+      {
+        "threshold": 0.48045435959452737,
+        "coverage": 0.9228571428571428,
+        "accuracy": 0.9628482972136223
+      },
+      {
+        "threshold": 0.49678074046023,
+        "coverage": 0.92,
+        "accuracy": 0.9658385093167702
+      },
+      {
+        "threshold": 0.5115331562182166,
+        "coverage": 0.9171428571428571,
+        "accuracy": 0.9657320872274143
+      },
+      {
+        "threshold": 0.514074796769468,
+        "coverage": 0.9142857142857143,
+        "accuracy": 0.965625
+      },
+      {
+        "threshold": 0.5210804167358771,
+        "coverage": 0.9114285714285715,
+        "accuracy": 0.9655172413793104
+      },
+      {
+        "threshold": 0.5375152034979495,
+        "coverage": 0.9085714285714286,
+        "accuracy": 0.9654088050314465
+      },
+      {
+        "threshold": 0.5376250524488019,
+        "coverage": 0.9057142857142857,
+        "accuracy": 0.9652996845425867
+      },
+      {
+        "threshold": 0.5410725784471112,
+        "coverage": 0.9028571428571428,
+        "accuracy": 0.9651898734177216
+      },
+      {
+        "threshold": 0.5429718355121957,
+        "coverage": 0.9,
+        "accuracy": 0.9650793650793651
+      },
+      {
+        "threshold": 0.5459723497500801,
+        "coverage": 0.8971428571428571,
+        "accuracy": 0.964968152866242
+      },
+      {
+        "threshold": 0.5590738959773187,
+        "coverage": 0.8942857142857142,
+        "accuracy": 0.9680511182108626
+      },
+      {
+        "threshold": 0.5663778282573602,
+        "coverage": 0.8914285714285715,
+        "accuracy": 0.967948717948718
+      },
+      {
+        "threshold": 0.5771714454592525,
+        "coverage": 0.8885714285714286,
+        "accuracy": 0.9710610932475884
+      },
+      {
+        "threshold": 0.5900706363868378,
+        "coverage": 0.8857142857142857,
+        "accuracy": 0.9741935483870968
+      },
+      {
+        "threshold": 0.5911214173567112,
+        "coverage": 0.8828571428571429,
+        "accuracy": 0.9741100323624595
+      },
+      {
+        "threshold": 0.5955248948445102,
+        "coverage": 0.88,
+        "accuracy": 0.974025974025974
+      },
+      {
+        "threshold": 0.6134007708712923,
+        "coverage": 0.8771428571428571,
+        "accuracy": 0.9739413680781759
+      },
+      {
+        "threshold": 0.6277520910850924,
+        "coverage": 0.8742857142857143,
+        "accuracy": 0.9738562091503268
+      },
+      {
+        "threshold": 0.6344862292699678,
+        "coverage": 0.8714285714285714,
+        "accuracy": 0.9770491803278688
+      },
+      {
+        "threshold": 0.6362866064380822,
+        "coverage": 0.8685714285714285,
+        "accuracy": 0.9769736842105263
+      },
+      {
+        "threshold": 0.6502754993826491,
+        "coverage": 0.8657142857142858,
+        "accuracy": 0.976897689768977
+      },
+      {
+        "threshold": 0.6522097946980261,
+        "coverage": 0.8628571428571429,
+        "accuracy": 0.9768211920529801
+      },
+      {
+        "threshold": 0.6587411423736846,
+        "coverage": 0.86,
+        "accuracy": 0.9767441860465116
+      },
+      {
+        "threshold": 0.6711977158542624,
+        "coverage": 0.8571428571428571,
+        "accuracy": 0.9766666666666667
+      },
+      {
+        "threshold": 0.6887959591026557,
+        "coverage": 0.8542857142857143,
+        "accuracy": 0.9765886287625418
+      },
+      {
+        "threshold": 0.6955093862778067,
+        "coverage": 0.8514285714285714,
+        "accuracy": 0.9765100671140939
+      },
+      {
+        "threshold": 0.720152106885224,
+        "coverage": 0.8485714285714285,
+        "accuracy": 0.9764309764309764
+      },
+      {
+        "threshold": 0.7223967769553978,
+        "coverage": 0.8457142857142858,
+        "accuracy": 0.9763513513513513
+      },
+      {
+        "threshold": 0.7224843159544354,
+        "coverage": 0.8428571428571429,
+        "accuracy": 0.9796610169491525
+      },
+      {
+        "threshold": 0.7280522343312598,
+        "coverage": 0.84,
+        "accuracy": 0.9795918367346939
+      },
+      {
+        "threshold": 0.732786511660647,
+        "coverage": 0.8371428571428572,
+        "accuracy": 0.9795221843003413
+      },
+      {
+        "threshold": 0.733043403234608,
+        "coverage": 0.8342857142857143,
+        "accuracy": 0.9794520547945206
+      },
+      {
+        "threshold": 0.7443053840353597,
+        "coverage": 0.8314285714285714,
+        "accuracy": 0.979381443298969
+      },
+      {
+        "threshold": 0.7452685208075811,
+        "coverage": 0.8285714285714286,
+        "accuracy": 0.9793103448275862
+      },
+      {
+        "threshold": 0.7496195113036674,
+        "coverage": 0.8257142857142857,
+        "accuracy": 0.9792387543252595
+      },
+      {
+        "threshold": 0.7647504374621613,
+        "coverage": 0.8228571428571428,
+        "accuracy": 0.9791666666666666
+      },
+      {
+        "threshold": 0.7791109167028711,
+        
+... [truncated: showing 18,000 of 54,633 characters; open the file link below for the full record]
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/selected_policy.json            
+Detector threshold: 0.9
+Review margin: 0.005233716860690629 | target met: highest coverage with >=80% selective accuracy and >=50% coverage
+Validation reference-box crops: coverage / selective accuracy: 1.0 / 0.9285714285714286
+No validation reference crop is referred; detector crops may still be referred (any with margin below 0.005233716860690629 ).
+validation: 0 of 337 retained detections referred at review margin 0.00523372
+[colab] Executing cell 8/10 - code-16...
+Running evaluate — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/evaluate.log
+Some weights of the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([2]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([2, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+                                                                                
+ system    images  image_s…  mae       bias      exact_c…  all_spec…  total_ta… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ trainin…  40      80        8.12312…  1.41249…  0.0       0.0        13.025    
+ zero_co…  40      80        5.6875    -5.6875   0.4375    0.0        11.375    
+ trainin…  40      80        5.4125    -5.1875   0.6       0.55       10.375    
+ oracle_…  40      80        0.925     0.0       0.675     0.675      0.0       
+ oracle_…  40      80        0.65      0.0       0.725     0.725      0.0       
+ detecto…  40      80        6.95      -0.125    0.4       0.025      3.65      
+ detecto…  40      80        2.125     -0.125    0.35      0.0        3.65      
+ detecto…  40      80        2.05      -0.125    0.3625    0.0        3.65      
+                                                                                
+Rows: 8 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/metrics.csv                     
+{
+  "bioclip": {
+    "accuracy": 0.9186813186813186,
+    "macro_f1": 0.9134362739804918,
+    "confusion": [
+      [
+        265,
+        6
+      ],
+      [
+        31,
+        153
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.8952702702702703,
+        "recall": 0.977859778597786,
+        "f1": 0.9347442680776015,
+        "support": 271
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.9622641509433962,
+        "recall": 0.8315217391304348,
+        "f1": 0.892128279883382,
+        "support": 184
+      }
+    ]
+  },
+  "adapted": {
+    "accuracy": 0.9428571428571428,
+    "macro_f1": 0.9404761904761905,
+    "confusion": [
+      [
+        260,
+        11
+      ],
+      [
+        15,
+        169
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.9454545454545454,
+        "recall": 0.959409594095941,
+        "f1": 0.9523809523809523,
+        "support": 271
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.9388888888888889,
+        "recall": 0.9184782608695652,
+        "f1": 0.9285714285714286,
+        "support": 184
+      }
+    ]
+  },
+  "siglip": {
+    "accuracy": 0.7164835164835165,
+    "macro_f1": 0.6340003367234316,
+    "confusion": [
+      [
+        271,
+        0
+      ],
+      [
+        129,
+        55
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.6775,
+        "recall": 1.0,
+        "f1": 0.8077496274217586,
+        "support": 271
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 1.0,
+        "recall": 0.29891304347826086,
+        "f1": 0.46025104602510464,
+        "support": 184
+      }
+    ]
+  },
+  "rgb": {
+    "accuracy": 0.8527472527472527,
+    "macro_f1": 0.8439555489580828,
+    "confusion": [
+      [
+        248,
+        23
+      ],
+      [
+        44,
+        140
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.8493150684931506,
+        "recall": 0.915129151291513,
+        "f1": 0.8809946714031972,
+        "support": 271
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.8588957055214724,
+        "recall": 0.7608695652173914,
+        "f1": 0.8069164265129684,
+        "support": 184
+      }
+    ]
+  },
+  "majority": {
+    "accuracy": 0.4043956043956044,
+    "macro_f1": 0.2879499217527387,
+    "confusion": [
+      [
+        0,
+        271
+      ],
+      [
+        0,
+        184
+      ]
+    ],
+    "per_class": [
+      {
+        "species": "rice_black_bug",
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 271
+      },
+      {
+        "species": "white_stemborer",
+        "precision": 0.4043956043956044,
+        "recall": 1.0,
+        "f1": 0.5758998435054774,
+        "support": 184
+      }
+    ]
+  }
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/test_crop_metrics.json          
+{
+  "ap": 0.3029231511967991,
+  "ap50": 0.6954015128443131,
+  "max_detections": 100,
+  "ignore_semantics": "Explicit ignored regions represented as COCO crowd regions",
+  "precision": 0.7168539325842697,
+  "recall": 0.701098901098901
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/detection_metrics.json          
+{
+  "groups": 40,
+  "images": 40,
+  "replicates": 2000,
+  "seed": 42,
+  "difference_direction": "a_minus_b",
+  "unstable_few_groups": false,
+  "mae_a_ci": [
+    1.2121875,
+    3.1625
+  ],
+  "mae_b_ci": [
+    6.145885416666667,
+    10.462218749999998
+  ],
+  "difference_ci": [
+    -8.174854166666666,
+    -4.277973958333335
+  ],
+  "difference": -6.073124999999998,
+  "comparison": "detector_adapted minus training_mean",
+  "comparisons": {
+    "detector_adapted_minus_zero_count": {
+      "groups": 40,
+      "images": 40,
+      "replicates": 2000,
+      "seed": 42,
+      "difference_direction": "a_minus_b",
+      "unstable_few_groups": false,
+      "mae_a_ci": [
+        1.2121875,
+        3.1625
+      ],
+      "mae_b_ci": [
+        3.3371874999999998,
+        8.288124999999996
+      ],
+      "difference_ci": [
+        -5.787812499999999,
+        -1.6618750000000035
+      ],
+      "difference": -3.6375
+    },
+    "detector_adapted_minus_detector_bioclip": {
+      "groups": 40,
+      "images": 40,
+      "replicates": 2000,
+      "seed": 42,
+      "difference_direction": "a_minus_b",
+      "unstable_few_groups": false,
+      "mae_a_ci": [
+        1.2121875,
+        3.1625
+      ],
+      "mae_b_ci": [
+        1.2746875,
+        3.1878124999999984
+      ],
+      "difference_ci": [
+        -0.375,
+        0.1499999999999999
+      ],
+      "difference": -0.07500000000000018
+    },
+    "detector_adapted_minus_training_median": {
+      "groups": 40,
+      "images": 40,
+      "replicates": 2000,
+      "seed": 42,
+      "difference_direction": "a_minus_b",
+      "unstable_few_groups": false,
+      "mae_a_ci": [
+        1.2121875,
+        3.1625
+      ],
+      "mae_b_ci": [
+        3.0,
+        8.0625
+      ],
+      "difference_ci": [
+        -5.525,
+        -1.375
+      ],
+      "difference": -3.3625
+    }
+  },
+  "group_interpretation": "source-image/duplicate groups; capture independence unverified"
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/bootstrap.json                  
+
+                                                                                
+ speci…  refer…  raw  accep…  refer…  correct  wrong…  wrong_…  missed  spurio… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ rice_…  271     236  236     0       183      7       6        82      46      
+ white…  184     209  209     0       123      6       7        54      80      
+ all     455     445  445     0       306      13      13       136     126     
+                                                                                
+Rows: 3 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/error_summary.csv               
+
+                                                                                
+                     predicted           predicted           not detected       
+ reference           rice_black_bug      white_stemborer     (missed)           
+ ────────────────────────────────────────────────────────────────────────────── 
+ reference           183                 6                   82                 
+ rice_black_bug                                                                 
+ reference           7                   123                 54                 
+ white_stemborer                                                                
+ no reference        46                  80                  0                  
+ (spurious)                                                                     
+                                                                                
+Rows: 3 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/matched_species_confusion.csv   
+
+                                                                                
+ image_…  captur…  species  refere…  raw  accepted  unreso…  trainin…  trainin… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ rice_0…  IMG_19…  rice_b…  1        0    0         0        5.94166…  1.0      
+ rice_0…  IMG_19…  white_…  0        0    0         0        8.25833…  0.0      
+ rice_0…  202511…  rice_b…  0        0    0         0        5.94166…  1.0      
+ rice_0…  202511…  white_…  12       1    1         0        8.25833…  0.0      
+ rice_0…  IMG_23…  rice_b…  1        0    0         0        5.94166…  1.0      
+ rice_0…  IMG_23…  white_…  0        0    0         0        8.25833…  0.0      
+ rice_0…  627399…  rice_b…  6        6    6         0        5.94166…  1.0      
+ rice_0…  627399…  white_…  6        4    4         0        8.25833…  0.0      
+ rice_0…  IMG_24…  rice_b…  1        0    0         0        5.94166…  1.0      
+ rice_0…  IMG_24…  white_…  0        0    0         0        8.25833…  0.0      
+ rice_0…  IMG_41…  rice_b…  0        1    1         0        5.94166…  1.0      
+ rice_0…  IMG_41…  white_…  10       18   18        0        8.25833…  0.0      
+ rice_0…  IMG_10…  rice_b…  0        7    7         0        5.94166…  1.0      
+ rice_0…  IMG_10…  white_…  11       20   20        0        8.25833…  0.0      
+ rice_0…  IMG_22…  rice_b…  1        0    0         0        5.94166…  1.0      
+ rice_0…  IMG_22…  white_…  0        0    0         0        8.25833…  0.0      
+                                                                                
+Rows: 80 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/counts.csv                      
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpr27ts6ux.png]
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmps5icf7dd.png]
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmpbqniksnq.png]
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmphi8bk5x9.png]
+{
+  "selected": {
+    "misses": "rice_00ff28b138a6f576",
+    "spurious": "rice_0b235e3cccc93131",
+    "wrong_species": "rice_0cede29efc7af87c"
+  },
+  "absent_categories": [
+    "success"
+  ],
+  "note": "An absent category was not found in the held-out split; none is manufactured."
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/error_panel_inventory.json      
+
+                                                                                
+ panel…  image…  outco…  refer…  predi…  detec…  speci…  speci…  review   iou   
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1       rice_…  missed  rice_…                                                 
+ 1       rice_…  missed  white…                                                 
+ 2       rice_…  missed  white…                                                 
+ 3       rice_…  spuri…          white…  0.9568  0.99    0.98    accept…        
+ 4       rice_…  spuri…          white…  0.9514  0.9941  0.9882  accept…        
+ 5       rice_…  spuri…          rice_…  0.9484  0.8314  0.6628  accept…        
+ 6       rice_…  spuri…          white…  0.9428  0.6208  0.2417  accept…        
+ 7       rice_…  spuri…          white…  0.9302  0.9874  0.9747  accept…        
+ 8       rice_…  spuri…          white…  0.9287  0.9997  0.9994  accept…        
+ 9       rice_…  spuri…          white…  0.9278  0.7531  0.5063  accept…        
+ 10      rice_…  spuri…          white…  0.9264  0.6371  0.2742  accept…        
+ 11      rice_…  spuri…          white…  0.9257  0.9992  0.9984  accept…        
+ 12      rice_…  spuri…          white…  0.9141  0.8421  0.6841  accept…        
+ 13      rice_…  spuri…          white…  0.9039  0.7326  0.4652  accept…        
+ 1       rice_…  wrong…  white…  rice_…  0.9782  0.8005  0.6011  accept…  0.874 
+ 2       rice_…  missed  white…                                                 
+ 3       rice_…  missed  white…                                                 
+ 4       rice_…  missed  white…                                                 
+ 5       rice_…  missed  white…                                                 
+ 6       rice_…  missed  white…                                                 
+ 7       rice_…  spuri…          white…  0.9817  0.9999  0.9999  accept…        
+ 8       rice_…  spuri…          rice_…  0.9787  0.9852  0.9704  accept…        
+ 9       rice_…  spuri…          rice_…  0.9765  0.9933  0.9866  accept…        
+ 10      rice_…  spuri…          white…  0.9747  0.9322  0.8643  accept…        
+ 11      rice_…  spuri…          white…  0.9745  0.9383  0.8767  accept…        
+ 12      rice_…  spuri…          white…  0.9737  0.9825  0.965   accept…        
+ 13      rice_…  spuri…          rice_…  0.9652  0.5265  0.053   accept…        
+ 14      rice_…  spuri…          white…  0.9622  0.9995  0.9989  accept…        
+ 15      rice_…  spuri…          white…  0.9607  0.7549  0.5098  accept…        
+ 16      rice_…  spuri…          rice_…  0.9605  0.9545  0.909   accept…        
+ 17      rice_…  spuri…          white…  0.9586  0.9999  0.9998  accept…        
+ 18      rice_…  spuri…          white…  0.9572  0.7382  0.4765  accept…        
+ 19      rice_…  spuri…          white…  0.9493  0.999   0.9979  accept…        
+ 20      rice_…  spuri…          rice_…  0.9477  0.9853  0.9706  accept…        
+ 21      rice_…  spuri…          white…  0.9437  0.9959  0.9918  accept…        
+ 22      rice_…  spuri…          white…  0.9273  0.9616  0.9232  accept…        
+ 23      rice_…  spuri…          rice_…  0.9272  0.9807  0.9613  accept…        
+ 24      rice_…  spuri…          white…  0.9113  0.9986  0.9973  accept…        
+ 25      rice_…  spuri…          white…  0.9095  0.998   0.9961  accept…        
+ 26      rice_…  spuri…          white…  0.9092  0.9995  0.9991  accept…        
+                                                                                
+Rows: 41 (preview limited to 40 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/error_examples.csv              
+
+                                                                                
+ imag…  spec…  refer…  raw  acce…  refer…  corr…  wrong…  wron…  missed  spuri… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ rice…  rice…  1       0    0      0       0      0       0      1       0      
+ rice…  whit…  0       0    0      0       0      0       0      0       0      
+ rice…  rice…  0       1    1      0       0      0       0      0       1      
+ rice…  whit…  10      18   18     0       8      0       0      2       10     
+ rice…  rice…  0       7    7      0       0      1       0      0       6      
+ rice…  whit…  11      20   20     0       5      0       1      5       15     
+                                                                                
+Rows: 6 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/error_example_counts.csv        
+validation: 0 of 337 retained detections referred at review margin 0.00523372
+test: 0 of 445 retained detections referred at review margin 0.00523372
+[colab] Executing cell 9/10 - code-18...
+Activity controls (None = off): {'display_threshold': None, 'review_margin': None}
+Running activity — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/activity.log
+
+                                                                                
+ display_thr…  role       mae     missed  spurious  wrong_speci…  note          
+ ────────────────────────────────────────────────────────────────────────────── 
+ 0.8           lower      2.8625  102     223       14            Retrospective 
+                                                                  test          
+                                                                  illustration; 
+                                                                  canonical     
+                                                                  policy        
+                                                                  unchanged     
+ 0.9           canonical  2.05    136     126       13            Retrospective 
+                                                                  test          
+                                                                  illustration; 
+                                                                  canonical     
+                                                                  policy        
+                                                                  unchanged     
+ 0.95          higher     2.7     229     47        10            Retrospective 
+                                                                  test          
+                                                                  illustration; 
+                                                                  canonical     
+                                                                  policy        
+                                                                  unchanged     
+                                                                                
+Rows: 3 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/activity_thresholds.csv         
+
+                                                                                
+ image_…  display…  role     species   refere…  raw  missed  spurious  wrong_s… 
+ ────────────────────────────────────────────────────────────────────────────── 
+ rice_1…  0.8       lower    rice_bl…  73       50   36      13        0        
+ rice_1…  0.8       lower    white_s…  0        1    0       1         0        
+ rice_1…  0.9       canoni…  rice_bl…  73       38   42      7         0        
+ rice_1…  0.9       canoni…  white_s…  0        1    0       1         0        
+ rice_1…  0.95      higher   rice_bl…  73       16   59      2         0        
+ rice_1…  0.95      higher   white_s…  0        0    0       0         0        
+                                                                                
+Rows: 6 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/activity_paired_counts.csv      
+
+                                                                                
+ revie…  role    valid…  valid…  test_…  test_…  refer…  refer…  refe…  note    
+ ────────────────────────────────────────────────────────────────────────────── 
+ 0.005…  canon…  1.0     0.9286  445     0       0       0       0      Retros… 
+                                                                        test    
+                                                                        illust… 
+                                                                        locked  
+                                                                        review  
+                                                                        margin  
+                                                                        unchan… 
+ 0.542…  illus…  0.9     0.9651  445     34      14      7       13     Retros… 
+         ~90%                                                           test    
+         cover…                                                         illust… 
+         (stri…                                                         locked  
+         than                                                           review  
+         locke…                                                         margin  
+                                                                        unchan… 
+ 0.829…  illus…  0.8     0.9821  445     81      40      11      30     Retros… 
+         ~80%                                                           test    
+         cover…                                                         illust… 
+         (stri…                                                         locked  
+         than                                                           review  
+         locke…                                                         margin  
+                                                                        unchan… 
+                                                                                
+Rows: 3 (preview limited to 16 )
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/activity_review_margins.csv     
+<IPython.core.display.Image object>
+
+[Image saved to: /tmp/tmp3hrz_0qd.png]
+[colab] Executing cell 10/10 - code-20...
+Running reload — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/reload.log
+Some weights of the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr were not used when initializing DetrForObjectDetection: ['model.backbone.conv_encoder.model.layer1.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer2.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer3.0.downsample.1.num_batches_tracked', 'model.backbone.conv_encoder.model.layer4.0.downsample.1.num_batches_tracked']
+- This IS expected if you are initializing DetrForObjectDetection from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing DetrForObjectDetection from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of DetrForObjectDetection were not initialized from the model checkpoint at /content/outputs/rice_pest/6cf6a898a0e0/weights/detr and are newly initialized because the shapes did not match:
+- class_labels_classifier.bias: found shape torch.Size([92]) in the checkpoint and torch.Size([2]) in the model instantiated
+- class_labels_classifier.weight: found shape torch.Size([92, 256]) in the checkpoint and torch.Size([2, 256]) in the model instantiated
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+{
+  "fresh_process": true,
+  "reference_pid": 4757,
+  "reload_pid": 5843,
+  "original_image_ids": [
+    "rice_00ff28b138a6f576",
+    "rice_015e2132aff2ed5f"
+  ],
+  "box_atol": 0.001,
+  "score_atol": 1e-05,
+  "rtol": 1e-05,
+  "identical_labels_counts_referrals": true,
+  "images_checked": 2,
+  "images_checked_note": "first two held-out images only; a spot check, not all held-out inference"
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/verification.json               
+Running report — retain this log if anything fails: /content/outputs/rice_pest/6cf6a898a0e0/report.log
+{
+  "status": "Executed; maintainer review required for release",
+  "scope": "exploratory_published_annotations",
+  "policy_digest": "671898cccc3c68e3f5598e7b293e80481fb6f86f6d94d04b460066fc3ccc0970",
+  "limitations": [
+    "Published annotations are not independently verified",
+    "Capture independence and completeness are unverified",
+    "Source-image/duplicate groups do not establish capture independence",
+    "Pretraining overlap is unresolved",
+    "Counts are image contents, not field abundance or intervention advice"
+  ],
+  "metrics": {
+    "training_mean": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 8.123124999999998,
+      "bias": 1.4124999999999992,
+      "exact_count_rate": 0.0,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        8.942916666666665,
+        7.30333333333333
+      ],
+      "per_species_bias": [
+        -0.833333333333336,
+        3.6583333333333288
+      ],
+      "per_species_exact_rate": [
+        0.0,
+        0.0
+      ],
+      "total_target_mae": 13.025
+    },
+    "zero_count": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 5.6875,
+      "bias": -5.6875,
+      "exact_count_rate": 0.4375,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        6.775,
+        4.6
+      ],
+      "per_species_bias": [
+        -6.775,
+        -4.6
+      ],
+      "per_species_exact_rate": [
+        0.225,
+        0.65
+      ],
+      "total_target_mae": 11.375
+    },
+    "training_median": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 5.4125,
+      "bias": -5.1875,
+      "exact_count_rate": 0.6,
+      "all_species_exact_image_rate": 0.55,
+      "per_species_mae": [
+        6.225,
+        4.6
+      ],
+      "per_species_bias": [
+        -5.775,
+        -4.6
+      ],
+      "per_species_exact_rate": [
+        0.55,
+        0.65
+      ],
+      "total_target_mae": 10.375
+    },
+    "oracle_bioclip": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 0.925,
+      "bias": 0.0,
+      "exact_count_rate": 0.675,
+      "all_species_exact_image_rate": 0.675,
+      "per_species_mae": [
+        0.925,
+        0.925
+      ],
+      "per_species_bias": [
+        0.625,
+        -0.625
+      ],
+      "per_species_exact_rate": [
+        0.675,
+        0.675
+      ],
+      "total_target_mae": 0.0
+    },
+    "oracle_adapted": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 0.65,
+      "bias": 0.0,
+      "exact_count_rate": 0.725,
+      "all_species_exact_image_rate": 0.725,
+      "per_species_mae": [
+        0.65,
+        0.65
+      ],
+      "per_species_bias": [
+        0.1,
+        -0.1
+      ],
+      "per_species_exact_rate": [
+        0.725,
+        0.725
+      ],
+      "total_target_mae": 0.0
+    },
+    "detector_majority": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 6.95,
+      "bias": -0.125,
+      "exact_count_rate": 0.4,
+      "all_species_exact_image_rate": 0.025,
+      "per_species_mae": [
+        6.775,
+        7.125
+      ],
+      "per_species_bias": [
+        -6.775,
+        6.525
+      ],
+      "per_species_exact_rate": [
+        0.225,
+        0.575
+      ],
+      "total_target_mae": 3.65
+    },
+    "detector_bioclip": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.125,
+      "bias": -0.125,
+      "exact_count_rate": 0.35,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.625,
+        1.625
+      ],
+      "per_species_bias": [
+        -0.375,
+        0.125
+      ],
+      "per_species_exact_rate": [
+        0.1,
+        0.6
+      ],
+      "total_target_mae": 3.65
+    },
+    "detector_adapted": {
+      "images": 40,
+      "image_species_pairs": 80,
+      "mae": 2.05,
+      "bias": -0.125,
+      "exact_count_rate": 0.3625,
+      "all_species_exact_image_rate": 0.0,
+      "per_species_mae": [
+        2.225,
+        1.875
+      ],
+      "per_species_bias": [
+        -0.875,
+        0.625
+      ],
+      "per_species_exact_rate": [
+        0.15,
+        0.575
+      ],
+      "total_target_mae": 3.65
+    }
+  },
+  "verification": {
+    "fresh_process": true,
+    "reference_pid": 4757,
+    "reload_pid": 5843,
+    "original_image_ids": [
+      "rice_00ff28b138a6f576",
+      "rice_015e2132aff2ed5f"
+    ],
+    "box_atol": 0.001,
+    "score_atol": 1e-05,
+    "rtol": 1e-05,
+    "identical_labels_counts_referrals": true,
+    "images_checked": 2,
+    "images_checked_note": "first two held-out images only; a spot check, not all held-out inference",
+    "csv_metric_parity": true
+  },
+  "charts_included": [
+    "figures/classifier.png",
+    "figures/detector.png",
+    "figures/evaluate.png",
+    "figures/activity.png"
+  ],
+  "stage_resources": {
+    "prepare": {
+      "stage": "prepare",
+      "seconds": 0.7222299769999836,
+      "pid": 1395,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": null,
+      "outputs": {
+        "split_manifest.csv": "f042ef8613a831d5e9f7f9e95d8f369ea05b958f937bd9b12bb42fc707a38409",
+        "sample_summary.csv": "8f027c0ec4e8c36bd579fdf8019ebb6f02a3921a20179dacefdc2fb44fd96ae4",
+        "crop_lineage.csv": "d6593312729a80895d2fee17641ce703a45a1809723d4d06b168c56349025d1f",
+        "environment.json": "96a7922698f6d9719f68b525beb2cb1654577d8c80037f66288db460af0b0007",
+        "audit_gates.csv": "a5baf998903955a4433960245c94a6d3ac39def902bbe1b19211a2a014a8e857",
+        "lineage.json": "29b192d82de9f630d31e7d3bc2773912719352f48aa0528c2e43214bfdb959a5"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": null,
+      "gpu_name": null
+    },
+    "features": {
+      "stage": "features",
+      "seconds": 226.135571664,
+      "pid": 1431,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "1378a71159a08ea7745dc7d7f7629b400101c6789df1b9b1b15345f3fdaf9aed",
+      "outputs": {
+        "validation_crops.json": "c9185241a056667759c77c2e46a5f935eedc5024b3f4d8e2baec1971803e7fe5",
+        "features.npz": "62ed504ebcfe5cccd86c32ca472101e0e95d4f51efd0a644528df53692d5ab40",
+        "rgb.npy": "a86df8b131613f35b58aeaae43c265bab3366c8a38b9fc89e7e17c58ab084e6b",
+        "siglip.npy": "ea4b4f924c82e490ce3811691b6ca0b10a8c870e81b8f4be3bffea07659a8b7d",
+        "majority.npy": "7ed37e198e596d6f11433ad9c25c887709ea2005488cfea0d4a0cbb0db7c698e"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 1828172800,
+      "gpu_name": "Tesla T4"
+    },
+    "classifier": {
+      "stage": "classifier",
+      "seconds": 3.736940992999962,
+      "pid": 2439,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "e8b25cd2de19ed445d4664d7980e2664ab11a073e8518c33017f0813ef7747ae",
+      "outputs": {
+        "classifier_history.json": "15aeeb25c6aeab46123f52ea12ec911f28761980901b35e340e540aa58377138",
+        "adapted.npy": "c3c7962c7776405ffe795d7324abe079ceb0536e8096f88db049376d03aafd64",
+        "classifier_training_subset.json": "f1263b83340d2011bf35d8a0f56344f48936d02c1c6f9a2168cf6a04a681299b",
+        "classifier_adapter/manifest.json": "aa225ab49c99c7508303b20f43a87a4c5528c5f73ae14e00ff013acd184450a5",
+        "classifier_adapter/head.safetensors": "82b0c6aa1bc36ec81705dc3c1f0933b48a6ad4f27e6e8adffa2abec3cf5bc2a5"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 29520384,
+      "gpu_name": "Tesla T4"
+    },
+    "detector": {
+      "stage": "detector",
+      "seconds": 291.46650968100005,
+      "pid": 2471,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "e69ce4d8286fd76ec1d940eedcbbe72be1ebd9da0334e0665b45b76f99affc3c",
+      "outputs": {
+        "detector_history.json": "89a7b8dd7e6efe7fe2f374f897f1237cae12ba8cbae1369eeec51b64914eadf1",
+        "detector_adapter/manifest.json": "6dff01de6a873aff91c2addba4230dd40539499b9a550e2f46a7e8251a0fb9e2",
+        "detector_adapter/adapter.safetensors": "874804239d4bd871d779ebbff453573e78d9a61237cf246c2e87d2d558b352d4"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 1074618368,
+      "gpu_name": "Tesla T4"
+    },
+    "policy": {
+      "stage": "policy",
+      "seconds": 252.12537484900008,
+      "pid": 3705,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "99d65e402a88c7694c532922e3cae963560f56a3f1750167b4d2d4ce06415a14",
+      "outputs": {
+        "validation_detections.json": "dad5c4e880b93c68cf455aa5c3ffd6b07387937dca3c4842358133cf23d3f794",
+        "selected_policy.json": "1fda9b561f624ea326061806e082eabd1eadeef22b4048a3331e691238c25128"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 1826534400,
+      "gpu_name": "Tesla T4"
+    },
+    "evaluate": {
+      "stage": "evaluate",
+      "seconds": 253.9980035189999,
+      "pid": 4757,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "0b5822a5caa67d0ddcef54397d7618bad2e5463896e7c644869fee86fb98a01c",
+      "outputs": {
+        "reload_expected.json": "edcedf81269a146d7eb3a193a1dbe63b6ff1e8d067dc0424ccd6b98e9e305e60",
+        "counts.csv": "6c0ef37ef13a0e0749a1918c61d8d95dffd8d63f8b6fcd54a199b660da559ee5",
+        "error_summary.csv": "709faa4a2bed6872439426423c18fdd077cb5da75ea5d329085037ce9126718b",
+        "error_panel_inventory.json": "4b20a6ab6990b82d7c5dbb71b391105a81208a15659ecd720e2fc98096cd3488",
+        "test_crop_metrics.json": "aca1d259f39044f7bfbae2ae0821097c55e078c2b949bf116324dd235f809923",
+        "bootstrap.json": "4e1f230f7602948488c9608d90a4eebfc80226011401306277bbe4342d5e99fb",
+        "error_examples.csv": "6538bb687f2eccd8d4e227c4b96caa138e22fed3304acb2c635e9598fd035fb1",
+        "matched_species_confusion.csv": "dfe830f61e83be93ad0ab9ed2cd42f20d6aa09d115af3315c508583cf2b24863",
+        "detection_metrics.json": "81684e96a6ebe97a23f7a35f0a35030c1b40c8db6d4b07d79ba834efbbcfad85",
+        "crop_predictions.csv": "f28cfcda1aba3cd4b4a4d8de14c71b951a197c672babe9887a9f8b03ea808b35",
+        "error_example_counts.csv": "773b3a2f886374641d2808aab56cbd0d0ad215ca174ee6415b44ad25239da153",
+        "test_detections.json": "e79ed8ecb2eb0512258588664b62336b99a581e016daef72248a254662c6e4f4",
+        "metrics.json": "3642f50fb9274f29bb7ddcb8458bb267b3552bb790f8b9836a9c76f69ec7cc77",
+        "detections.jsonl": "2d29f2184b39c41ff8d79b94fe29250af57a2edadbb9580dbf2fc4c80868018e",
+        "metrics.csv": "2fb0fde8c906787a6813046f645bea88db34c88b5a008e179c192c86c5804a04",
+        "error_decomposition.csv": "c1e8b649648f27348033785679d5e15afc99b5924f71f38cab23078625ecd651",
+        "local_figures/rice_0b235e3cccc93131.png": "3359945f7b64ae061efb56252e8e34400307446f0e7c534d6dda54a1f5df77d4",
+        "local_figures/rice_00ff28b138a6f576.png": "42247a17001ddf38507bc5dfdf2c059c23af33d80c3edde99a41ed82229e20e9",
+        "local_figures/rice_0cede29efc7af87c.png": "dd8d2c5728e3ac0b3f988896bcffb591870a85cf3c0154a316486a2706f0c5bd"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 1826534400,
+      "gpu_name": "Tesla T4"
+    },
+    "activity": {
+      "stage": "activity",
+      "seconds": 0.8024283299998842,
+      "pid": 5822,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "22b1edc2a2bc8bbd093ac1ba3ae7a1d90149813e912832271953047dcb5285a8",
+      "outputs": {
+        "activity_paired_counts.csv": "a04604483d18d7ca2908686025f52aa83fc7d133c74c909ef74fe63482bc0819",
+        "activity_review_margins.csv": "d1b0351fe31498c3434814a2d6383dfbb2a3684fa7d7da058ea6df7d7c1c091d",
+        "activity_thresholds.csv": "b952ebd3af464a2ba69a39aa72dd5a0a1ea83c8a88fd13ad970ea72ef9d0ea26"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": null,
+      "gpu_name": null
+    },
+    "reload": {
+      "stage": "reload",
+      "seconds": 28.03093504399999,
+      "pid": 5843,
+      "data_sha256": "272ff5523de026d4e154d3e008ed39a046e434bb6c9e2974c2c222c71f8bf7a1",
+      "runtime_sha256": "9168db3806d5efa6e44f9b51e349a48827521021935423228ebe00f80bab4301",
+      "identity": "60229af8f9b79f20e0053e4802f3a308fc586726f45f9329eca6b6f25b7930f5",
+      "previous": "596dc866af4da0b18d8ad644eecf27f01ae32239bb97930ac900006e04a12561",
+      "outputs": {
+        "verification.json": "5d722f2cad0a527e45c6355106efcd54e3380b810760a4238955c528211e9b66"
+      },
+      "completed": true,
+      "peak_allocated_gpu_bytes": 1826534400,
+      "gpu_name": "Tesla T4"
+    }
+  }
+}
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/run_summary.json                
+/content/outputs/rice_pest/6cf6a898a0e0/outputs/results.zip                     
+[colab] Saving notebook with outputs to '/home/kurt/colab-runs/detr-detection-pipeline-0ee0de3-7c5e7e/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_0ee0de3_colab-cli-t4_output.ipynb'...

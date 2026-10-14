@@ -1,6 +1,6 @@
 # Rice-pest exploratory capstone
 
-**Candidate: passing Colab T4 default Run all recorded on `main` (`9f85155`, 2026-09-28) and on `bfa45cc`; Colab CLI T4 default-path run recorded on PR #6 head `49a7ff8` (2026-10-12); maintainer review required.** The implementation is separate
+**Candidate: passing Colab T4 default Run all recorded on `main` (`9f85155`, 2026-09-28) and on `bfa45cc`; Colab CLI T4 default-path runs recorded on PR #6 heads `49a7ff8` (2026-10-12) and `0ee0de3` (2026-10-14, current design); maintainer review required.** The implementation is separate
 from the original DETR tutorial. Original package code and original notebook are unchanged.
 
 ## Agreed scope and source audit
@@ -389,6 +389,57 @@ New in this head, now executed:
 | Threshold and review-margin activity (Section 8) | Passed |
 | Fresh-process reload and report | Passed |
 | BYOD, browser Run all (forms, uploads) | Not assessed (CLI) |
+| Zenodo fallback, repeated Run all | Not assessed in this run |
+
+Status stays **Candidate**; maintainer review required.
+
+### Colab CLI execution of PR #6 head `0ee0de3` — 2026-10-14 (PASSED, default path, CLI sequential)
+
+**Scope of this record:** this run covers the owner decisions RPS-m5 = C (optional `DISPLAY_THRESHOLD` / `REVIEW_MARGIN` activity controls, executed here with both off) and RPS-CX4 = A (per-species training-median baseline with its own paired bootstrap). It supersedes the `49a7ff8` record for the current design.
+
+| Field | Value |
+|---|---|
+| File | `docs/execution-evidence/2026-10-14/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_0ee0de3_colab-cli-t4.ipynb`, SHA-256 `56cf506c90f45cf3e43d708e2e4ad2b53d44549ea04a6bf555e9c74c4fb014f3` (byte copy of the CLI output); `..._0ee0de3_run_summary.json` `e85aa172935946b084441744bce007ccb6fb96cc8011dbdb217245c485e3e40c`; `..._0ee0de3_exec.log` `dfc1b0d0b2009511cdffb9c115da1776f8025b1533150d51bccd293b096d34a3` |
+| Subject | commit `0ee0de310d4cc7b7d6d0d0eb786ce289a6ff6d02` / notebook blob `991ab9aa9deab64128196dd8d3e15f6ab590490b` (`readable_source_revision` `b88bad5`); blob fetched at the 40-char SHA and Git-blob verified before the VM was allocated |
+| Source match | All 22 cells, ids and order identical to the blob; no `# @param` or other diffs |
+| Runtime | Colab CLI 0.7.4 sequential execution, fresh Colab Tesla T4 VM (session `suite-detr-0ee0de3-7c5e`, released after the run); isolated environment from the hashed lock |
+| Executed cells | All 10 code cells in order in one kernel (order from `exec.log` "Executing cell k/10"; the CLI sets no execution counts); no error outputs; exit 0; 1,160.6 s wall (2026-10-14 14:01:36 UTC start) |
+| Data preparation | 200 images, 8,463,531 bytes, all SHA-256 verified, `'source': 'mirror'` |
+| Stage time | 1,057.0 s total (prepare 0.7, features 226.1, classifier 3.7, detector 291.5, policy 252.1, evaluate 254.0, activity 0.8, reload 28.0) |
+| Peak GPU memory | 1,828,172,800 bytes allocated (same as the `49a7ff8` and `9f85155` runs) |
+| Reload | Fresh process; identical labels, counts and referrals; `images_checked` 2 (first two held-out images, a spot check) |
+| Evidence boundary | A Colab CLI execution, **not a browser Run all**: forms not rendered (the Section 8 controls ran at their defaults, both off), uploads not exercised. Saved outputs were inspected; execution was not independently repeated. |
+
+Reproducibility against the `49a7ff8` run (printed output compared line by line after removing run
+directories and timings): every detector and classifier metric, count, threshold and margin is
+identical (445 retained test detections, 126 unmatched; detector threshold 0.9, review margin
+0.00523372; count MAE 2.05 at 0.9; zero-count 5.69; training-mean 8.12; all earlier bootstrap
+intervals; referral report 0/337 validation and 0/445 test), and the recorded digests of
+`detection_metrics.json`, `detections.jsonl`, `crop_predictions.csv`, `test_crop_metrics.json`,
+the error files, `activity_paired_counts.csv`, the review-margin table, the classifier/detector
+adapters and all features match. Every difference is explained by `b88bad5`:
+- `metrics.csv` / `metrics.json` gain a `training_median` row: MAE 5.4125 (the documented
+  offline 5.41), bias -5.1875, exact-count rate 0.6, all-species-exact rate 0.55, total-target
+  MAE 10.375; `counts.csv` gains a `training_median` column (1 rice black bug, 0 white
+  stemborers per image).
+- `bootstrap.json` adds `detector_adapted_minus_training_median`: difference -3.3625 (the
+  documented 2.05 − 5.41 = −3.36), 95% CI [-5.525, -1.375], 40 groups, 2,000 replicates, seed 42.
+- Section 8 prints `Activity controls (None = off): {'display_threshold': None, 'review_margin': None}`;
+  with both controls off no learner rows are added and the activity outputs are unchanged.
+- The referral-report cell no longer echoes the `CompletedProcess(...)` repr (closes the open
+  cosmetic item of the `49a7ff8` record).
+- Run-specific only: `runtime_sha256` / stage identity (new `capstone.py`), `environment.json`,
+  `selected_policy.json` (`selected_at_unix`; every printed policy field identical),
+  `reload_expected.json` and `verification.json` (process IDs and the policy digest), timings.
+
+| Journey | Verdict |
+|---|---|
+| Preflight, isolated environment, mirror data preparation | Passed |
+| Features, classifier, detector, policy (incl. referral report) | Passed |
+| Evaluation, training-median baseline and error diagnosis (Section 7) | Passed |
+| Threshold and review-margin activity, controls off (Section 8) | Passed |
+| Fresh-process reload and report | Passed |
+| Section 8 controls switched on, BYOD, browser Run all (forms, uploads) | Not assessed (CLI) |
 | Zenodo fallback, repeated Run all | Not assessed in this run |
 
 Status stays **Candidate**; maintainer review required.
