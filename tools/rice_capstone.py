@@ -931,6 +931,23 @@ def locked_policy(root):
     return {**policy, "digest": digest}
 
 
+def referral_report(root):
+    """Display-only: detections retained and referred at the locked policy, per composed split."""
+    policy_value = locked_policy(root)
+    lines = []
+    for split in ("validation", "test"):
+        path = root / "outputs" / f"{split}_detections.json"
+        if not path.exists():
+            continue
+        objects = [o for p in read(path) for o in chosen_objects(p, policy_value)]
+        referred = sum(o["review"] for o in objects)
+        lines.append(
+            f"{split}: {referred} of {len(objects)} retained detections referred "
+            f"at review margin {policy_value['review_margin']:.6g}"
+        )
+    return lines
+
+
 def oracle_counts(records, lineage, probabilities):
     by_id = {row["image_id"]: i for i, row in enumerate(records)}
     counts = np.zeros((len(records), 2), dtype=int)
@@ -1089,9 +1106,13 @@ def evaluate(root):
     train = [r for r in records if r["split"] == "train"]
     majority = int(count_reference(train).sum(axis=0).argmax())
     baseline = np.tile(count_reference(train).mean(axis=0), (len(test), 1))
+    # RPS-CX4: the per-species training median is the constant that minimises training absolute
+    # error, so it is the fair trivial floor for count MAE. Fitted on training images only.
+    median = np.tile(np.median(count_reference(train), axis=0), (len(test), 1))
     systems = {
         "training_mean": baseline,
         "zero_count": np.zeros_like(baseline),
+        "training_median": median,
         "oracle_bioclip": oracle_counts(test, lineage, features_data["zero_shot"]),
         "oracle_adapted": oracle_counts(test, lineage, adapted),
         "detector_majority": count_predictions(
@@ -1107,6 +1128,24 @@ def evaluate(root):
     bootstrap = core.paired_group_bootstrap(
         truth, systems["detector_adapted"], baseline, [r["capture_group_id"] for r in test]
     )
+    # RPS-m2: also compare with the strongest trivial floor and the zero-shot head. Each call seeds its
+    # own generator, so the training-mean interval above is unchanged.
+    groups = [r["capture_group_id"] for r in test]
+    vs_zero = core.paired_group_bootstrap(
+        truth, systems["detector_adapted"], systems["zero_count"], groups
+    )
+    vs_bioclip = core.paired_group_bootstrap(
+        truth, systems["detector_adapted"], systems["detector_bioclip"], groups
+    )
+    vs_median = core.paired_group_bootstrap(
+        truth, systems["detector_adapted"], systems["training_median"], groups
+    )
+    bootstrap["comparison"] = "detector_adapted minus training_mean"
+    bootstrap["comparisons"] = {
+        "detector_adapted_minus_zero_count": vs_zero,
+        "detector_adapted_minus_detector_bioclip": vs_bioclip,
+        "detector_adapted_minus_training_median": vs_median,
+    }
     bootstrap["group_interpretation"] = (
         "source-image/duplicate groups; capture independence unverified"
         if manifest.get("scope") == "exploratory_published_annotations"
@@ -1174,6 +1213,7 @@ def evaluate(root):
                     "accepted": sum(o["species"] == species and not o["review"] for o in objects),
                     "unresolved_total": sum(o["review"] for o in objects),
                     "training_mean": float(baseline[index, s]),
+                    "training_median": float(median[index, s]),
                 }
             )
         detection_rows.append({"image_id": record["image_id"], "detections": objects})
@@ -1362,6 +1402,32 @@ def panels(root, records, predictions, policy_value):
 # because a threshold of 1.0 drops every box and only reproduces the zero-count baseline.
 DISPLAY_THRESHOLD_BOUNDS = (0.05, 0.95)
 REVIEW_ILLUSTRATION_COVERAGE = (0.9, 0.8)
+ACTIVITY_CONTROLS = "activity_controls.json"
+
+
+def activity_controls(root):
+    """Optional learner controls for the activity stage. A missing file or null values mean off.
+
+    The file sits in the run directory, not in outputs/, and only adds rows to the activity
+    tables: canonical predictions, policy and metrics are never read from it.
+    """
+    path = root / ACTIVITY_CONTROLS
+    value = read(path) if path.exists() else {}
+    if not isinstance(value, dict) or set(value) - {"display_threshold", "review_margin"}:
+        raise ValueError("activity_controls.json may hold only display_threshold and review_margin")
+    threshold, margin = value.get("display_threshold"), value.get("review_margin")
+    grid = [i / 20 for i in range(1, 20)]
+    if threshold is not None:
+        if isinstance(threshold, bool) or not isinstance(threshold, int | float) or not any(
+            abs(threshold - g) < 1e-9 for g in grid
+        ):
+            raise ValueError("DISPLAY_THRESHOLD must be on the validation grid 0.05-0.95 (steps of 0.05)")
+        threshold = round(float(threshold), 6)
+    if margin is not None:
+        if isinstance(margin, bool) or not isinstance(margin, int | float) or not 0 <= margin <= 1:
+            raise ValueError("REVIEW_MARGIN must be between 0 and 1")
+        margin = round(float(margin), 6)
+    return {"display_threshold": threshold, "review_margin": margin}
 
 
 def display_thresholds(locked):
@@ -1369,12 +1435,14 @@ def display_thresholds(locked):
     return sorted({round(max(low, locked - 0.1), 6), locked, round(min(high, locked + 0.1), 6)})
 
 
-def review_margin_rows(test, predictions, policy_value):
-    """Display-only: what stricter review margins would refer, next to the locked margin.
+def review_margin_rows(test, predictions, policy_value, learner_margin=None):
+    """Display-only: what other review margins would refer, next to the locked margin.
 
     Illustrative margins come from the validation curve (the margin whose validation coverage is
-    closest to, without exceeding, 90% and 80%). Test detections are counted at the locked
-    detector threshold; the locked review margin and counts are not changed.
+    closest to, without exceeding, 90% and 80%). They are not required to be stricter than the
+    locked margin, so each role states 'stricter' or 'looser' from the actual threshold. Test
+    detections are counted at the locked detector threshold; the locked review margin and counts
+    are not changed. A learner margin, when given, adds one row after the fixed ones.
     """
     review = policy_value.get("review_validation") or {}
     curve = [r for r in review.get("curve", []) if r.get("accuracy") is not None]
@@ -1386,8 +1454,26 @@ def review_margin_rows(test, predictions, policy_value):
             continue
         row = max(eligible, key=lambda r: (r["coverage"], -r["threshold"]))
         if all(abs(row["threshold"] - m[0]) > 1e-12 for m in margins):
-            role = f"illustrative ~{target:.0%} coverage"
+            direction = "stricter" if row["threshold"] > locked_margin else "looser"
+            role = f"illustrative ~{target:.0%} coverage ({direction} than locked)"
             margins.append((row["threshold"], role, row["coverage"], row["accuracy"]))
+    if learner_margin is not None:
+        # Validation crops accepted at this margin are those of the next curve margin at or above it.
+        above = [r for r in curve if r["threshold"] >= learner_margin - 1e-12]
+        nearest = min(above, key=lambda r: r["threshold"]) if above else None
+        direction = (
+            "same as"
+            if abs(learner_margin - locked_margin) <= 1e-12
+            else ("stricter" if learner_margin > locked_margin else "looser")
+        )
+        margins.append(
+            (
+                learner_margin,
+                f"learner ({direction} locked)",
+                nearest["coverage"] if nearest else (0.0 if curve else None),
+                nearest["accuracy"] if nearest else None,
+            )
+        )
     rows = []
     for margin, role, coverage, accuracy in margins:
         referred = {"correct": 0, "wrong_species": 0, "spurious": 0}
@@ -1409,7 +1495,11 @@ def review_margin_rows(test, predictions, policy_value):
                 "referred_correct": referred["correct"],
                 "referred_wrong_species": referred["wrong_species"],
                 "referred_spurious": referred["spurious"],
-                "note": "Retrospective test illustration; locked review margin unchanged",
+                "note": (
+                    "Learner-chosen margin; locked review margin unchanged"
+                    if role.startswith("learner")
+                    else "Retrospective test illustration; locked review margin unchanged"
+                ),
             }
         )
     return rows
@@ -1421,11 +1511,13 @@ def activity(root):
     canonical = core.sha256(root / "outputs" / "test_detections.json")
     policy_value = locked_policy(root)
     predictions = read(root / "outputs" / "test_detections.json")
+    controls = activity_controls(root)
     locked = policy_value["detector_threshold"]
     thresholds = display_thresholds(locked)
     role = {t: "canonical" if t == locked else ("lower" if t < locked else "higher") for t in thresholds}
     rows, per_image = [], {}
-    for threshold in thresholds:
+
+    def threshold_row(threshold, role_name, note):
         count_result = core.count_metrics(count_reference(test), count_predictions(predictions, threshold))
         errors = [
             core.error_decomposition(
@@ -1433,17 +1525,31 @@ def activity(root):
             )
             for r, p in zip(test, predictions, strict=True)
         ]
+        return {
+            "display_threshold": threshold,
+            "role": role_name,
+            "mae": count_result["mae"],
+            "missed": sum(e["missed"] for e in errors),
+            "spurious": sum(e["spurious_count"] for e in errors),
+            "wrong_species": sum(e["wrong_species"] for e in errors),
+            "note": note,
+        }
+
+    for threshold in thresholds:
         per_image[threshold] = count_predictions(predictions, threshold)
         rows.append(
-            {
-                "display_threshold": threshold,
-                "role": role[threshold],
-                "mae": count_result["mae"],
-                "missed": sum(e["missed"] for e in errors),
-                "spurious": sum(e["spurious_count"] for e in errors),
-                "wrong_species": sum(e["wrong_species"] for e in errors),
-                "note": "Retrospective test illustration; canonical policy unchanged",
-            }
+            threshold_row(
+                threshold, role[threshold], "Retrospective test illustration; canonical policy unchanged"
+            )
+        )
+    if controls["display_threshold"] is not None:
+        # RPS-m5: one learner row after the fixed rows; the fixed rows and the paired view are unchanged.
+        rows.append(
+            threshold_row(
+                controls["display_threshold"],
+                "learner",
+                "Learner-chosen display threshold; canonical policy unchanged",
+            )
         )
     csv_write(root / "outputs" / "activity_thresholds.csv", rows)
     # Paired view: the held-out image whose raw count moves most across the three
@@ -1489,7 +1595,7 @@ def activity(root):
             "wrong_species",
         ],
     )
-    margins = review_margin_rows(test, predictions, policy_value)
+    margins = review_margin_rows(test, predictions, policy_value, controls["review_margin"])
     csv_write(root / "outputs" / "activity_review_margins.csv", margins)
     if (
         core.sha256(root / "outputs" / "test_detections.json") != canonical
@@ -1527,6 +1633,8 @@ def reload(root):
             "score_atol": 1e-5,
             "rtol": 1e-5,
             "identical_labels_counts_referrals": True,
+            "images_checked": len(ids),
+            "images_checked_note": "first two held-out images only; a spot check, not all held-out inference",
         },
     )
 
