@@ -25,7 +25,7 @@ def test_single_run_values_are_gone():
 
 def test_values_that_moved_are_given_per_run():
     md = _markdown()
-    assert "`ap50` rose from 0.0172 to 0.3851 and 0.3594" in md
-    assert "**1 and 2 of the 5** reference signs" in md
+    assert "`ap50` rose from 0.0172 to 0.3851, 0.3594 and 0.3617" in md
+    assert "**1, 2 and 2 of the 5** reference signs" in md
     assert "0.2232 in the second (F1 0.629, precision 0.661, recall 0.6)" in md
     assert "ended between 0.5602 and 0.6103" in md
