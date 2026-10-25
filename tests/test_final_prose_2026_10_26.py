@@ -13,8 +13,14 @@ def _markdown():
     return "\n".join("".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "markdown")
 
 
-GONE = ['expected to be near zero', 'Near zero is the expected floor', 'Expect `returned_at_threshold` to stay 0']
-PRESENT = ['**The baseline is the floor.**']
+GONE = [
+    'expected to be near zero',
+    'Near zero is the expected floor',
+    'Expect `returned_at_threshold` to stay 0',
+]
+PRESENT = [
+    '**The baseline is the floor.**',
+]
 
 
 def test_flagged_expectations_are_gone():
