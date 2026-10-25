@@ -105,7 +105,7 @@ def test_par2_inline_manifest_and_pins_match_repository(notebook: dict) -> None:
     assert re.findall(r"'([^']+)'", pins_block.group(1)) == build._pins(ROOT)
     meta = notebook["metadata"]["dimer"]
     assert meta["standalone"] is True
-    assert meta["notebook_spec"] == build.NOTEBOOK_SPEC == "2.2"
+    assert meta["notebook_spec"] == build.NOTEBOOK_SPEC == "2.5"
     assert meta["generated_from"]["module"] == f"src/{TEMPLATE['package']}/pipeline.py"
     assert meta["generated_from"]["module_sha256"] == build.load_context(ROOT, TEMPLATE)["module_sha256"]
 

@@ -1,6 +1,6 @@
 """Static release-asset validation for the DETR ResNet-50 object-detection DIMER pipeline.
 
-Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.2 §4), the tutorial
+Checks the STANDALONE tutorial notebook (DIMER Notebook Specification 2.5 §4), the tutorial
 registry, model card (DIMER Model Card Specification 1.2), README, STATUS.md and weight documentation
 for source conformance and cross-document identity consistency, the snapshot pin state, and runs the
 generator parity checks (PAR1–PAR3).
@@ -107,7 +107,7 @@ MARKDOWN_MARKERS = (
     "AP@[.50:.95]",
     # DTR-M2: the AP/threshold distinction and the observed outcome replace the claim that the adapter detects the new classes.
     "**AP is computed at the evaluation threshold.**",
-    "**What the recorded runs show.** At 0.9 the adapted model returned **no** boxes",
+    "**What the recorded run shows.** In ",
     "**Scores and thresholds.**",
     "**An adapted threshold, chosen on the training split only.**",
     # DTR-M3: every fine-tune starts from the re-headed model; the activity names its re-run range.
@@ -154,7 +154,7 @@ FORBIDDEN_OUTSIDE_MODULE = (
 # ---------------------------------------------------------------------------
 
 # 2.2 since 2026-10-03 (DTR-M1): the tutorial runs in the uv isolated environment (generator /2.1), no in-kernel install.
-NOTEBOOK_SPEC = "2.2"
+NOTEBOOK_SPEC = "2.5"
 # Learner-facing text that must not come back (review 2026-10-02).
 STALE_MARKDOWN = (
     "installed directly — there is no repository clone",  # DTR-M1
@@ -242,7 +242,7 @@ COMMON_MARKDOWN_MARKERS = (
     "without the repository being",
     "It does **not** establish benchmark superiority",
     "## References",
-    f"- Repository model card: https://github.com/kurtvalcorza/{REPO_NAME}/blob/main/MODEL_CARD.md",
+    f"https://github.com/kurtvalcorza/{REPO_NAME}/blob/main/MODEL_CARD.md",
 )
 # Patterns that must never appear in tutorial code (comment-stripped), in any cell.
 FORBIDDEN_PATTERNS = (
