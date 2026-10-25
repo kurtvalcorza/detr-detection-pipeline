@@ -21,6 +21,10 @@ reload check. All of it is tutorial-side: src/ is unchanged.
 
 H = 'the 2026-10-04 Colab T4 run of revision `c3c81cb` (notebook blob `6b2e5fc3`)'
 EARLY = 'the 2026-09-25 Kaggle T4 run of an earlier revision and a 2026-10-03 local CPU run, not re-run here'
+C1 = 'the 2026-10-04 Colab T4 run of blob `6b2e5fc3`'
+C2 = 'the 2026-10-25 Colab T4 run of blob `da6b14bd`'
+COLAB = 'both recorded Colab T4 runs (blob `6b2e5fc3`, 2026-10-04, and blob `da6b14bd`, 2026-10-25)'
+HOSTED = 'every recorded hosted run (the Kaggle T4 run of blob `a98705ed`, 2026-09-25, and the Colab T4 runs of blobs `6b2e5fc3`, 2026-10-04, and `da6b14bd`, 2026-10-25)'
 
 TEMPLATE = {
     "package": "detr_detection_pipeline",
@@ -218,7 +222,7 @@ TEMPLATE = {
         {
             "md": (
                 "**What to notice (Section 4):** the matched count, which objects scored at or above 0.9, and the `box_iou` of each reference.\n\n"
-                "<details><summary>Check your reasoning</summary>In " + H + " (and in " + EARLY + ") the "
+                "<details><summary>Check your reasoning</summary>In " + COLAB + " (and in " + EARLY + ") the "
                 "head returned `stop sign` 0.999 (IoU 0.847), `traffic light` 0.997 (IoU 0.910) and `clock` 0.973 (IoU 0.898), so 3 of the 4 drawn "
                 "objects matched; the sports ball was missed and is recorded with `box_iou` 0.0. A flat orange disc is weaker evidence for a "
                 "photograph-trained detector than an octagon with a word on it, a box of coloured lamps or a clock face.</details>\n\n"
@@ -310,7 +314,7 @@ TEMPLATE = {
         {
             "md": (
                 "**What to notice (Section 7):** the split sizes, the two re-initialised class-head tensors, and the baseline AP.\n\n"
-                "<details><summary>Check your reasoning</summary>In " + H + " the split was 30 / 10 images (65 / 17 boxes) and the baseline "
+                "<details><summary>Check your reasoning</summary>In " + COLAB + " the split was 30 / 10 images (65 / 17 boxes) and the baseline "
                 "`ap` was 0.0063 and `ap50` 0.0172 (" + EARLY + ", gave the same): the fresh head spreads each query's probability over the "
                 "three new classes and no-object without any knowledge of them, so the few boxes that pass the 0.05 evaluation threshold are "
                 "ranked by chance. Near zero is the expected floor.</details>\n\n"
@@ -361,7 +365,7 @@ TEMPLATE = {
         {
             "md": (
                 "**What to notice (Section 8):** the epoch-1 loss, how fast it falls, and the trainable share of the parameters.\n\n"
-                "<details><summary>Check your reasoning</summary>In " + H + " the loss started at 1.6564 and ended at 0.6103 after 10 epochs; "
+                "<details><summary>Check your reasoning</summary>Read the loss lines printed above. In " + HOSTED + " the loss started at 1.6564 and ended between 0.5602 and 0.6103 after 10 epochs (0.6103 and 0.6078 in the two Colab runs); "
                 "a 2026-10-03 local CPU run (not re-run here) went from 2.1077 to 0.4860. That is down to roughly a quarter to "
                 "two fifths, not near zero: 30 images and 10 epochs are a "
                 "short schedule. With the backbone frozen, 18,047,240 of 41,502,152 parameters were trainable. The T4 and CPU trajectories differ "
@@ -457,25 +461,25 @@ TEMPLATE = {
         {
             "md": (
                 "**What to notice (Section 9):** the AP change, and then the operating-threshold line under it.\n\n"
-                "<details><summary>Check your reasoning</summary>In " + H + " `ap50` rose from 0.0172 to 0.3851 and `ap` "
-                "to 0.2983 (" + EARLY + ", gave 0.27–0.32 and 0.22–0.29): the fine-tune taught the head to rank some of the new signs' boxes "
-                "above the wrong ones, but far from all of them. The operating-threshold line read `returned: 0` in the same run: none "
+                "<details><summary>Check your reasoning</summary>Read the AP table printed above. In " + COLAB + " `ap50` rose from 0.0172 to 0.3851 and 0.3594 and `ap` "
+                "to 0.2983 and 0.2993 (the 2026-09-25 Kaggle T4 run of an earlier revision gave 0.2668 and 0.2222): the fine-tune taught the head to rank some of the new signs' boxes "
+                "above the wrong ones, but far from all of them. The operating-threshold line read `returned: 0` in both Colab runs: none "
                 "of the 17 held-out reference boxes came back at `threshold = 0.9`, and the highest adapted score on the 10 "
-                "held-out images was 0.3078. Ten epochs on 30 images move the softmax only part of the way from no-object toward the new "
+                "held-out images was 0.3078 and 0.2985. Ten epochs on 30 images move the softmax only part of the way from no-object toward the new "
                 "classes, so the right boxes score well above the wrong ones (hence a non-zero AP) and far below 0.9. A non-zero AP and an empty "
-                "output are both true; they answer different questions. The training split chose `ADAPTED_THRESHOLD = 0.2231` (training F1, "
-                "precision and recall all 0.5538), and at that threshold 15 held-out boxes came back, "
-                "5 of them correct (recall 0.29 of 17 references, precision 0.33).</details>\n\n"
+                "output are both true; they answer different questions. The training split chose `ADAPTED_THRESHOLD = 0.2231` in the first run (training F1, "
+                "precision and recall all 0.5538) and 0.2232 in the second (F1 0.629, precision 0.661, recall 0.6); at that threshold 15 and 14 held-out boxes came back, "
+                "5 and 4 of them correct (recall 0.29 and 0.24 of 17 references, precision 0.33 and 0.29).</details>\n\n"
                 "## 10. Inference on unseen images, at the operating threshold\n\n"
                 "Three new images come from a seed the dataset never used (`NEW_DATA_SEED = 99`). The adapted model is run at the same `threshold` "
                 "as the COCO head (0.9), and each reference box is compared with the best same-label detection by IoU. Next to that, the cell "
                 "reports the best-localised same-label detection at the evaluation threshold 0.05, with its score, so you can see the difference "
                 "between *ranking* the right box first and *returning* it.\n\n"
-                "**What the recorded run shows.** In " + H + ", at 0.9 the adapted model returned **no** boxes on any of the three "
-                "images (highest score 0.279; the earlier Kaggle T4 run also returned none). At 0.05 the best same-label box overlapped its "
-                "reference with IoU 0.874 for two of the five signs, at scores 0.147 and 0.225, and three signs had no same-label box over them "
-                "at all: where the model finds a sign the box is right, but every score is low. At the adapted threshold the same run found "
-                "**1 of the 5** reference signs.\n\n"
+                "**What the recorded runs show.** In " + HOSTED + ", at 0.9 the adapted model returned **no** boxes on any of the three "
+                "images (highest score 0.279 and 0.266 in the two Colab runs). At 0.05 the best same-label box overlapped its "
+                "reference with IoU 0.874 for two of the five signs in the first Colab run (three signs had no same-label box over them) and with IoU 0.887 to 0.955 for four of the five in the second: "
+                "where the model finds a sign the box is right, but every score is low. At the adapted threshold the Colab runs found "
+                "**1 and 2 of the 5** reference signs, so expect your count to differ.\n\n"
                 "The cell prints each image twice over — at `threshold` (0.9) and at `ADAPTED_THRESHOLD` (from Section 9) — and the found count "
                 "at each.\n\n"
                 "**Predict before running:** how many reference boxes will be found at 0.9, and how many at the adapted threshold? Which sign is "
@@ -517,7 +521,7 @@ TEMPLATE = {
             "md": (
                 "**What to notice (Section 10):** the found count at 0.9, each image's `highest_score`, and the IoU and score of the best "
                 "same-label detection at 0.05.\n\n"
-                "<details><summary>Check your reasoning</summary>0 of 5 reference boxes were found at 0.9 and every `detections` list was empty; the highest scores per image were 0.279, 0.273 and 0.225 (" + H + "; the Kaggle T4 run of an earlier revision also returned nothing at 0.9). At 0.05 the best same-label detections had IoU 0.874 for the second yield sign on image 000 (score 0.147) and for the stop sign on image 002 (score 0.225); the first yield sign on image 000 and both signs on image 001 had no same-label box over them. At the training-split threshold 0.2231 the same run found 1 of 5, the stop sign on image 002 (IoU 0.874, score 0.225, just above the threshold). The other boxes above the threshold were wrong: image 000's highest box (0.279) is labelled `speed-limit-sign` where two yield signs are drawn, and image 001's two boxes (0.273 and 0.253) are labelled `stop-sign` where a speed-limit and a yield sign are drawn. With every score packed between about 0.15 and 0.31, a small change in the threshold or in the run (a CPU run differs) moves the found count. The threshold changes what is returned, not how well the "
+                "<details><summary>Check your reasoning</summary>Compare with the lines printed above. In " + HOSTED + " 0 of 5 reference boxes were found at 0.9 and every `detections` list was empty. The rest moved between the two Colab runs. In " + C1 + " the highest scores per image were 0.279, 0.273 and 0.225; at 0.05 the best same-label detections had IoU 0.874 for the second yield sign on image 000 (score 0.147) and for the stop sign on image 002 (score 0.225), and the other three signs had no same-label box over them; at the training-split threshold 0.2231 it found 1 of 5, the stop sign on image 002, while image 000's highest box (0.279, `speed-limit-sign` over two yield signs) and image 001's two boxes (0.273 and 0.253, both `stop-sign`) were wrong. In " + C2 + " the highest scores were 0.212, 0.266 and 0.228; at 0.05 four of the five signs had a same-label box with IoU 0.887 to 0.955, and at its threshold 0.2232 it found 2 of 5 (the yield sign on image 001 at 0.253 and the stop sign on image 002 at 0.228) while image 001's top box (0.266, `stop-sign` over a speed-limit sign) was wrong. With every score at or below about 0.31, a small change in the threshold or in the run (a CPU run differs too) moves the found count. The threshold changes what is returned, not how well the "
                 "boxes are ranked or placed.</details>\n\n"
                 "## 11. Adapter export, fresh reload, and equivalence check\n\n"
                 "`save_artifact` writes `outputs/detr_adapter.safetensors`: every tensor the fine-tune could change, plus a metadata header naming "
@@ -809,14 +813,14 @@ TEMPLATE = {
         "## Interpretation and limits\n\n"
         "Start from your own run: the Section 9 AP change, the operating-threshold line under it, and the Section 10 found count. Then read the "
         "reference answer.\n\n"
-        "<details><summary>Reference answer from " + H + "</summary>The pretrained COCO head found 3 of the 4 drawn COCO objects at "
+        "<details><summary>Reference answer from " + COLAB + "</summary>The pretrained COCO head found 3 of the 4 drawn COCO objects at "
         "0.9 and returned nothing on blank or noise images, even at 0.05. Re-heading onto three new sign classes started from a baseline AP50 "
-        "of 0.02; a 10-epoch fine-tune with the backbone frozen raised held-out AP50 to 0.3851 and AP@[.50:.95] to 0.2983 "
-        "(earlier revisions gave 0.27–0.32 and 0.22–0.29 on a Kaggle T4 and a local CPU; not re-run here). The adapted scores, however, "
+        "of 0.02; a 10-epoch fine-tune with the backbone frozen raised held-out AP50 to 0.36–0.39 and AP@[.50:.95] to about 0.30 "
+        "(0.3851 / 0.2983 and 0.3594 / 0.2993; the 2026-09-25 Kaggle T4 run of an earlier revision gave 0.2668 / 0.2222). The adapted scores, however, "
         "stayed below about 0.31, so at the operating "
         "threshold 0.9 the adapted model returned no box on the held-out images or on the three unseen images. The fine-tune taught the model "
         "to *rank* some of the new signs above the wrong boxes, not to score them confidently. A threshold chosen on the training split "
-        "(0.2231) recovered 1 of the 5 unseen signs and 5 of 17 held-out boxes, and let several wrong boxes through; the adapter "
+        "(0.2231 and 0.2232) recovered 1 and 2 of the 5 unseen signs and 5 and 4 of 17 held-out boxes, and let several wrong boxes through; the adapter "
         "reloaded to the same detections within 1e-3.</details>\n\n"
         "**What this notebook established, in this runtime.** The pinned `facebook/detr-resnet-50` snapshot was verified against a committed "
         "SHA-256 manifest before loading. The pretrained detector was run on a drawn scene and on two structure-free probes, and its boxes were "
