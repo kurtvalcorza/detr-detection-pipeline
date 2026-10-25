@@ -67,7 +67,7 @@ The rice-pest capstone (`tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capst
 
 ## Prose kept true across runs (2026-10-25)
 
-**Historical wording (2026-10-26): code commit `ccd85d5`, notebook commit `87eb45f`.** The current blob of `tutorials/detr_detection_colab.ipynb` is `c19823537fa46d8da85749587756f39e8d366aa5`, **Candidate**, regenerated under Kurt's 2026-10-26 ruling: every run-derived number in the prose names the hosted runs that printed it (Kaggle T4 of `a98705ed` 2026-09-25; Colab T4 of `6b2e5fc3` 2026-10-04, `da6b14bd` and `712d22d5` 2026-10-25), with no expectation or run-status sentence; it resolves the two prose mismatches recorded for the `712d22d5` run (final loss 0.6244; the stale "hosted runs pending" sentence). Markdown only. **Its hosted Colab T4 run is pending (REL14);** the records below stay as history.
+**Historical wording (2026-10-26): code commit `ccd85d5`, notebook commit `87eb45f`.** The current blob of `tutorials/detr_detection_colab.ipynb` is `c19823537fa46d8da85749587756f39e8d366aa5`, **Candidate**, regenerated under Kurt's 2026-10-26 ruling: every run-derived number in the prose names the hosted runs that printed it (Kaggle T4 of `a98705ed` 2026-09-25; Colab T4 of `6b2e5fc3` 2026-10-04, `da6b14bd` and `712d22d5` 2026-10-25), with no expectation or run-status sentence; it resolves the two prose mismatches recorded for the `712d22d5` run (final loss 0.6244; the stale "hosted runs pending" sentence). Markdown only. This exact blob (PR #7 head `dc65d30`) **passed** its confirming hosted run: Colab CLI sequential execution on a fresh Colab Tesla T4, 2026-10-25, 16/16 code cells in one pass, no restart, 0 errors, 272.9 s wall; adapted `ap50` 0.3944, `ap` 0.346, 0 boxes at 0.9, 2/5 unseen signs at the adapted threshold 0.2304; see "2026-10-25 Colab T4 run of the historical-wording head" below; evidence in `docs/execution-evidence/2026-10-25/`. This PR's runs cover the default path only. Remaining gates: REL12 (a hosted BYOD run with one accepted and one refused input) and REL2 (a browser Run all). Runs of earlier blobs are history (REL14). The records below stay as history.
 
 **Code commit `06235e4`, notebook commit `af6856b`.** The previous blob of `tutorials/detr_detection_colab.ipynb` was `712d22d5ca82c31597707d81fe40b110ae5bf530`, **Candidate**; it ran in one pass on a fresh Colab Tesla T4 on 2026-10-25 (commit `c439bd4`, Colab CLI, 16/16 code cells, 0 errors, 171.5 s; see "2026-10-25 Colab T4 run of the prose-kept-true head" below). Markdown only: the worked answers name the recorded hosted runs (Kaggle T4 of `a98705ed`, 2026-09-25; Colab T4 of `6b2e5fc3`, 2026-10-04, and of `da6b14bd`, 2026-10-25) and give per run the values that moved: AP50 0.3851 / 0.3594 (Kaggle 0.2668), AP 0.2983 / 0.2993 (Kaggle 0.2222), final loss 0.6103 / 0.6078 (Kaggle 0.5602), adapted threshold 0.2231 / 0.2232 with its training metrics, held-out 15 / 5 and 14 / 4 at that threshold, unseen-image scores and IoUs, and 1 / 2 of 5 unseen signs found. Values equal in every run (first-epoch loss 1.6564, baseline AP50 0.0172, the split, 0 boxes at 0.9) are labelled with the runs. The records below are history.
 
@@ -132,3 +132,33 @@ Evidence files for the 2026-10-25 default run of blob `712d22d5`, copied from th
 
 - Values the prose gives per named run and that moved again in this run (all consistent with the notebook's ranges where it states one): `ap50` 0.3617 (Interpretation range 0.36–0.39 holds), `ap` 0.3093 ("about 0.30"), highest held-out adapted score 0.3089 ("below about 0.31" holds), adapted threshold 0.2225 (train F1 0.5399, precision 0.449, recall 0.6769), 27 held-out boxes returned at it with 8 correct, unseen highest scores 0.226 / 0.27 / 0.212, 2 of 5 unseen signs found at 0.2225, 0/5 at 0.9 with every `detections` list empty (holds).
 - Agreed values all equal this run: scene detections `stop sign` 0.999 (IoU 0.847), `traffic light` 0.997 (0.910), `clock` 0.973 (0.898), sports ball 0.0; 0 boxes on blank and noise at 0.9 and 0.05; split 30 / 10 (65 / 17 boxes); baseline `ap` 0.0063, `ap50` 0.0172; first-epoch loss 1.6564; 18,047,240 of 41,502,152 trainable; 0 held-out boxes returned at 0.9.
+
+## 2026-10-25 Colab T4 run of the historical-wording head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4, PR #7 head
+`dc65d302e485fbf7b173b86d0592801cdc5300f6`, notebook blob `c19823537fa46d8da85749587756f39e8d366aa5` fetched at that commit and Git-blob verified;
+started 2026-10-25T20:07:11Z, 272.9 s wall (setup 178 s), exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart,
+0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3/4 drawn objects matched at IoU ≥ 0.5
+(stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); blank and noise 0 boxes at 0.9 and at 0.05; re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen,
+loss 1.6564 → 0.6345, `train_seconds` 31.7; adapted `ap50` 0.3944, `ap75` 0.3944, `ap` 0.346; adapted threshold chosen on the training split 0.2304 (train F1 0.7338);
+held-out at the COCO threshold 0.9: 0 returned of 17 references (highest score 0.3028); at 0.2304: 18 returned, 10 correct (precision 0.5556, recall 0.5882); unseen images: 0/5 reference boxes found
+at 0.9 and 2/5 at 0.2304; adapter `detr_adapter.safetensors` 72,219,224 bytes, 265 tensors, saved; reload equivalent.
+
+This is the confirming run for the historical-wording revision. Blob `c1982353` is **Candidate**; this PR's runs cover the default path only. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). The runs of earlier blobs are history (REL14).
+
+Evidence files for the 2026-10-25 default run of blob `c1982353`, copied from the run directory and redacted byte-wise (local run paths replaced by `<local-run-dir>`, the Colab CLI install path by `<colab-cli-tool-dir>`; no JSON re-serialised; the executed notebook's captured hash equals `run_summary.json` `executed_sha256`):
+
+| File (under `docs/execution-evidence/2026-10-25/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_dc65d30_colab-cli-t4_default.ipynb` | `c3079736a4a99797fe9572d40f937640d7684c0e8fcf44ae9ead92c3b323bdc2` | `c3079736a4a99797fe9572d40f937640d7684c0e8fcf44ae9ead92c3b323bdc2` (unchanged, no local path) |
+| `detr_detection_colab_dc65d30_colab-cli-t4_default_exec.log` | `135d48d9124a6c309045123ba1bd16ddb41e5496b9ed96ea15022539029674ac` | `7a48b5941a48544444c528ff78360fe694850beed906ccb1f063d59fc0fe30e1` (2 local-path replacements) |
+| `detr_detection_colab_dc65d30_colab-cli-t4_default_run_summary.json` | `c3cc08016bbe3df6993988f60f1924e532122aab574b0c08ba7d566c27534e35` | `c3cc08016bbe3df6993988f60f1924e532122aab574b0c08ba7d566c27534e35` (unchanged, no local path) |
+
+**Drift recorded, not fixed (2026-10-26, Kurt's 2026-10-26 "historical wording, then stop" ruling).** The notebook prose of blob `c1982353` labels every run-derived number with the named recorded runs that printed it, so these differences are not prose errors. This confirming run printed these values outside the recorded values and spans the prose names. The notebook is not edited:
+
+- Prerequisites (md1): this run took 272.9 s of wall time, setup 178 s (fine-tune 31.7 s); the prose records 136.6 s to 171.5 s of wall time (setup 60 s and 58 s) for the three named Colab T4 runs.
+- Section 8 worked answer: the loss ended at 0.6345; the prose records 0.5602 to 0.6244 after 10 epochs in every named hosted run (first epoch 1.6564 agrees; the fall to about two fifths holds at 0.383).
+- Section 9 worked answer and Interpretation: adapted `ap50` 0.3944 and `ap` 0.346, above the recorded 0.3594–0.3851 and 0.2983–0.3093 (Interpretation: AP50 0.36–0.39, AP@[.50:.95] 0.30–0.31).
+- Section 9 worked answer: adapted threshold 0.2304 (training F1 0.7338), 18 held-out boxes returned at it, 10 correct; the prose records thresholds 0.2225–0.2232 and 15, 14 and 27 boxes returned for the named runs.
