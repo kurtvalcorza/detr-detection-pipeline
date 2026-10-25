@@ -67,5 +67,31 @@ The rice-pest capstone (`tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capst
 
 ## Tier C wording revision (2026-10-25)
 
-**Tier C wording revision (2026-10-25, branch `fix/detr-detection-tier-c-2026-10-25`, code commit `b5cc7e1`).** Markdown, header and metadata only for `tutorials/detr_detection_colab.ipynb`: worked answers re-derived from the 2026-10-04 hosted run of `c3c81cb` (REL13), pretraining-overlap statement (DAT9), use notice, `notebook_kind`, IEEE references and the DIMER Notebook Specification 2.5 declaration. The regenerated notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` is **Candidate** and its hosted runs are **pending** (REL14); the 2026-10-04 run is evidence for blob `6b2e5fc3` only.
+**Tier C wording revision (2026-10-25, branch `fix/detr-detection-tier-c-2026-10-25`, code commit `b5cc7e1`).** Markdown, header and metadata only for `tutorials/detr_detection_colab.ipynb`: worked answers re-derived from the 2026-10-04 hosted run of `c3c81cb` (REL13), pretraining-overlap statement (DAT9), use notice, `notebook_kind`, IEEE references and the DIMER Notebook Specification 2.5 declaration. The regenerated notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` (PR #7 head `8fd8d5e`) is **Candidate**; it passed a one-pass Colab T4 run of the default path on 2026-10-25 (Colab CLI, 16/16 code cells, 0 errors, 136.6 s; see "2026-10-25 Colab T4 run of the tier C head" below), whose numbers differ from the `c3c81cb` run the worked answers quote. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). Under REL14 the 2026-10-04 run is history for blob `6b2e5fc3`.
+
+## 2026-10-25 Colab T4 run of the tier C head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4 (session `suite-detr-8fd8d5e-dd82`), PR #7 head
+`8fd8d5e095c5c21334556792332b9fbba4077563`, notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` fetched at that commit and Git-blob verified;
+started 2026-10-25T08:09:43Z, 136.6 s wall, exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart,
+0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3 detections, 3/4 drawn objects matched at IoU ≥ 0.5
+(stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen
+(18,047,240 trainable parameters), loss 1.6564 → 0.6078, `train_seconds` 31.3; adapted `ap50` 0.3594 (+0.3422; per class stop 0.4059, yield 0.3801, speed limit 0.2921), `ap` 0.2993;
+adapted threshold chosen on the training split 0.2232 (train F1 0.629, precision 0.661, recall 0.6); held-out at the COCO threshold 0.9: 0 returned of 17 references
+(highest score 0.2985); at 0.2232: 14 returned, 4 correct (precision 0.2857, recall 0.2353); unseen images: highest scores 0.212 / 0.266 / 0.228, 0/5 reference boxes found
+at 0.9 and 2/5 at 0.2232 (the yield sign on image 001, IoU 0.933, score 0.253; the stop sign on image 002, IoU 0.928, score 0.228); reload of `detr_adapter.safetensors`
+equivalent (16 detections compared, tolerance 0.001).
+
+The notebook's worked answers (Sections 8–10 and the Interpretation) quote the 2026-10-04 run of `c3c81cb` (blob `6b2e5fc3`): final loss 0.6103, `ap50` 0.3851, `ap` 0.2983, highest held-out adapted score 0.3078, `ADAPTED_THRESHOLD` 0.2231 (training F1 / precision / recall 0.5538), 15 held-out boxes returned at that threshold with 5 correct (recall 0.29, precision 0.33), unseen highest scores 0.279 / 0.273 / 0.225, IoU 0.874 at the evaluation threshold, and 1 of 5 unseen signs found at the adapted threshold. This run printed different values for each of these (above). The notebook is not edited by this record.
+
+Evidence in `docs/execution-evidence/2026-10-25/`. The local run directory was redacted to `<local-run-dir>` before the first commit; the executed notebook was checked against
+`run_summary.json`'s `executed_sha256` before any edit. SHA-256 captured → committed:
+
+| File | Captured | Committed |
+|---|---|---|
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default.ipynb` | `34654821322450f6fdf41803ce8dd787bd75aa3736982b2e613d70a5c8f9e9f8` | unchanged (no local path) |
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default_exec.log` | `ad886dc0e70bcce6f0b9b87ce652315eef4d23ec09729f766889851d3b3ae1b4` | `832c2b6ee2878f3476b898626e9d1bda9e8697daeaf90a0b6fab80c2c2e7e490` (2 replacements) |
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default_run_summary.json` | `582e8312bc1a55deda827057060e4ba0c5d7cd802607fc31445e8888d1deb261` | unchanged (no local path) |
 
