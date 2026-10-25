@@ -107,7 +107,7 @@ MARKDOWN_MARKERS = (
     "AP@[.50:.95]",
     # DTR-M2: the AP/threshold distinction and the observed outcome replace the claim that the adapter detects the new classes.
     "**AP is computed at the evaluation threshold.**",
-    "**What the recorded run shows.** In ",
+    "**What the recorded runs show.** In ",
     "**Scores and thresholds.**",
     "**An adapted threshold, chosen on the training split only.**",
     # DTR-M3: every fine-tune starts from the re-headed model; the activity names its re-run range.
