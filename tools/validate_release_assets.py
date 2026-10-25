@@ -100,7 +100,7 @@ MARKDOWN_MARKERS = (
     "The detection threshold is a **caller-owned request parameter**",
     "softmax over the classes and a no-object class, not a calibrated",
     "**Keep the two vocabularies apart.**",
-    "**The baseline is expected to be near zero.**",
+    "**The baseline is the floor.**",
     "**The backbone is frozen.**",
     "**Read the loss as optimisation evidence only.**",
     "COCO mean average precision needs a labelled image set",
