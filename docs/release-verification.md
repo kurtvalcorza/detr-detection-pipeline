@@ -64,3 +64,135 @@ The rice-pest capstone (`tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capst
 |---|---|---|---|---|---|
 | 2026-10-12 (19:58:36 start, 1,402.2 s wall) | commit `49a7ff8c7db042d1be7e6f0df874068c5f834842` (PR #6 head) / blob `5ca0cc91f85c7f3e5afa2c2f767e7e7d68d35b76` | Colab CLI 0.7.4, fresh Colab Tesla T4 (session `suite-detr-49a7ff8-7c5e`, released) | blob fetched at the 40-char SHA and Git-blob verified; `colab exec -f` ran the 10 code cells in order with defaults | **Passed**: 10/10 code cells, 0 errors; every held-out metric, count (445 retained, 126 unmatched), threshold (0.9), review margin (0.00523372) and the existing bootstrap interval equal the `9f85155` run; new: two bootstrap intervals, referral report (0/337 validation, 0/445 test), stricter/looser margin labels, `images_checked` 2. Evidence: `execution-evidence/2026-10-12/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_49a7ff8_colab-cli-t4.ipynb` sha256 `1c7f5672589a91b34fea519d5d8f72f6831aa768cc6c6371cb20fbb3706bad24` | CLI sequential execution, **not a browser Run all**; forms and uploads not exercised; BYOD not assessed. Covers the **previous design**: the later owner decisions (RPS-m5 = C activity controls, RPS-CX4 = A training-median baseline) change the blob and need a new T4 run. Status stays **Candidate** |
 | 2026-10-14 (14:01:36 start, 1,160.6 s wall) | commit `0ee0de310d4cc7b7d6d0d0eb786ce289a6ff6d02` (PR #6 head) / blob `991ab9aa9deab64128196dd8d3e15f6ab590490b` | Colab CLI 0.7.4, fresh Colab Tesla T4 (session `suite-detr-0ee0de3-7c5e`, released) | blob fetched at the 40-char SHA and Git-blob verified; `colab exec -f` ran the 10 code cells in order with defaults (Section 8 controls off) | **Passed**: 10/10 code cells, 0 errors; every detector/classifier metric, count (445 retained, 126 unmatched), threshold (0.9), review margin (0.00523372), referral report and earlier bootstrap interval equal the `49a7ff8` run; new: `training_median` baseline MAE 5.4125 (offline 5.41) with paired bootstrap difference -3.3625, CI [-5.525, -1.375]; controls printout `{'display_threshold': None, 'review_margin': None}`; no `CompletedProcess` echo. Evidence: `execution-evidence/2026-10-14/DIMER_Philippine_Rice_Pest_Surveillance_Capstone_0ee0de3_colab-cli-t4.ipynb` sha256 `56cf506c90f45cf3e43d708e2e4ad2b53d44549ea04a6bf555e9c74c4fb014f3` | CLI sequential execution, **not a browser Run all**; forms and uploads not exercised; controls switched on and BYOD not assessed. Status stays **Candidate** |
+
+## Final prose pass (2026-10-26)
+
+**Code commit `ff68418`, notebook commit `c5f14ef`.** The current blob of `tutorials/detr_detection_colab.ipynb` is `43868fa1a59e7992f7ce7f442a71d5e264c8cb03`, **Candidate**; that exact blob (PR #7 head `3b7e6d0`) passed its confirming hosted run on 2026-10-26: Colab CLI sequential execution on a fresh Colab Tesla T4, one pass, no restart, 0 errors (16/16 code cells, 135.3 s wall; adapted `ap50` 0.4486, `ap` 0.3561; 0 boxes at 0.9; 3/5 unseen signs at the adapted threshold 0.1945). The paths this blob's runs cover: the default path only. Remaining gates: REL12 (a hosted BYOD run, one input accepted and one refused) and REL2 (a browser `Run all`). Runs of earlier blobs are history (REL14). See "2026-10-26 Colab T4 run of the final-prose-pass head" below. Kurt's 2026-10-26 ruling: fix only the prose rule breaks the final evidence flagged; recorded drift stays recorded, not fixed. Markdown only: the Section 7 baseline and the Section 14 worked answer no longer state what a run is expected to print. The runs of blob `c1982353` and earlier blobs are history (REL14); the records below are kept.
+
+## Prose kept true across runs (2026-10-25)
+
+**Historical wording (2026-10-26): code commit `ccd85d5`, notebook commit `87eb45f`.** The previous blob of `tutorials/detr_detection_colab.ipynb` was `c19823537fa46d8da85749587756f39e8d366aa5`, **Candidate**, regenerated under Kurt's 2026-10-26 ruling: every run-derived number in the prose names the hosted runs that printed it (Kaggle T4 of `a98705ed` 2026-09-25; Colab T4 of `6b2e5fc3` 2026-10-04, `da6b14bd` and `712d22d5` 2026-10-25), with no expectation or run-status sentence; it resolves the two prose mismatches recorded for the `712d22d5` run (final loss 0.6244; the stale "hosted runs pending" sentence). Markdown only. This exact blob (PR #7 head `dc65d30`) **passed** its confirming hosted run: Colab CLI sequential execution on a fresh Colab Tesla T4, 2026-10-25, 16/16 code cells in one pass, no restart, 0 errors, 272.9 s wall; adapted `ap50` 0.3944, `ap` 0.346, 0 boxes at 0.9, 2/5 unseen signs at the adapted threshold 0.2304; see "2026-10-25 Colab T4 run of the historical-wording head" below; evidence in `docs/execution-evidence/2026-10-25/`. This PR's runs cover the default path only. Remaining gates: REL12 (a hosted BYOD run with one accepted and one refused input) and REL2 (a browser Run all). Runs of earlier blobs are history (REL14). The records below stay as history.
+
+**Code commit `06235e4`, notebook commit `af6856b`.** The previous blob of `tutorials/detr_detection_colab.ipynb` was `712d22d5ca82c31597707d81fe40b110ae5bf530`, **Candidate**; it ran in one pass on a fresh Colab Tesla T4 on 2026-10-25 (commit `c439bd4`, Colab CLI, 16/16 code cells, 0 errors, 171.5 s; see "2026-10-25 Colab T4 run of the prose-kept-true head" below). Markdown only: the worked answers name the recorded hosted runs (Kaggle T4 of `a98705ed`, 2026-09-25; Colab T4 of `6b2e5fc3`, 2026-10-04, and of `da6b14bd`, 2026-10-25) and give per run the values that moved: AP50 0.3851 / 0.3594 (Kaggle 0.2668), AP 0.2983 / 0.2993 (Kaggle 0.2222), final loss 0.6103 / 0.6078 (Kaggle 0.5602), adapted threshold 0.2231 / 0.2232 with its training metrics, held-out 15 / 5 and 14 / 4 at that threshold, unseen-image scores and IoUs, and 1 / 2 of 5 unseen signs found. Values equal in every run (first-epoch loss 1.6564, baseline AP50 0.0172, the split, 0 boxes at 0.9) are labelled with the runs. The records below are history.
+
+## Tier C wording revision (2026-10-25)
+
+**Tier C wording revision (2026-10-25, branch `fix/detr-detection-tier-c-2026-10-25`, code commit `b5cc7e1`).** Markdown, header and metadata only for `tutorials/detr_detection_colab.ipynb`: worked answers re-derived from the 2026-10-04 hosted run of `c3c81cb` (REL13), pretraining-overlap statement (DAT9), use notice, `notebook_kind`, IEEE references and the DIMER Notebook Specification 2.5 declaration. The previous notebook blob `c19823537fa4` (commit `87eb45f`, historical wording) has its hosted Colab T4 run pending; the previous notebook blob `712d22d5ca82` (prose values given per recorded hosted run, PR #7 head `c439bd4`) is **Candidate**; it passed a one-pass Colab T4 run of the default path on 2026-10-25 (Colab CLI, 16/16 code cells, 0 errors, 171.5 s; adapted `ap50` 0.3617, 0 held-out boxes at 0.9). The previous notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` (`8fd8d5e`, history under REL14) passed a one-pass Colab T4 run of the default path on 2026-10-25 (Colab CLI, 16/16 code cells, 0 errors, 136.6 s; see "2026-10-25 Colab T4 run of the tier C head" below), whose numbers differ from the `c3c81cb` run the worked answers quote. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). Under REL14 the 2026-10-04 run is history for blob `6b2e5fc3`.
+
+## 2026-10-25 Colab T4 run of the tier C head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4 (session `suite-detr-8fd8d5e-dd82`), PR #7 head
+`8fd8d5e095c5c21334556792332b9fbba4077563`, notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` fetched at that commit and Git-blob verified;
+started 2026-10-25T08:09:43Z, 136.6 s wall, exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart,
+0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3 detections, 3/4 drawn objects matched at IoU ≥ 0.5
+(stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen
+(18,047,240 trainable parameters), loss 1.6564 → 0.6078, `train_seconds` 31.3; adapted `ap50` 0.3594 (+0.3422; per class stop 0.4059, yield 0.3801, speed limit 0.2921), `ap` 0.2993;
+adapted threshold chosen on the training split 0.2232 (train F1 0.629, precision 0.661, recall 0.6); held-out at the COCO threshold 0.9: 0 returned of 17 references
+(highest score 0.2985); at 0.2232: 14 returned, 4 correct (precision 0.2857, recall 0.2353); unseen images: highest scores 0.212 / 0.266 / 0.228, 0/5 reference boxes found
+at 0.9 and 2/5 at 0.2232 (the yield sign on image 001, IoU 0.933, score 0.253; the stop sign on image 002, IoU 0.928, score 0.228); reload of `detr_adapter.safetensors`
+equivalent (16 detections compared, tolerance 0.001).
+
+The notebook's worked answers (Sections 8–10 and the Interpretation) quote the 2026-10-04 run of `c3c81cb` (blob `6b2e5fc3`): final loss 0.6103, `ap50` 0.3851, `ap` 0.2983, highest held-out adapted score 0.3078, `ADAPTED_THRESHOLD` 0.2231 (training F1 / precision / recall 0.5538), 15 held-out boxes returned at that threshold with 5 correct (recall 0.29, precision 0.33), unseen highest scores 0.279 / 0.273 / 0.225, IoU 0.874 at the evaluation threshold, and 1 of 5 unseen signs found at the adapted threshold. This run printed different values for each of these (above). The notebook is not edited by this record.
+
+Evidence in `docs/execution-evidence/2026-10-25/`. The local run directory was redacted to `<local-run-dir>` before the first commit; the executed notebook was checked against
+`run_summary.json`'s `executed_sha256` before any edit. SHA-256 captured → committed:
+
+| File | Captured | Committed |
+|---|---|---|
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default.ipynb` | `34654821322450f6fdf41803ce8dd787bd75aa3736982b2e613d70a5c8f9e9f8` | unchanged (no local path) |
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default_exec.log` | `ad886dc0e70bcce6f0b9b87ce652315eef4d23ec09729f766889851d3b3ae1b4` | `832c2b6ee2878f3476b898626e9d1bda9e8697daeaf90a0b6fab80c2c2e7e490` (2 replacements) |
+| `detr_detection_colab_8fd8d5e_colab-cli-t4_default_run_summary.json` | `582e8312bc1a55deda827057060e4ba0c5d7cd802607fc31445e8888d1deb261` | unchanged (no local path) |
+
+## 2026-10-25 Colab T4 run of the prose-kept-true head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4 (session `suite-detr-c439bd4-dd82`), PR #7 head
+`c439bd4490f2a4c237dd11f035a061ea15a65fcc`, notebook blob `712d22d5ca82c31597707d81fe40b110ae5bf530` fetched at that commit and Git-blob verified;
+started 2026-10-25T14:14:37Z, 171.5 s wall (setup 58 s), exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart,
+0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3 detections, 3/4 drawn objects matched at IoU ≥ 0.5
+(stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); blank and noise 0 boxes at 0.9 and at 0.05; split 30 / 10 images (65 / 17 boxes); re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen
+(18,047,240 of 41,502,152 parameters trainable), loss 1.6564 → 0.6244, `train_seconds` 31.6; adapted `ap50` 0.3617 (+0.3445; per class stop 0.0, yield 0.6346, speed limit 0.4505), `ap` 0.3093;
+adapted threshold chosen on the training split 0.2225 (train F1 0.5399, precision 0.449, recall 0.6769); held-out at the COCO threshold 0.9: 0 returned of 17 references
+(highest score 0.3089); at 0.2225: 27 returned, 8 correct (precision 0.2963, recall 0.4706); unseen images: highest scores 0.226 / 0.27 / 0.212, 0/5 reference boxes found
+at 0.9 and 2/5 at 0.2225 (image 001: yield sign IoU 0.906 at 0.27 and speed-limit sign IoU 0.882 at 0.258); adapter `detr_adapter.safetensors` 72,219,224 bytes, 265 tensors, saved; reload equivalent (30 detections compared, tolerance 0.001).
+
+This is the confirming run for the "Prose kept true across runs" revision. Blob `712d22d5` is **Candidate**; the paths this blob's runs cover: the default path only. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). The runs of blobs `da6b14bd` (2026-10-25), `6b2e5fc3` (2026-10-04) and `a98705ed` (2026-09-25) are history (REL14).
+
+Evidence files for the 2026-10-25 default run of blob `712d22d5`, copied from the run directory and redacted byte-wise (local run paths replaced by `<local-run-dir>`, the Colab CLI install path by `<colab-cli-tool-dir>`; no JSON re-serialised; the executed notebook's captured hash equals `run_summary.json` `executed_sha256`):
+
+| File (under `docs/execution-evidence/2026-10-25/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_c439bd4_colab-cli-t4_default.ipynb` | `1f769a35e8699a67359c8ba468910f59e0d477a93c233fe6435ba77ace43ef35` | `1f769a35e8699a67359c8ba468910f59e0d477a93c233fe6435ba77ace43ef35` (unchanged, no local path) |
+| `detr_detection_colab_c439bd4_colab-cli-t4_default_exec.log` | `69aeb7f5c9100ce7446805d3f5f45ea5a4d5466b024ae6ecbe32ae7c25c6f2ba` | `29bde0c6d4affca8dba532ef1cea46ccf474da225854a71f571db96b4479d12e` (2 local-path replacements) |
+| `detr_detection_colab_c439bd4_colab-cli-t4_default_run_summary.json` | `ed4e4650f0c1e9a624cd120dce5e3abb38ee3481ae94fab74fd1125c198ace48` | `ed4e4650f0c1e9a624cd120dce5e3abb38ee3481ae94fab74fd1125c198ace48` (unchanged, no local path) |
+
+**Prose confirmation (2026-10-26).** This run is the confirming run for the "prose kept true across runs" revision. Every run-derived number in the notebook prose was checked against what this run printed: each number given as agreed across runs equals this run's printed value, and each stated range contains it. These still fail (the notebook is unchanged in this evidence commit):
+
+- Section 8 worked answer (md24): "the loss started at 1.6564 and ended between 0.5602 and 0.6103 after 10 epochs" in every recorded hosted run. This run ended at 0.6244, outside the stated range (first epoch 1.6564 agrees; "down to roughly a quarter to two fifths" holds at 0.377).
+- Prerequisites (md1): "Hosted runs of this revision are pending." This run is a hosted run of the current blob `712d22d5`, so the sentence is now false; the timing sentence before it quotes only the 2026-10-04 run (165.1 s, setup 60 s, fine-tune 33.7 s; this run 171.5 s, 58 s, 31.6 s).
+
+- Values the prose gives per named run and that moved again in this run (all consistent with the notebook's ranges where it states one): `ap50` 0.3617 (Interpretation range 0.36–0.39 holds), `ap` 0.3093 ("about 0.30"), highest held-out adapted score 0.3089 ("below about 0.31" holds), adapted threshold 0.2225 (train F1 0.5399, precision 0.449, recall 0.6769), 27 held-out boxes returned at it with 8 correct, unseen highest scores 0.226 / 0.27 / 0.212, 2 of 5 unseen signs found at 0.2225, 0/5 at 0.9 with every `detections` list empty (holds).
+- Agreed values all equal this run: scene detections `stop sign` 0.999 (IoU 0.847), `traffic light` 0.997 (0.910), `clock` 0.973 (0.898), sports ball 0.0; 0 boxes on blank and noise at 0.9 and 0.05; split 30 / 10 (65 / 17 boxes); baseline `ap` 0.0063, `ap50` 0.0172; first-epoch loss 1.6564; 18,047,240 of 41,502,152 trainable; 0 held-out boxes returned at 0.9.
+
+## 2026-10-25 Colab T4 run of the historical-wording head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4, PR #7 head
+`dc65d302e485fbf7b173b86d0592801cdc5300f6`, notebook blob `c19823537fa46d8da85749587756f39e8d366aa5` fetched at that commit and Git-blob verified;
+started 2026-10-25T20:07:11Z, 272.9 s wall (setup 178 s), exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart,
+0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3/4 drawn objects matched at IoU ≥ 0.5
+(stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); blank and noise 0 boxes at 0.9 and at 0.05; re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen,
+loss 1.6564 → 0.6345, `train_seconds` 31.7; adapted `ap50` 0.3944, `ap75` 0.3944, `ap` 0.346; adapted threshold chosen on the training split 0.2304 (train F1 0.7338);
+held-out at the COCO threshold 0.9: 0 returned of 17 references (highest score 0.3028); at 0.2304: 18 returned, 10 correct (precision 0.5556, recall 0.5882); unseen images: 0/5 reference boxes found
+at 0.9 and 2/5 at 0.2304; adapter `detr_adapter.safetensors` 72,219,224 bytes, 265 tensors, saved; reload equivalent.
+
+This is the confirming run for the historical-wording revision. Blob `c1982353` is **Candidate**; this PR's runs cover the default path only. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). The runs of earlier blobs are history (REL14).
+
+Evidence files for the 2026-10-25 default run of blob `c1982353`, copied from the run directory and redacted byte-wise (local run paths replaced by `<local-run-dir>`, the Colab CLI install path by `<colab-cli-tool-dir>`; no JSON re-serialised; the executed notebook's captured hash equals `run_summary.json` `executed_sha256`):
+
+| File (under `docs/execution-evidence/2026-10-25/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_dc65d30_colab-cli-t4_default.ipynb` | `c3079736a4a99797fe9572d40f937640d7684c0e8fcf44ae9ead92c3b323bdc2` | `c3079736a4a99797fe9572d40f937640d7684c0e8fcf44ae9ead92c3b323bdc2` (unchanged, no local path) |
+| `detr_detection_colab_dc65d30_colab-cli-t4_default_exec.log` | `135d48d9124a6c309045123ba1bd16ddb41e5496b9ed96ea15022539029674ac` | `7a48b5941a48544444c528ff78360fe694850beed906ccb1f063d59fc0fe30e1` (2 local-path replacements) |
+| `detr_detection_colab_dc65d30_colab-cli-t4_default_run_summary.json` | `c3cc08016bbe3df6993988f60f1924e532122aab574b0c08ba7d566c27534e35` | `c3cc08016bbe3df6993988f60f1924e532122aab574b0c08ba7d566c27534e35` (unchanged, no local path) |
+
+**Drift recorded, not fixed (2026-10-26, Kurt's 2026-10-26 "historical wording, then stop" ruling).** The notebook prose of blob `c1982353` labels every run-derived number with the named recorded runs that printed it, so these differences are not prose errors. This confirming run printed these values outside the recorded values and spans the prose names. The notebook is not edited:
+
+- Prerequisites (md1): this run took 272.9 s of wall time, setup 178 s (fine-tune 31.7 s); the prose records 136.6 s to 171.5 s of wall time (setup 60 s and 58 s) for the three named Colab T4 runs.
+- Section 8 worked answer: the loss ended at 0.6345; the prose records 0.5602 to 0.6244 after 10 epochs in every named hosted run (first epoch 1.6564 agrees; the fall to about two fifths holds at 0.383).
+- Section 9 worked answer and Interpretation: adapted `ap50` 0.3944 and `ap` 0.346, above the recorded 0.3594–0.3851 and 0.2983–0.3093 (Interpretation: AP50 0.36–0.39, AP@[.50:.95] 0.30–0.31).
+- Section 9 worked answer: adapted threshold 0.2304 (training F1 0.7338), 18 held-out boxes returned at it, 10 correct; the prose records thresholds 0.2225–0.2232 and 15, 14 and 27 boxes returned for the named runs.
+
+## 2026-10-26 Colab T4 run of the final-prose-pass head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4, PR #7 head `3b7e6d06cd4c02159eb5d71d84d883d3341a671c`, notebook blob `43868fa1a59e7992f7ce7f442a71d5e264c8cb03` fetched at that commit and Git-blob verified; started 2026-10-26T00:02:30Z, 135.3 s wall (setup 51 s), exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart, 0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3/4 drawn objects matched at IoU ≥ 0.5 (stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); blank and noise 0 boxes at 0.9 and at 0.05; re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen, loss 1.6564 → 0.6743, `train_seconds` 31.5; adapted `ap50` 0.4486, `ap75` 0.4391, `ap` 0.3561; adapted threshold chosen on the training split 0.1945 (train F1 0.7097); held-out at the COCO threshold 0.9: 0 returned of 17 references (highest score 0.2769); at 0.1945: 11 returned, 6 correct (precision 0.5455, recall 0.3529); unseen images: 0/5 reference boxes found at 0.9 and 3/5 at 0.1945; adapter `detr_adapter.safetensors` 72,219,224 bytes, 265 tensors, saved; reload equivalent (52 detections, tolerance 0.001).
+
+This is the confirming run of the final prose pass. Blob `43868fa1` is **Candidate**; this PR's runs cover the default path only. Remaining gates: REL12 (a hosted BYOD run, one input accepted and one refused) and REL2 (a browser `Run all`). Runs of earlier blobs are history (REL14).
+
+Evidence files for the 2026-10-26 default run of blob `43868fa1` (confirming run of the final prose pass), copied from the run directory and redacted byte-wise (local run paths replaced by `<local-run-dir>`, the Colab CLI install path by `<colab-cli-tool-dir>`; no JSON re-serialised; the executed notebook's captured hash equals `run_summary.json` `executed_sha256`):
+
+| File (under `docs/execution-evidence/2026-10-26/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default.ipynb` | `de8bebd4472fac05771001baeee4abac50e5b41b85d3a02751a06e1a9dbe7b45` | `de8bebd4472fac05771001baeee4abac50e5b41b85d3a02751a06e1a9dbe7b45` (unchanged, no local path) |
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default_exec.log` | `e356b43d564a684034a2a786e118855f0d5a9288d704648950214ea4e30c46f4` | `6499d11cb619535b9f0c6eb264c3aad09fe50a7cd04a1cb8d40ae5ef4a112bf8` (2 local-path replacements) |
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default_run_summary.json` | `a7b3813d4be1acee156eff63171d91e59e28d73a509ed131f2cd14cd39402991` | `a7b3813d4be1acee156eff63171d91e59e28d73a509ed131f2cd14cd39402991` (unchanged, no local path) |
+
+**Final prose pass: drift record (2026-10-26).** Under Kurt's 2026-10-26 ruling the notebook prose of blob `43868fa1` is not changed again: a value this run printed that differs from the values the prose attributes to the named earlier runs is recorded here as drift, not fixed. Checked against this run's output and equal to the prose's named-run values: the input manifest (`accepted`, `threshold=1.5` rejected), the drawn scene 3/4 matched at IoU ≥ 0.5 (0.847, 0.910, 0.898, sports ball 0.000), blank and noise 0 boxes at 0.9 and at 0.05, the 40 images and 82 boxes, the 30 / 10 split with 65 / 17 boxes, the re-headed baseline `ap50` 0.0172 / `ap` 0.0063, the first-epoch loss 1.6564, 0 held-out boxes at 0.9, the adapter (72,219,224 bytes, 265 tensors) and the reload check (52 detections compared, equivalent at tolerance 0.001).
+
+Drift (this run versus the prose's named-run values):
+
+- Prerequisites (md1): this run took 135.3 s of wall time, setup 51 s, fine-tune 31.5 s; the prose records 136.6 s to 171.5 s of wall time (setup 60 s and 58 s, fine-tune 33.7 s and 31.6 s) for the three named Colab T4 runs.
+- Section 8 worked answer (md24): the loss ended at 0.6743; the prose records 0.5602 to 0.6244 after 10 epochs for the named runs (0.6103, 0.6078 and 0.6244 in the three Colab runs). The first epoch, 1.6564, agrees; the fall to 0.41 of the first-epoch loss is just above the "roughly a quarter to two fifths" the prose gives for those runs.
+- Section 9 worked answer and Interpretation (md26, md34): adapted `ap50` 0.4486 and `ap` 0.3561 (`ap75` 0.4391), above the recorded 0.3594–0.3851 and 0.2983–0.3093 (Interpretation: AP50 0.36–0.39, AP@[.50:.95] 0.30–0.31). The highest adapted held-out score was 0.2769; the prose records 0.3078, 0.2985 and 0.3089.
+- Section 9 worked answer (md26): the training split chose threshold 0.1945 (training F1 0.7097, precision 0.7458, recall 0.6769); at it 11 held-out boxes came back, 6 correct (precision 0.5455, recall 0.3529). The prose records thresholds 0.2231, 0.2232 and 0.2225, with 15, 14 and 27 boxes returned and 5, 4 and 8 correct.
+- Section 10 (md26, md28) and Interpretation (md34): on the three unseen images the highest scores were 0.197, 0.228 and 0.241 (the prose gives each named run's highest as 0.279, 0.266 and 0.270), and at the adapted threshold this run found 3 of the 5 reference signs; the prose records 1, 2 and 2 of 5.
+
+Prose statements that still break the historical rules (reported, not fixed):
+
+- md34 (Activity step 4, borderline): "in Section 8, the cell prints `rebuilt_from_verified_snapshot` and an epoch-1 loss well above 1" states what an activity run will print; its only number is labelled (2.66, a local CPU check), but no hosted run of the activity is recorded for this revision (rule 1).
