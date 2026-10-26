@@ -67,7 +67,7 @@ The rice-pest capstone (`tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capst
 
 ## Final prose pass (2026-10-26)
 
-**Code commit `ff68418`, notebook commit `c5f14ef`.** The current blob of `tutorials/detr_detection_colab.ipynb` is `43868fa1a59e7992f7ce7f442a71d5e264c8cb03`, **Candidate**, with its hosted Colab T4 run pending. Kurt's 2026-10-26 ruling: fix only the prose rule breaks the final evidence flagged; recorded drift stays recorded, not fixed. Markdown only: the Section 7 baseline and the Section 14 worked answer no longer state what a run is expected to print. The runs of blob `c1982353` and earlier blobs are history (REL14); the records below are kept.
+**Code commit `ff68418`, notebook commit `c5f14ef`.** The current blob of `tutorials/detr_detection_colab.ipynb` is `43868fa1a59e7992f7ce7f442a71d5e264c8cb03`, **Candidate**; that exact blob (PR #7 head `3b7e6d0`) passed its confirming hosted run on 2026-10-26: Colab CLI sequential execution on a fresh Colab Tesla T4, one pass, no restart, 0 errors (16/16 code cells, 135.3 s wall; adapted `ap50` 0.4486, `ap` 0.3561; 0 boxes at 0.9; 3/5 unseen signs at the adapted threshold 0.1945). The paths this blob's runs cover: the default path only. Remaining gates: REL12 (a hosted BYOD run, one input accepted and one refused) and REL2 (a browser `Run all`). Runs of earlier blobs are history (REL14). See "2026-10-26 Colab T4 run of the final-prose-pass head" below. Kurt's 2026-10-26 ruling: fix only the prose rule breaks the final evidence flagged; recorded drift stays recorded, not fixed. Markdown only: the Section 7 baseline and the Section 14 worked answer no longer state what a run is expected to print. The runs of blob `c1982353` and earlier blobs are history (REL14); the records below are kept.
 
 ## Prose kept true across runs (2026-10-25)
 
@@ -166,3 +166,33 @@ Evidence files for the 2026-10-25 default run of blob `c1982353`, copied from th
 - Section 8 worked answer: the loss ended at 0.6345; the prose records 0.5602 to 0.6244 after 10 epochs in every named hosted run (first epoch 1.6564 agrees; the fall to about two fifths holds at 0.383).
 - Section 9 worked answer and Interpretation: adapted `ap50` 0.3944 and `ap` 0.346, above the recorded 0.3594–0.3851 and 0.2983–0.3093 (Interpretation: AP50 0.36–0.39, AP@[.50:.95] 0.30–0.31).
 - Section 9 worked answer: adapted threshold 0.2304 (training F1 0.7338), 18 held-out boxes returned at it, 10 correct; the prose records thresholds 0.2225–0.2232 and 15, 14 and 27 boxes returned for the named runs.
+
+## 2026-10-26 Colab T4 run of the final-prose-pass head (Colab CLI, one pass)
+
+Colab CLI sequential execution (`colab exec -f`, not a browser Run all), fresh Colab Tesla T4, PR #7 head `3b7e6d06cd4c02159eb5d71d84d883d3341a671c`, notebook blob `43868fa1a59e7992f7ce7f442a71d5e264c8cb03` fetched at that commit and Git-blob verified; started 2026-10-26T00:02:30Z, 135.3 s wall (setup 51 s), exit code 0, input notebook unchanged, 16/16 code cells in order in `exec.log`, one pass, no restart, 0 error outputs, verdict PASS. Default path only (every form field at its default, both BYOD branches off).
+
+Printed: input manifest `accepted` with the `threshold=1.5` probe rejected; COCO checkpoint on the drawn scene 3/4 drawn objects matched at IoU ≥ 0.5 (stop sign 0.847, traffic light 0.910, clock 0.898, sports ball 0.000); blank and noise 0 boxes at 0.9 and at 0.05; re-headed baseline `ap50` 0.0172 / `ap` 0.0063; 10 epochs with the backbone frozen, loss 1.6564 → 0.6743, `train_seconds` 31.5; adapted `ap50` 0.4486, `ap75` 0.4391, `ap` 0.3561; adapted threshold chosen on the training split 0.1945 (train F1 0.7097); held-out at the COCO threshold 0.9: 0 returned of 17 references (highest score 0.2769); at 0.1945: 11 returned, 6 correct (precision 0.5455, recall 0.3529); unseen images: 0/5 reference boxes found at 0.9 and 3/5 at 0.1945; adapter `detr_adapter.safetensors` 72,219,224 bytes, 265 tensors, saved; reload equivalent (52 detections, tolerance 0.001).
+
+This is the confirming run of the final prose pass. Blob `43868fa1` is **Candidate**; this PR's runs cover the default path only. Remaining gates: REL12 (a hosted BYOD run, one input accepted and one refused) and REL2 (a browser `Run all`). Runs of earlier blobs are history (REL14).
+
+Evidence files for the 2026-10-26 default run of blob `43868fa1` (confirming run of the final prose pass), copied from the run directory and redacted byte-wise (local run paths replaced by `<local-run-dir>`, the Colab CLI install path by `<colab-cli-tool-dir>`; no JSON re-serialised; the executed notebook's captured hash equals `run_summary.json` `executed_sha256`):
+
+| File (under `docs/execution-evidence/2026-10-26/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default.ipynb` | `de8bebd4472fac05771001baeee4abac50e5b41b85d3a02751a06e1a9dbe7b45` | `de8bebd4472fac05771001baeee4abac50e5b41b85d3a02751a06e1a9dbe7b45` (unchanged, no local path) |
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default_exec.log` | `e356b43d564a684034a2a786e118855f0d5a9288d704648950214ea4e30c46f4` | `6499d11cb619535b9f0c6eb264c3aad09fe50a7cd04a1cb8d40ae5ef4a112bf8` (2 local-path replacements) |
+| `detr_detection_colab_3b7e6d0_colab-cli-t4_default_run_summary.json` | `a7b3813d4be1acee156eff63171d91e59e28d73a509ed131f2cd14cd39402991` | `a7b3813d4be1acee156eff63171d91e59e28d73a509ed131f2cd14cd39402991` (unchanged, no local path) |
+
+**Final prose pass: drift record (2026-10-26).** Under Kurt's 2026-10-26 ruling the notebook prose of blob `43868fa1` is not changed again: a value this run printed that differs from the values the prose attributes to the named earlier runs is recorded here as drift, not fixed. Checked against this run's output and equal to the prose's named-run values: the input manifest (`accepted`, `threshold=1.5` rejected), the drawn scene 3/4 matched at IoU ≥ 0.5 (0.847, 0.910, 0.898, sports ball 0.000), blank and noise 0 boxes at 0.9 and at 0.05, the 40 images and 82 boxes, the 30 / 10 split with 65 / 17 boxes, the re-headed baseline `ap50` 0.0172 / `ap` 0.0063, the first-epoch loss 1.6564, 0 held-out boxes at 0.9, the adapter (72,219,224 bytes, 265 tensors) and the reload check (52 detections compared, equivalent at tolerance 0.001).
+
+Drift (this run versus the prose's named-run values):
+
+- Prerequisites (md1): this run took 135.3 s of wall time, setup 51 s, fine-tune 31.5 s; the prose records 136.6 s to 171.5 s of wall time (setup 60 s and 58 s, fine-tune 33.7 s and 31.6 s) for the three named Colab T4 runs.
+- Section 8 worked answer (md24): the loss ended at 0.6743; the prose records 0.5602 to 0.6244 after 10 epochs for the named runs (0.6103, 0.6078 and 0.6244 in the three Colab runs). The first epoch, 1.6564, agrees; the fall to 0.41 of the first-epoch loss is just above the "roughly a quarter to two fifths" the prose gives for those runs.
+- Section 9 worked answer and Interpretation (md26, md34): adapted `ap50` 0.4486 and `ap` 0.3561 (`ap75` 0.4391), above the recorded 0.3594–0.3851 and 0.2983–0.3093 (Interpretation: AP50 0.36–0.39, AP@[.50:.95] 0.30–0.31). The highest adapted held-out score was 0.2769; the prose records 0.3078, 0.2985 and 0.3089.
+- Section 9 worked answer (md26): the training split chose threshold 0.1945 (training F1 0.7097, precision 0.7458, recall 0.6769); at it 11 held-out boxes came back, 6 correct (precision 0.5455, recall 0.3529). The prose records thresholds 0.2231, 0.2232 and 0.2225, with 15, 14 and 27 boxes returned and 5, 4 and 8 correct.
+- Section 10 (md26, md28) and Interpretation (md34): on the three unseen images the highest scores were 0.197, 0.228 and 0.241 (the prose gives each named run's highest as 0.279, 0.266 and 0.270), and at the adapted threshold this run found 3 of the 5 reference signs; the prose records 1, 2 and 2 of 5.
+
+Prose statements that still break the historical rules (reported, not fixed):
+
+- md34 (Activity step 4, borderline): "in Section 8, the cell prints `rebuilt_from_verified_snapshot` and an epoch-1 loss well above 1" states what an activity run will print; its only number is labelled (2.66, a local CPU check), but no hosted run of the activity is recorded for this revision (rule 1).
