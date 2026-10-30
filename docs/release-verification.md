@@ -79,7 +79,7 @@ The rice-pest capstone (`tutorials/DIMER_Philippine_Rice_Pest_Surveillance_Capst
 
 **Tier C wording revision (2026-10-25, branch `fix/detr-detection-tier-c-2026-10-25`, code commit `b5cc7e1`).** Markdown, header and metadata only for `tutorials/detr_detection_colab.ipynb`: worked answers re-derived from the 2026-10-04 hosted run of `c3c81cb` (REL13), pretraining-overlap statement (DAT9), use notice, `notebook_kind`, IEEE references and the DIMER Notebook Specification 2.5 declaration. The previous notebook blob `c19823537fa4` (commit `87eb45f`, historical wording) has its hosted Colab T4 run pending; the previous notebook blob `712d22d5ca82` (prose values given per recorded hosted run, PR #7 head `c439bd4`) is **Candidate**; it passed a one-pass Colab T4 run of the default path on 2026-10-25 (Colab CLI, 16/16 code cells, 0 errors, 171.5 s; adapted `ap50` 0.3617, 0 held-out boxes at 0.9). The previous notebook blob `da6b14bd4382ccbbd483a8c0f91aca33505a78a3` (`8fd8d5e`, history under REL14) passed a one-pass Colab T4 run of the default path on 2026-10-25 (Colab CLI, 16/16 code cells, 0 errors, 136.6 s; see "2026-10-25 Colab T4 run of the tier C head" below), whose numbers differ from the `c3c81cb` run the worked answers quote. Remaining gates: REL12 (a BYOD run, one input accepted and one refused) and REL2 (a browser run of the interactive journeys). Under REL14 the 2026-10-04 run is history for blob `6b2e5fc3`.
 
-The current blob `08904043` (code commit `2da6948`) shows a refused BYOD input as one `Refused: <file>: <reason>` line with no traceback, removes the earlier run's results and `outputs/` files and stops Run all at that cell, while genuine failures keep their traceback (NOTEBOOK_SPEC DAT19/DAT20); its hosted Colab T4 runs (the default path and a scripted refusal, `USE_BYOD_IMAGE=True;BYOD_IMAGE_PATH='/etc/hostname'`) are pending, and the hosted runs of earlier blobs, including `43868fa1a59e`, are history for it (REL14).
+The current blob `08904043` (code commit `2da6948`) shows a refused BYOD input as one `Refused: <file>: <reason>` line with no traceback, removes the earlier run's results and `outputs/` files and stops Run all at that cell, while genuine failures keep their traceback (NOTEBOOK_SPEC DAT19/DAT20); on 2026-10-29 its default path (16 code cells, exit 0, 0 errors) and its scripted DAT20 refusal (`USE_BYOD_IMAGE=True;BYOD_IMAGE_PATH=/etc/hostname`: exactly one `Refused:` line at cell `detr_detection-33`, no traceback, earlier cells clean, VM released) both passed on a hosted Colab Tesla T4 (Colab CLI `colab exec -f`, not a browser `Run all`). The remaining gates are REL12 (a hosted BYOD run with an accepted input) and REL2 (a browser run of the interactive journeys); earlier blobs' runs are history (REL14).
 
 ## 2026-10-25 Colab T4 run of the tier C head (Colab CLI, one pass)
 
@@ -198,3 +198,49 @@ Drift (this run versus the prose's named-run values):
 Prose statements that still break the historical rules (reported, not fixed):
 
 - md34 (Activity step 4, borderline): "in Section 8, the cell prints `rebuilt_from_verified_snapshot` and an epoch-1 loss well above 1" states what an activity run will print; its only number is labelled (2.66, a local CPU check), but no hosted run of the activity is recorded for this revision (rule 1).
+
+### Hosted Colab T4 runs of blob `08904043` (2026-10-29)
+
+These runs executed the PR head `e43607cb1df6fa764ba84f5367dfd0ad17f3f3b3`, notebook `tutorials/detr_detection_colab.ipynb` blob `0890404337387045d88cf7baecac2fffcad31797`, fetched at the 40-character SHA and Git-blob verified, with the Colab CLI (`colab exec -f`) on a fresh Colab Tesla T4 session (not a browser `Run all`). Each `run_summary.json` records `verdict` `PASS`, `exec_exit_code` 0, `input_unchanged` true and `stop_verified` true (the VM was released), and the SHA-256 of each executed notebook equals the summary's `executed_sha256`.
+
+**Default path (2026-10-29 03:15:41 UTC start).** Default settings, no overrides; session `suite-detr-e43607c-dd82`; wall 266.6 s (`wall_s`); `code_cells` 16, `executed_cells` 14, 0 errors. Retained evidence: [`docs/execution-evidence/2026-10-29/`](execution-evidence/2026-10-29/).
+
+Printed by the default run (verbatim lines from the executed outputs):
+
+```text
+{'verified_files': 4, 'revision': '1d5f47bd3bdd2c4bbfa585418ffe6da5028b4c0b'}
+{'verdict': 'sample-sanity', 'n_detections': 3}
+metric     baseline    adapted     change
+ap           0.0063     0.1678    +0.1615
+ap50         0.0172     0.2046    +0.1874
+ap75         0.0063     0.1943    +0.1880
+per-class AP50: {'stop-sign': 0.0, 'yield-sign': 0.3281, 'speed-limit-sign': 0.2857}
+held-out at the COCO threshold:      {'threshold': 0.9, 'returned': 0, 'correct': 0, 'references': 17, 'precision': None, 'recall': 0.0, 'highest_score': 0.3329}
+held-out at the adapted threshold:   {'threshold': 0.238, 'returned': 16, 'correct': 2, 'references': 17, 'precision': 0.125, 'recall': 0.1176, 'highest_score': 0.3329}
+{'detections_compared': 19, 'threshold': 0.05, 'tolerance': 0.001, 'equivalent': True}
+```
+
+**DAT20 refusal record (2026-10-29, blob `08904043`).** Overrides, set by `--set` on a copy of the blob: `USE_BYOD_IMAGE` `False` → `True` and `BYOD_IMAGE_PATH` `""` → `'/etc/hostname'` (the run copy differs from the blob in exactly those 2 source lines). The suite cut the run copy right after the refusing cell `detr_detection-33`, dropping 1 cells (0 of them code cells), which reproduces `Run all` stopping at the first error; the cut copy is `run_copy.ipynb`, SHA-256 `7641614dd14e4fa997d7faea6c6ff067695fad570a707708262d05cc9455938b` (Git blob `d859b95b`), equal to the summary's `run_copy_sha256`. The cut copy's earlier code cells completed without an error output; the refusing cell's only error output has `ename` `IsolatedCellRefusal` and no traceback, and its output holds exactly one `Refused:` line:
+
+```text
+Refused: hostname: PIL cannot open this file as an image (UnidentifiedImageError: cannot identify image file '/etc/hostname'); use one PNG or JPEG image; fix the input and run this cell again (the earlier results of this session and their outputs/ files were removed).
+```
+
+This run says nothing about the 1 cut cells, which did not run in it. Session `suite-detr-e43607c-dd82`, wall 154.4 s. Retained evidence: [`docs/execution-evidence/2026-10-29/`](execution-evidence/2026-10-29/).
+
+**Local-path redaction.** Local paths were replaced byte-wise by `<local-run-dir>` (and the Colab CLI install path by `<colab-cli-tool-dir>/`) before the first commit; each executed notebook and run copy was checked against its `run_summary.json` before any edit.
+
+| File (under `docs/execution-evidence/2026-10-29/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_e43607c_colab-cli-t4_default.ipynb` | `96c4492c987cce7471b18e1e3c72a17f8587b9969ffff6bcc60c6183b4340e25` | `96c4492c987cce7471b18e1e3c72a17f8587b9969ffff6bcc60c6183b4340e25` (unchanged, no local path) |
+| `detr_detection_colab_e43607c_colab-cli-t4_default_exec.log` | `c6a525323dfdf336ef7f3c8346551d988798a95d002c0cebf9151b949b1db162` | `ef128e500ec0367ae12858c9ceb44c96811d25112a2b6b9d4437f6313545fa15` (2 local-path replacements) |
+| `detr_detection_colab_e43607c_colab-cli-t4_default_run_summary.json` | `03590315904ab006cfa5696fa08159a1a2f7ce434537cfd41b1e3a96c62aee37` | `03590315904ab006cfa5696fa08159a1a2f7ce434537cfd41b1e3a96c62aee37` (unchanged, no local path) |
+
+| File (under `docs/execution-evidence/2026-10-29/`) | Captured SHA-256 | Committed SHA-256 |
+|---|---|---|
+| `detr_detection_colab_e43607c_colab-cli-t4_refusal.ipynb` | `fc047b4ed3035e21f2e063c9a8689bab4b5756c1efca1a273eb179c49e871f9a` | `fc047b4ed3035e21f2e063c9a8689bab4b5756c1efca1a273eb179c49e871f9a` (unchanged, no local path) |
+| `detr_detection_colab_e43607c_colab-cli-t4_refusal_exec.log` | `eeeb221bdbd25dc6c27072b4d0f95dce981a14156843dbd378ddd033c978720d` | `ba3bb293c9b9ad9bb4ef819112b3070659e0f290b55bcdfabd7daea3f4858268` (2 local-path replacements) |
+| `detr_detection_colab_e43607c_colab-cli-t4_refusal_run_summary.json` | `732a660ba5f609f1c60ecdedfd2cd2d15a7df3214db82b713c87ce37e0bc320a` | `732a660ba5f609f1c60ecdedfd2cd2d15a7df3214db82b713c87ce37e0bc320a` (unchanged, no local path) |
+| `detr_detection_colab_e43607c_colab-cli-t4_refusal_run_copy.ipynb` | `7641614dd14e4fa997d7faea6c6ff067695fad570a707708262d05cc9455938b` | `7641614dd14e4fa997d7faea6c6ff067695fad570a707708262d05cc9455938b` (unchanged, no local path) |
+
+Not exercised by these runs: an accepted BYOD input (REL12) and a browser `Run all` of the interactive journeys (REL2).
