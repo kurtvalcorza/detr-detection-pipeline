@@ -262,7 +262,7 @@ def test_byod_refuses_an_unsafe_zip_and_explains_a_missing_file(notebook_run, tm
     missing = tmp_path / "missing"
     missing.mkdir()
     (missing / "annotations.json").write_text(json.dumps([{"file": "images/0001.png", "boxes": [], "labels": []}] * 2))
-    with pytest.raises(FileNotFoundError, match="flat"):
+    with pytest.raises(ValueError, match="flat"):
         run(13, USE_BYOD_DATASET="True", BYOD_DATASET_DIR=repr(str(missing)))
 
 
