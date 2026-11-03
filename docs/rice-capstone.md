@@ -1,6 +1,6 @@
 # Rice-pest exploratory capstone
 
-**Candidate: passing Colab T4 default Run all recorded on `main` (`9f85155`, 2026-09-28) and on `bfa45cc`; Colab CLI T4 default-path runs recorded on PR #6 heads `49a7ff8` (2026-10-12) and `0ee0de3` (2026-10-14, current design); maintainer review required.** The implementation is separate
+**Candidate: passing Colab T4 default Run all recorded on `main` (`9f85155`, 2026-09-28) and on `bfa45cc`; Colab CLI T4 default-path runs recorded on PR #6 heads `49a7ff8` (2026-10-12) and `0ee0de3` (2026-10-14, blob `991ab9aa`; history, REL14); the current blob `70ae0128` (`d7de0eb`, after the 2026-11 lock upgrades) has no hosted run yet, so that gate is open; maintainer review required.** The implementation is separate
 from the original DETR tutorial. Original package code and original notebook are unchanged.
 
 ## Agreed scope and source audit
