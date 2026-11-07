@@ -1,0 +1,80 @@
+{
+  "repo": "detr-detection-pipeline",
+  "sha": "350565867c028fbf05bf6872d0372d145352312a",
+  "notebook": "tutorials/detr_detection_colab.ipynb",
+  "blob": "22459027b5ad6230d72e71a9ff2444138432e71b",
+  "gpu": "T4",
+  "session": "suite-detr-3505658-dd82",
+  "started_utc": "2026-11-07T09:31:04+00:00",
+  "runner": "Colab CLI `colab exec -f` on a fresh session (not a browser Run all)",
+  "overrides": [
+    {
+      "name": "USE_BYOD_IMAGE",
+      "from": "False",
+      "to": "True"
+    },
+    {
+      "name": "BYOD_IMAGE_PATH",
+      "from": "\\\"\\\"",
+      "to": "'/etc/hostname'"
+    }
+  ],
+  "run_copy_blob": "92d99f4e9000ff2837aa65519bae7dee326a1884",
+  "run_copy_sha256": "97777254eb2c5aa5c742a1ac55cfe22a95f0bcb16f3da573a6e6f28dff7723ac",
+  "run_copy_note": "refusal run: the run copy is the committed notebook with the listed assignment overrides, cut immediately after the refusal cell and re-serialised (nbformat layout); input_unchanged compares against that copy",
+  "truncated_after_cell": "detr_detection-33",
+  "refusal_cell_ref": "detr_detection-33",
+  "refusal_cell_index": 16,
+  "cells_dropped": 1,
+  "code_cells_dropped": 0,
+  "original_sha256": "8ed5cfa435128255c92f7ceea12b419cfde98335f3be81fc74690349ed7c8719",
+  "status": "[suite-detr-3505658-dd82] gpu-t4-s-usw1b0-i2463vdblm03 | Hardware: T4 | Shape: Standard | Variant: GPU | Status: IDLE",
+  "exec_exit_code": 0,
+  "stopped": true,
+  "stop_verified": true,
+  "wall_s": 174.6,
+  "input_unchanged": true,
+  "executed_file": "detr_detection_colab_3505658_colab-cli-t4_output.ipynb",
+  "log_cells": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "log_total": 16,
+  "code_cells": 16,
+  "executed_cells": 14,
+  "errors": [
+    {
+      "cell": "detr_detection-33",
+      "ename": "IsolatedCellRefusal",
+      "evalue": "hostname: PIL cannot open this file as an image (UnidentifiedImageError: cannot identify image file '/etc/hostname'); use one PNG or JPEG image; fix the input and run this cell again (the earlier results of this session and their outputs/ files were removed)."
+    }
+  ],
+  "execution_counts": [],
+  "sequential": null,
+  "executed_sha256": "e343967e63dc2dac690d05131a83ce08ddb27067a8a58a2a4f039cc71deef86d",
+  "log_sequential_complete": true,
+  "mode": "expect_refusal",
+  "refusal_line": "Refused: hostname: PIL cannot open this file as an image (UnidentifiedImageError: cannot identify image file '/etc/hostname'); use one PNG or JPEG image; fix the input and run this cell again (the earlier results of this session and their outputs/ files were removed).",
+  "halting_cell_index": 16,
+  "halting_cell_id": "detr_detection-33",
+  "error_cells": [
+    16
+  ],
+  "refusal_fail_reasons": [],
+  "refusal_ok": true,
+  "verdict": "PASS"
+}
